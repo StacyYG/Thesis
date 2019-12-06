@@ -136,7 +136,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &48684889
 Transform:
   m_ObjectHideFlags: 0
@@ -164,6 +164,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lineMaterial: {fileID: 2100000, guid: 9e362434f3bb4e241859c2c6ea646eaf, type: 2}
+  lines: []
+  playerSquare: {fileID: 0}
 --- !u!1 &78734083
 GameObject:
   m_ObjectHideFlags: 0
@@ -283,13 +285,14 @@ GameObject:
   - component: {fileID: 313884331}
   - component: {fileID: 313884333}
   - component: {fileID: 313884334}
+  - component: {fileID: 313884335}
   m_Layer: 0
-  m_Name: square150
+  m_Name: playerSquare
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!212 &313884331
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -400,6 +403,23 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &313884335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 313884330}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd5d9aa4d90a77e4da6d1d0000657fc7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lineMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
+  netForceMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
+  netForceColor: {r: 0.5188679, g: 0.5188679, b: 0.5188679, a: 1}
+  forceColor: {r: 0.26779994, g: 0.6504078, b: 0.9622642, a: 1}
+  forceMultiplier: 1
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

@@ -17,6 +17,8 @@ public class Control : MonoBehaviour
     public List<GameObject> lines;
 
     private GameObject _currentLine;
+
+    public Transform playerSquare;
     // Start is called before the first frame update
     void Start()
     {
