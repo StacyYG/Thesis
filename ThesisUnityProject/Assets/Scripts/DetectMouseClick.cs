@@ -6,16 +6,15 @@ using UnityEngine;
 [RequireComponent(typeof(Camera))]
 public class DetectMouseClick : MonoBehaviour
 {
-    private LineRenderer _lineRenderer;
+    private LineRenderer _currentLineRenderer;
     private LineRenderer _netForceLineRenderer;
+    private MeshRenderer _netForceMeshRenderer;
 
     private bool _holdingMouse;
 
     private Camera _myCamera;
 
     public Material lineMaterial;
-    
-    public Material netForceMaterial;
 
     private List<GameObject> _lines;
 
@@ -34,7 +33,7 @@ public class DetectMouseClick : MonoBehaviour
 
     public float forceMultiplier = 0.01f;
 
-    public bool _squareStopped;
+    private bool _squareStopped;
 
     private Vector2 _velocityBeforePause;
     
@@ -46,9 +45,7 @@ public class DetectMouseClick : MonoBehaviour
         _lines = new List<GameObject>();
         
         lineMaterial.renderQueue = 3001;
-        netForceMaterial.renderQueue = 3001;
 
-        
         _netForceVector = new Vector3();
         
         SetUpNetForce();
@@ -61,7 +58,7 @@ public class DetectMouseClick : MonoBehaviour
         _netForceGameObject.transform.name = "netForce";
 
         _netForceLineRenderer = _netForceGameObject.AddComponent<LineRenderer>();
-        _netForceLineRenderer.material = netForceMaterial;
+        _netForceLineRenderer.material = lineMaterial;
         _netForceLineRenderer.startColor = Color.grey;
         _netForceLineRenderer.endColor = Color.grey;
         _netForceLineRenderer.widthMultiplier = 0.1f;
@@ -79,11 +76,10 @@ public class DetectMouseClick : MonoBehaviour
             var mousePos = Input.mousePosition;
             mousePos.z = 11;
             var endPos = _myCamera.ScreenToWorldPoint(mousePos);
-            _lineRenderer.SetPosition(1,endPos);
+            _currentLineRenderer.SetPosition(1,endPos);
+            UpdateNetForce(endPos);
         }
-
-        UpdateNetForce();
-
+        
         if (!_squareStopped)
         {
             _rb.AddForce(_netForceVector * forceMultiplier);
@@ -92,18 +88,14 @@ public class DetectMouseClick : MonoBehaviour
         
     }
 
-    private void UpdateNetForce()
+    private void UpdateNetForce(Vector3 endPos)
     {
-        _netForceVector = new Vector3();
-        for (int i = 0; i < _lines.Count; i++)
-        {
-            var lineRenderer = _lines[i].GetComponent<LineRenderer>();
-            var lineVector = lineRenderer.GetPosition(1) - lineRenderer.GetPosition(0);
-            _netForceVector += lineVector;
-        }
-
-        _netForceVector.z = 0;
-        _netForceLineRenderer.SetPosition(1, _startPos + _netForceVector);
+        var netFPreview = new Vector3();
+        netFPreview = _netForceVector + endPos - _currentLineRenderer.GetPosition(0);
+        netFPreview.z = 0;
+        if (!_netForceLineRenderer.enabled) _netForceLineRenderer.enabled = true;
+        _netForceLineRenderer.SetPosition(1, _startPos + netFPreview);
+        if (!_netForceMeshRenderer || !_netForceMeshRenderer.enabled) return; _netForceMeshRenderer.enabled = false;
     }
 
     private void OnMouseDown()
@@ -125,15 +117,15 @@ public class DetectMouseClick : MonoBehaviour
         _currentLine.transform.parent = transform;
         _currentLine.transform.name = "line" + _lines.Count;
 
-        _lineRenderer = _currentLine.AddComponent<LineRenderer>();
-        _lineRenderer.material = lineMaterial;
-        _lineRenderer.startColor = forceColor;
-        _lineRenderer.endColor = forceColor;
-        _lineRenderer.widthMultiplier = 0.1f;
+        _currentLineRenderer = _currentLine.AddComponent<LineRenderer>();
+        _currentLineRenderer.material = lineMaterial;
+        _currentLineRenderer.startColor = forceColor;
+        _currentLineRenderer.endColor = forceColor;
+        _currentLineRenderer.widthMultiplier = 0.1f;
 
         _startPos = transform.position;
         _startPos.z = 1;
-        _lineRenderer.SetPosition(0, _startPos);
+        _currentLineRenderer.SetPosition(0, _startPos);
 
         _lines.Add(_currentLine);
 
@@ -142,7 +134,14 @@ public class DetectMouseClick : MonoBehaviour
 
     private void OnMouseUp()
     {
+        if (!_holdingMouse) return;
+
         _holdingMouse = false;
+        
+        var lineRenderer = _currentLine.GetComponent<LineRenderer>();
+        var lineVector = lineRenderer.GetPosition(1) - lineRenderer.GetPosition(0);
+        _netForceVector += lineVector;
+        BakeMesh(_currentLine);
     }
 
     public void PauseMoving()
@@ -151,23 +150,53 @@ public class DetectMouseClick : MonoBehaviour
         _rb.bodyType = RigidbodyType2D.Kinematic;
         _velocityBeforePause = _rb.velocity;
         _rb.velocity = Vector2.zero;
+
+        foreach (var line in _lines)
+        {
+            line.SetActive(true);
+        }
     }
 
     public void ResumeMoving()
     {
+        //resume rb movement and apply force
         _squareStopped = false;
         _rb.bodyType = RigidbodyType2D.Dynamic;
         _rb.velocity = _velocityBeforePause;
         _rb.AddForce(_netForceVector * forceMultiplier);
 
-        var meshFilter = _netForceGameObject.AddComponent<MeshFilter>();
+        BakeMesh(_netForceGameObject);
+        _netForceMeshRenderer = _netForceGameObject.GetComponent<MeshRenderer>();
+        _netForceMeshRenderer.enabled = true;
+
+        foreach (var line in _lines)
+        {
+            line.SetActive(false);
+        }
+    }
+
+    private void BakeMesh(GameObject lineGameObject)
+    {
+        var lineRenderer = lineGameObject.GetComponent<LineRenderer>();
+        MeshFilter meshFilter;
+        if (lineGameObject.GetComponent<MeshFilter>())
+        {
+            meshFilter = lineGameObject.GetComponent<MeshFilter>();
+        }
+        else meshFilter = lineGameObject.AddComponent<MeshFilter>();
         Mesh mesh = new Mesh();
-        _netForceLineRenderer.BakeMesh(mesh);
+        lineRenderer.BakeMesh(mesh);
         meshFilter.mesh = mesh;
-        var meshRenderer = _netForceGameObject.AddComponent<MeshRenderer>();
-        meshRenderer.material = netForceMaterial;
-        _netForceLineRenderer.enabled = false;
-        
-        _netForceGameObject.transform.localPosition = new Vector3(0, -transform.position.y, 0);
+        MeshRenderer meshRenderer;
+        if (lineGameObject.GetComponent<MeshRenderer>())
+        {
+            meshRenderer = lineGameObject.GetComponent<MeshRenderer>();
+        }
+        else meshRenderer = lineGameObject.AddComponent<MeshRenderer>();
+
+        if (meshRenderer.material != lineMaterial) meshRenderer.material = lineMaterial;
+        lineRenderer.enabled = false;
+
+        lineGameObject.transform.localPosition = new Vector3(-transform.position.x, -transform.position.y, 0);
     }
 }
