@@ -33,6 +33,11 @@ public class DetectMouseClick : MonoBehaviour
     private Rigidbody2D _rb;
 
     public float forceMultiplier = 0.01f;
+
+    public bool _squareStopped;
+
+    private Vector2 _velocityBeforePause;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -78,13 +83,13 @@ public class DetectMouseClick : MonoBehaviour
         }
 
         UpdateNetForce();
-        
-        _rb.AddForce(_netForceVector * forceMultiplier);
-    }
 
-    private void LateUpdate()
-    {
-        _netForceGameObject.transform.position = transform.position;
+        if (!_squareStopped)
+        {
+            _rb.AddForce(_netForceVector * forceMultiplier);
+        }
+
+        
     }
 
     private void UpdateNetForce()
@@ -103,12 +108,23 @@ public class DetectMouseClick : MonoBehaviour
 
     private void OnMouseDown()
     {
+        if (!_squareStopped)
+        {
+            PauseMoving();
+            return;
+        }
+
+        CreateNewForce();
+    }
+
+    private void CreateNewForce()
+    {
         _holdingMouse = true;
 
         _currentLine = new GameObject();
         _currentLine.transform.parent = transform;
         _currentLine.transform.name = "line" + _lines.Count;
-        
+
         _lineRenderer = _currentLine.AddComponent<LineRenderer>();
         _lineRenderer.material = lineMaterial;
         _lineRenderer.startColor = forceColor;
@@ -118,7 +134,7 @@ public class DetectMouseClick : MonoBehaviour
         _startPos = transform.position;
         _startPos.z = 1;
         _lineRenderer.SetPosition(0, _startPos);
-        
+
         _lines.Add(_currentLine);
 
         _netForceLineRenderer.SetPosition(0, _startPos);
@@ -127,6 +143,31 @@ public class DetectMouseClick : MonoBehaviour
     private void OnMouseUp()
     {
         _holdingMouse = false;
+    }
 
+    public void PauseMoving()
+    {
+        _squareStopped = true;
+        _rb.bodyType = RigidbodyType2D.Kinematic;
+        _velocityBeforePause = _rb.velocity;
+        _rb.velocity = Vector2.zero;
+    }
+
+    public void ResumeMoving()
+    {
+        _squareStopped = false;
+        _rb.bodyType = RigidbodyType2D.Dynamic;
+        _rb.velocity = _velocityBeforePause;
+        _rb.AddForce(_netForceVector * forceMultiplier);
+
+        var meshFilter = _netForceGameObject.AddComponent<MeshFilter>();
+        Mesh mesh = new Mesh();
+        _netForceLineRenderer.BakeMesh(mesh);
+        meshFilter.mesh = mesh;
+        var meshRenderer = _netForceGameObject.AddComponent<MeshRenderer>();
+        meshRenderer.material = netForceMaterial;
+        _netForceLineRenderer.enabled = false;
+        
+        _netForceGameObject.transform.localPosition = new Vector3(0, -transform.position.y, 0);
     }
 }
