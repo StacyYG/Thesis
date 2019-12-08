@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Camera))]
 public class DetectMouseClick : MonoBehaviour
@@ -15,6 +17,7 @@ public class DetectMouseClick : MonoBehaviour
     private Camera _myCamera;
 
     public Material lineMaterial;
+    public Material netForceMaterial;
 
     private List<GameObject> _lines;
 
@@ -26,8 +29,8 @@ public class DetectMouseClick : MonoBehaviour
 
     private Vector3 _startPos;
     
-    public Color netForceColor = new Color(1,1,1,1);
-    public Color forceColor = new Color(1,1,1,1);
+    public Color netForceColor = new Color(1,1,1,0.5f);
+    public Color forceColor = new Color(1,1,1,0.5f);
 
     private Rigidbody2D _rb;
 
@@ -36,6 +39,17 @@ public class DetectMouseClick : MonoBehaviour
     private bool _squareStopped;
 
     private Vector2 _velocityBeforePause;
+
+    private Vector3 _gravityForceVector;
+    private GameObject _gravityGameObject;
+    private LineRenderer _gravityLineRenderer;
+
+    public GameObject pauseButton;
+    public GameObject resumeButton;
+    
+    public Color pauseButtonColor = new Color(1,1,1,1);
+    public Color resumeButtonColor = new Color(1,1,1,1);
+    public Color greyColor = new Color(1,1,1,1);
     
     // Start is called before the first frame update
     void Start()
@@ -43,14 +57,43 @@ public class DetectMouseClick : MonoBehaviour
         _myCamera = Camera.main;
         _rb = GetComponent<Rigidbody2D>();
         _lines = new List<GameObject>();
-        
+
         lineMaterial.renderQueue = 3001;
+        netForceMaterial.renderQueue = 3002;
 
         _netForceVector = new Vector3();
         
         SetUpNetForce();
+        SetUpGravity();
+
+
+        
+
     }
 
+    private void SetUpGravity()
+    {
+        _gravityGameObject = new GameObject();
+        _gravityGameObject.transform.parent = transform;
+        _gravityGameObject.transform.name = "gravity";
+
+        _gravityLineRenderer = _gravityGameObject.AddComponent<LineRenderer>();
+        _gravityLineRenderer.material = lineMaterial;
+        _gravityLineRenderer.startColor = Color.green;
+        _gravityLineRenderer.endColor = Color.green;
+        _gravityLineRenderer.startWidth = 0.1f;
+        _gravityLineRenderer.endWidth = 0.03f;
+        
+        var startPos = transform.position;
+        startPos.z = 1;
+        _gravityLineRenderer.SetPosition(0, startPos);
+        
+        _gravityForceVector = Physics.gravity / forceMultiplier; // later - multiplied by mass and gravity scale?
+        _gravityLineRenderer.SetPosition(1, startPos + _gravityForceVector);
+        
+        BakeMesh(_gravityGameObject);
+        
+    }
     private void SetUpNetForce()
     {
         _netForceGameObject = new GameObject();
@@ -58,10 +101,11 @@ public class DetectMouseClick : MonoBehaviour
         _netForceGameObject.transform.name = "netForce";
 
         _netForceLineRenderer = _netForceGameObject.AddComponent<LineRenderer>();
-        _netForceLineRenderer.material = lineMaterial;
-        _netForceLineRenderer.startColor = Color.grey;
-        _netForceLineRenderer.endColor = Color.grey;
-        _netForceLineRenderer.widthMultiplier = 0.1f;
+        _netForceLineRenderer.material = netForceMaterial;
+        _netForceLineRenderer.startColor = netForceColor;
+        _netForceLineRenderer.endColor = netForceColor;
+        _netForceLineRenderer.startWidth = 0.1f;
+        _netForceLineRenderer.endWidth = 0.03f;
         
         var startPos = transform.position;
         startPos.z = 1;
@@ -71,24 +115,30 @@ public class DetectMouseClick : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            SceneManager.LoadScene(0);
+        }
         if (_holdingMouse)
         {
             var mousePos = Input.mousePosition;
             mousePos.z = 11;
             var endPos = _myCamera.ScreenToWorldPoint(mousePos);
             _currentLineRenderer.SetPosition(1,endPos);
-            UpdateNetForce(endPos);
+            UpdateNetForcePreview(endPos);
         }
-        
+
+    }
+
+    void FixedUpdate()
+    {
         if (!_squareStopped)
         {
             _rb.AddForce(_netForceVector * forceMultiplier);
         }
-
-        
     }
 
-    private void UpdateNetForce(Vector3 endPos)
+    private void UpdateNetForcePreview(Vector3 endPos)
     {
         var netFPreview = new Vector3();
         netFPreview = _netForceVector + endPos - _currentLineRenderer.GetPosition(0);
@@ -121,7 +171,9 @@ public class DetectMouseClick : MonoBehaviour
         _currentLineRenderer.material = lineMaterial;
         _currentLineRenderer.startColor = forceColor;
         _currentLineRenderer.endColor = forceColor;
-        _currentLineRenderer.widthMultiplier = 0.1f;
+        _currentLineRenderer.startWidth = 0.1f;
+        _currentLineRenderer.endWidth = 0.03f;
+        
 
         _startPos = transform.position;
         _startPos.z = 1;
@@ -146,6 +198,7 @@ public class DetectMouseClick : MonoBehaviour
 
     public void PauseMoving()
     {
+        if (_squareStopped) return;
         _squareStopped = true;
         _rb.bodyType = RigidbodyType2D.Kinematic;
         _velocityBeforePause = _rb.velocity;
@@ -155,10 +208,14 @@ public class DetectMouseClick : MonoBehaviour
         {
             line.SetActive(true);
         }
+
+        resumeButton.GetComponent<Image>().color = resumeButtonColor;
+        pauseButton.GetComponent<Image>().color = greyColor;
     }
 
     public void ResumeMoving()
     {
+        if (!_squareStopped) return;
         //resume rb movement and apply force
         _squareStopped = false;
         _rb.bodyType = RigidbodyType2D.Dynamic;
@@ -173,6 +230,9 @@ public class DetectMouseClick : MonoBehaviour
         {
             line.SetActive(false);
         }
+        
+        resumeButton.GetComponent<Image>().color = greyColor;
+        pauseButton.GetComponent<Image>().color = pauseButtonColor;
     }
 
     private void BakeMesh(GameObject lineGameObject)
