@@ -11,6 +11,9 @@ public class DetectMouseClick : MonoBehaviour
     private LineRenderer _currentLineRenderer;
     private LineRenderer _netForceLineRenderer;
     private MeshRenderer _netForceMeshRenderer;
+    private LineRenderer _nForceVerLineRender;
+    private LineRenderer _nForceHorLineRender;
+
 
     private bool _holdingMouse;
 
@@ -24,13 +27,17 @@ public class DetectMouseClick : MonoBehaviour
     private GameObject _currentLine;
 
     private GameObject _netForceGameObject;
+    private GameObject _normalForceVerticalObj;
+    private GameObject _normalForceHorizontalObj;
 
     private Vector3 _netForceVector;
 
     private Vector3 _startPos;
     
-    public Color netForceColor = new Color(1,1,1,0.5f);
-    public Color forceColor = new Color(1,1,1,0.5f);
+    public Color netForceColor = new Color(1,1,1,1);
+    public Color forceColor = new Color(1,1,1,1);
+    public Color gravityColor = new Color(1,1,1,1);
+    public Color normalForceColor = new Color(1,1,1,1);
 
     private Rigidbody2D _rb;
 
@@ -51,6 +58,7 @@ public class DetectMouseClick : MonoBehaviour
     public Color resumeButtonColor = new Color(1,1,1,1);
     public Color greyColor = new Color(1,1,1,1);
     
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -65,9 +73,7 @@ public class DetectMouseClick : MonoBehaviour
         
         SetUpNetForce();
         SetUpGravity();
-
-
-        
+        SetUpNormalForce();
 
     }
 
@@ -79,8 +85,8 @@ public class DetectMouseClick : MonoBehaviour
 
         _gravityLineRenderer = _gravityGameObject.AddComponent<LineRenderer>();
         _gravityLineRenderer.material = lineMaterial;
-        _gravityLineRenderer.startColor = Color.green;
-        _gravityLineRenderer.endColor = Color.green;
+        _gravityLineRenderer.startColor = gravityColor;
+        _gravityLineRenderer.endColor = gravityColor;
         _gravityLineRenderer.startWidth = 0.1f;
         _gravityLineRenderer.endWidth = 0.03f;
         
@@ -93,6 +99,32 @@ public class DetectMouseClick : MonoBehaviour
         
         BakeMesh(_gravityGameObject);
         
+    }
+    private void SetUpNormalForce()
+    {
+        _normalForceVerticalObj = new GameObject();
+        _normalForceVerticalObj.transform.parent = transform;
+        _normalForceVerticalObj.transform.name = "normalForceVertical";
+
+        _nForceVerLineRender = _normalForceVerticalObj.AddComponent<LineRenderer>();
+        _nForceVerLineRender.material = netForceMaterial;
+        _nForceVerLineRender.startColor = normalForceColor;
+        _nForceVerLineRender.endColor = normalForceColor;
+        _nForceVerLineRender.startWidth = 0.1f;
+        _nForceVerLineRender.endWidth = 0.03f;
+        
+        _normalForceHorizontalObj = new GameObject();
+        _normalForceHorizontalObj.transform.parent = transform;
+        _normalForceHorizontalObj.transform.name = "normalForceHorizontal";
+
+        _nForceHorLineRender = _normalForceHorizontalObj.AddComponent<LineRenderer>();
+        _nForceHorLineRender.material = netForceMaterial;
+        _nForceHorLineRender.startColor = normalForceColor;
+        _nForceHorLineRender.endColor = normalForceColor;
+        _nForceHorLineRender.startWidth = 0.1f;
+        _nForceHorLineRender.endWidth = 0.03f;
+        
+
     }
     private void SetUpNetForce()
     {
@@ -136,6 +168,55 @@ public class DetectMouseClick : MonoBehaviour
         {
             _rb.AddForce(_netForceVector * forceMultiplier);
         }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("down"))
+        {
+            if (_netForceVector.y < -_gravityForceVector.y)
+            {
+                SetNormalForceVertical();
+                BakeMesh(_normalForceVerticalObj);
+            }
+        }
+
+        if (collision.gameObject.CompareTag("up"))
+        {
+            if (_netForceVector.y > -_gravityForceVector.y)
+            {
+                SetNormalForceVertical();
+                BakeMesh(_normalForceVerticalObj);
+            }
+        }
+
+        if (collision.gameObject.CompareTag("left") || collision.gameObject.CompareTag("right"))
+        {
+            SetNormalForceHorizontal();
+            BakeMesh(_normalForceHorizontalObj);
+        }
+        
+        
+    }
+
+    private void SetNormalForceHorizontal()
+    {
+        var startPos = transform.position;
+        startPos.z = 1;
+        var normalX = -_netForceVector.x;
+        var endPos = new Vector3(normalX, 0, 0);
+        _nForceHorLineRender.SetPosition(0, startPos);
+        _nForceHorLineRender.SetPosition(1, startPos + endPos);
+    }
+
+    private void SetNormalForceVertical()
+    {
+        var startPos = transform.position;
+        startPos.z = 1;
+        var normalY = -_gravityForceVector.y - _netForceVector.y;
+        var endPos = new Vector3(0, normalY, 0);
+        _nForceVerLineRender.SetPosition(0, startPos);
+        _nForceVerLineRender.SetPosition(1, startPos + endPos);
     }
 
     private void UpdateNetForcePreview(Vector3 endPos)

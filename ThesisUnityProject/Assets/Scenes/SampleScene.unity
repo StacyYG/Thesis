@@ -132,8 +132,8 @@ GameObject:
   - component: {fileID: 78734085}
   - component: {fileID: 78734084}
   m_Layer: 0
-  m_Name: square150 (3)
-  m_TagString: Untagged
+  m_Name: bound-right
+  m_TagString: right
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -438,8 +438,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lineMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
   netForceMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
-  netForceColor: {r: 0.5188679, g: 0.5188679, b: 0.5188679, a: 1}
-  forceColor: {r: 0.26779994, g: 0.6504078, b: 0.9622642, a: 1}
+  netForceColor: {r: 0.18867922, g: 0.18867922, b: 0.18867922, a: 0.78431374}
+  forceColor: {r: 0, g: 0.33951607, b: 0.6132076, a: 0.78431374}
+  gravityColor: {r: 0.3490566, g: 0.14391077, b: 0, a: 0.78431374}
+  normalForceColor: {r: 0.1828197, g: 0.4528302, b: 0, a: 0.78431374}
   forceMultiplier: 7
   pauseButton: {fileID: 986364018}
   resumeButton: {fileID: 1199418724}
@@ -541,8 +543,8 @@ GameObject:
   - component: {fileID: 952835635}
   - component: {fileID: 952835634}
   m_Layer: 0
-  m_Name: square150 (2)
-  m_TagString: Untagged
+  m_Name: bound-up
+  m_TagString: up
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1004,8 +1006,8 @@ GameObject:
   - component: {fileID: 1480824086}
   - component: {fileID: 1480824085}
   m_Layer: 0
-  m_Name: square150 (1)
-  m_TagString: Untagged
+  m_Name: bound-down
+  m_TagString: down
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1111,8 +1113,8 @@ GameObject:
   - component: {fileID: 1676758102}
   - component: {fileID: 1676758101}
   m_Layer: 0
-  m_Name: square150 (4)
-  m_TagString: Untagged
+  m_Name: bound-left
+  m_TagString: left
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
