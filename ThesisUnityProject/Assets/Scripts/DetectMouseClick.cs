@@ -13,6 +13,8 @@ public class DetectMouseClick : MonoBehaviour
     private MeshRenderer _netForceMeshRenderer;
     private LineRenderer _nForceVerLineRender;
     private LineRenderer _nForceHorLineRender;
+    private MeshRenderer _nForceVerMeshRenderer;
+    private MeshRenderer _nForceHorMeshRenderer;
 
 
     private bool _holdingMouse;
@@ -97,7 +99,7 @@ public class DetectMouseClick : MonoBehaviour
         _gravityForceVector = Physics.gravity / forceMultiplier; // later - multiplied by mass and gravity scale?
         _gravityLineRenderer.SetPosition(1, startPos + _gravityForceVector);
         
-        BakeMesh(_gravityGameObject);
+        MyBakeMesh(_gravityGameObject);
         
     }
     private void SetUpNormalForce()
@@ -139,9 +141,7 @@ public class DetectMouseClick : MonoBehaviour
         _netForceLineRenderer.startWidth = 0.1f;
         _netForceLineRenderer.endWidth = 0.03f;
         
-        var startPos = transform.position;
-        startPos.z = 1;
-        _netForceLineRenderer.SetPosition(0, startPos);
+        
     }
 
     // Update is called once per frame
@@ -177,7 +177,9 @@ public class DetectMouseClick : MonoBehaviour
             if (_netForceVector.y < -_gravityForceVector.y)
             {
                 SetNormalForceVertical();
-                BakeMesh(_normalForceVerticalObj);
+                MyBakeMesh(_normalForceVerticalObj);
+                _nForceVerMeshRenderer = _normalForceVerticalObj.GetComponent<MeshRenderer>();
+                _nForceVerMeshRenderer.enabled = true;
             }
         }
 
@@ -186,17 +188,33 @@ public class DetectMouseClick : MonoBehaviour
             if (_netForceVector.y > -_gravityForceVector.y)
             {
                 SetNormalForceVertical();
-                BakeMesh(_normalForceVerticalObj);
+                MyBakeMesh(_normalForceVerticalObj);
+                _nForceVerMeshRenderer = _normalForceVerticalObj.GetComponent<MeshRenderer>();
+                _nForceVerMeshRenderer.enabled = true;
             }
         }
 
         if (collision.gameObject.CompareTag("left") || collision.gameObject.CompareTag("right"))
         {
             SetNormalForceHorizontal();
-            BakeMesh(_normalForceHorizontalObj);
+            MyBakeMesh(_normalForceHorizontalObj);
+            _nForceHorMeshRenderer = _normalForceHorizontalObj.GetComponent<MeshRenderer>();
+            _nForceHorMeshRenderer.enabled = true;
         }
-        
-        
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("down") || collision.gameObject.CompareTag("up"))
+        {
+            _nForceVerMeshRenderer = _normalForceVerticalObj.GetComponent<MeshRenderer>();
+            _nForceVerMeshRenderer.enabled = false;
+        }
+        if (collision.gameObject.CompareTag("left") || collision.gameObject.CompareTag("right"))
+        {
+            _nForceHorMeshRenderer = _normalForceHorizontalObj.GetComponent<MeshRenderer>();
+            _nForceHorMeshRenderer.enabled = false;
+        }
     }
 
     private void SetNormalForceHorizontal()
@@ -221,6 +239,9 @@ public class DetectMouseClick : MonoBehaviour
 
     private void UpdateNetForcePreview(Vector3 endPos)
     {
+        var startPos = transform.position;
+        startPos.z = 1;
+        _netForceLineRenderer.SetPosition(0, startPos);
         var netFPreview = new Vector3();
         netFPreview = _netForceVector + endPos - _currentLineRenderer.GetPosition(0);
         netFPreview.z = 0;
@@ -274,7 +295,7 @@ public class DetectMouseClick : MonoBehaviour
         var lineRenderer = _currentLine.GetComponent<LineRenderer>();
         var lineVector = lineRenderer.GetPosition(1) - lineRenderer.GetPosition(0);
         _netForceVector += lineVector;
-        BakeMesh(_currentLine);
+        MyBakeMesh(_currentLine);
     }
 
     public void PauseMoving()
@@ -303,7 +324,7 @@ public class DetectMouseClick : MonoBehaviour
         _rb.velocity = _velocityBeforePause;
         _rb.AddForce(_netForceVector * forceMultiplier);
 
-        BakeMesh(_netForceGameObject);
+        MyBakeMesh(_netForceGameObject);
         _netForceMeshRenderer = _netForceGameObject.GetComponent<MeshRenderer>();
         _netForceMeshRenderer.enabled = true;
 
@@ -316,7 +337,7 @@ public class DetectMouseClick : MonoBehaviour
         pauseButton.GetComponent<Image>().color = pauseButtonColor;
     }
 
-    private void BakeMesh(GameObject lineGameObject)
+    private void MyBakeMesh(GameObject lineGameObject)
     {
         var lineRenderer = lineGameObject.GetComponent<LineRenderer>();
         MeshFilter meshFilter;
