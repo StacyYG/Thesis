@@ -40,6 +40,8 @@ public class DetectMouseClick : MonoBehaviour
     public Color forceColor = new Color(1,1,1,1);
     public Color gravityColor = new Color(1,1,1,1);
     public Color normalForceColor = new Color(1,1,1,1);
+    public Color movingSqrColor = new Color(1,1,1,1);
+    public Color stoppedSqrColor = new Color(1,1,1,1);
 
     private Rigidbody2D _rb;
 
@@ -59,6 +61,10 @@ public class DetectMouseClick : MonoBehaviour
     public Color pauseButtonColor = new Color(1,1,1,1);
     public Color resumeButtonColor = new Color(1,1,1,1);
     public Color greyColor = new Color(1,1,1,1);
+
+    private SpriteRenderer _playerSqrSpriteRenderer;
+    private int linesCountLastTime;
+
     
     
     // Start is called before the first frame update
@@ -67,6 +73,7 @@ public class DetectMouseClick : MonoBehaviour
         _myCamera = Camera.main;
         _rb = GetComponent<Rigidbody2D>();
         _lines = new List<GameObject>();
+        _playerSqrSpriteRenderer = GetComponent<SpriteRenderer>();
 
         lineMaterial.renderQueue = 3001;
         netForceMaterial.renderQueue = 3002;
@@ -201,19 +208,37 @@ public class DetectMouseClick : MonoBehaviour
             _nForceHorMeshRenderer = _normalForceHorizontalObj.GetComponent<MeshRenderer>();
             _nForceHorMeshRenderer.enabled = true;
         }
+
+        if (collision.gameObject.CompareTag("Finish"))
+        {
+            collision.gameObject.transform.GetChild(0).gameObject.SetActive(true);
+            Invoke("ReloadScene",1);
+        }
     }
 
+    private void ReloadScene()
+    {
+        SceneManager.LoadScene(0);
+    }
     private void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("down") || collision.gameObject.CompareTag("up"))
         {
-            _nForceVerMeshRenderer = _normalForceVerticalObj.GetComponent<MeshRenderer>();
-            _nForceVerMeshRenderer.enabled = false;
+            if (_normalForceVerticalObj.GetComponent<MeshRenderer>())
+            {
+                _nForceVerMeshRenderer = _normalForceVerticalObj.GetComponent<MeshRenderer>();
+                _nForceVerMeshRenderer.enabled = false;
+            }
+            
         }
         if (collision.gameObject.CompareTag("left") || collision.gameObject.CompareTag("right"))
         {
-            _nForceHorMeshRenderer = _normalForceHorizontalObj.GetComponent<MeshRenderer>();
-            _nForceHorMeshRenderer.enabled = false;
+            if (_normalForceHorizontalObj.GetComponent<MeshRenderer>())
+            {
+                _nForceHorMeshRenderer = _normalForceHorizontalObj.GetComponent<MeshRenderer>();
+                _nForceHorMeshRenderer.enabled = false;
+            }
+            
         }
     }
 
@@ -247,7 +272,7 @@ public class DetectMouseClick : MonoBehaviour
         netFPreview.z = 0;
         if (!_netForceLineRenderer.enabled) _netForceLineRenderer.enabled = true;
         _netForceLineRenderer.SetPosition(1, _startPos + netFPreview);
-        if (!_netForceMeshRenderer || !_netForceMeshRenderer.enabled) return; _netForceMeshRenderer.enabled = false;
+        //if (!_netForceMeshRenderer || !_netForceMeshRenderer.enabled) return; _netForceMeshRenderer.enabled = false;
     }
 
     private void OnMouseDown()
@@ -306,13 +331,14 @@ public class DetectMouseClick : MonoBehaviour
         _velocityBeforePause = _rb.velocity;
         _rb.velocity = Vector2.zero;
 
-        foreach (var line in _lines)
-        {
-            line.SetActive(true);
-        }
+//        foreach (var line in _lines)
+//        {
+//            line.SetActive(true);
+//        }
 
         resumeButton.GetComponent<Image>().color = resumeButtonColor;
         pauseButton.GetComponent<Image>().color = greyColor;
+        _playerSqrSpriteRenderer.color = stoppedSqrColor;
     }
 
     public void ResumeMoving()
@@ -324,9 +350,13 @@ public class DetectMouseClick : MonoBehaviour
         _rb.velocity = _velocityBeforePause;
         _rb.AddForce(_netForceVector * forceMultiplier);
 
-        MyBakeMesh(_netForceGameObject);
-        _netForceMeshRenderer = _netForceGameObject.GetComponent<MeshRenderer>();
-        _netForceMeshRenderer.enabled = true;
+        if (_lines.Count != linesCountLastTime)
+        {
+            MyBakeMesh(_netForceGameObject);
+            _netForceMeshRenderer = _netForceGameObject.GetComponent<MeshRenderer>();
+            _netForceMeshRenderer.enabled = true;
+        }
+
 
         foreach (var line in _lines)
         {
@@ -335,11 +365,15 @@ public class DetectMouseClick : MonoBehaviour
         
         resumeButton.GetComponent<Image>().color = greyColor;
         pauseButton.GetComponent<Image>().color = pauseButtonColor;
+        _playerSqrSpriteRenderer.color = movingSqrColor;
+        linesCountLastTime = _lines.Count;
     }
 
     private void MyBakeMesh(GameObject lineGameObject)
     {
         var lineRenderer = lineGameObject.GetComponent<LineRenderer>();
+        if (lineRenderer == null) return;
+
         MeshFilter meshFilter;
         if (lineGameObject.GetComponent<MeshFilter>())
         {
