@@ -197,11 +197,10 @@ GameObject:
   - component: {fileID: 313884332}
   - component: {fileID: 313884331}
   - component: {fileID: 313884333}
-  - component: {fileID: 313884334}
   - component: {fileID: 313884335}
   m_Layer: 0
-  m_Name: controlSquare
-  m_TagString: Untagged
+  m_Name: controllerSquare
+  m_TagString: controllerSquare
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -295,27 +294,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!50 &313884334
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 313884330}
-  m_BodyType: 1
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 1
-  m_Constraints: 4
 --- !u!114 &313884335
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -328,6 +306,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d01f7a4237947be4db9bd5ca0c2fffb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mouseIsOutOfSquare: 0
+  holdingMouse: 0
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -554,6 +534,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d01f7a4237947be4db9bd5ca0c2fffb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mouseIsOutOfSquare: 0
+  holdingMouse: 0
 --- !u!1 &1061124311
 GameObject:
   m_ObjectHideFlags: 0
@@ -10188,9 +10170,10 @@ GameObject:
   - component: {fileID: 1382949398}
   - component: {fileID: 1382949397}
   - component: {fileID: 1382949396}
+  - component: {fileID: 1382949400}
   m_Layer: 0
-  m_Name: playerSquare (1)
-  m_TagString: Untagged
+  m_Name: targetSquare
+  m_TagString: target
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -10306,6 +10289,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1382949400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1382949395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 592639f3723bb01469e535a70543ed51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1651835186
 GameObject:
   m_ObjectHideFlags: 0
@@ -10336,8 +10331,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetPlayerSquare: {fileID: 0}
-  mouseIsOutOfSquare: 0
-  holdingMouse: 0
 --- !u!4 &1651835188
 Transform:
   m_ObjectHideFlags: 0

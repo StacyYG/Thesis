@@ -4,10 +4,8 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - down
-  - up
-  - left
-  - right
+  - target
+  - controllerSquare
   layers:
   - Default
   - TransparentFX
