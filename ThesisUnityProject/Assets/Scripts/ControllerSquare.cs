@@ -6,17 +6,19 @@ using UnityEngine;
 public class ControllerSquare : MonoBehaviour
 {
     private GameObject _currentLine;
+    private GameObject _currentNetForceLine;
+    private GameObject _previousNetForceLine;
     private Vector3 _currentForceVector;
     private Vector3 _PreviousNetForceVector;
     public bool holdingMouse;
 
 
-    
-    
+
     // Start is called before the first frame update
     void Start()
     {
-
+        _currentNetForceLine = InstantiateLine(transform.position, "currentNetForce");
+        _previousNetForceLine = InstantiateLine(transform.position, "previousNetForce");
     }
 
     // Update is called once per frame
@@ -24,15 +26,19 @@ public class ControllerSquare : MonoBehaviour
     {
         if (holdingMouse)
         {
-            SetLineEnd(MousePosition());
+            SetCurrentLineEnd(_currentLine, MousePosition());
         }
+        UpdateForceObj(_currentNetForceLine,PlayerForce());
         
     }
 
     private void OnMouseDown()
     {
         holdingMouse = true;
-        SetLineStart(transform.position);
+        SetCurrentLineStart(transform.position);
+        _previousNetForceLine.transform.localScale = _currentNetForceLine.transform.localScale;
+        _previousNetForceLine.transform.up = _currentNetForceLine.transform.up;
+        _previousNetForceLine.SetActive(true);
 
     }
 
@@ -42,27 +48,49 @@ public class ControllerSquare : MonoBehaviour
     {
         holdingMouse = false;
         _PreviousNetForceVector += _currentForceVector;
+        _currentLine.SetActive(false);
+        _previousNetForceLine.SetActive(false);
 
     }
     
-    private void SetLineStart(Vector3 startPosition)
+    private GameObject InstantiateLine(Vector3 startPosition, string name)
     {
-        _currentLine = Instantiate(Resources.Load<GameObject>("square10"));
-        var spriteRenderer = _currentLine.GetComponentInChildren<SpriteRenderer>();
+        var line = Instantiate(Resources.Load<GameObject>("square10"));
+        var spriteRenderer = line.GetComponent<SpriteRenderer>();
+        spriteRenderer.sortingOrder = ServiceLocator.GameController.orderInLayer;
+        ServiceLocator.GameController.orderInLayer++;
+        line.transform.position = startPosition;
+        line.transform.localScale = Vector3.zero;
+        line.transform.name = name;
+        line.SetActive(true);
+        return line;
+    }
+    private void SetCurrentLineStart(Vector3 startPosition)
+    {
+        if(ReferenceEquals(_currentLine, null)) _currentLine = Instantiate(Resources.Load<GameObject>("square10"));
+        var spriteRenderer = _currentLine.GetComponent<SpriteRenderer>();
         spriteRenderer.sortingOrder = ServiceLocator.GameController.orderInLayer;
         ServiceLocator.GameController.orderInLayer++;
         _currentLine.transform.position = startPosition;
+        _currentLine.transform.name = "currentLine";
+        _currentLine.SetActive(true);
     }
-
-    private void SetLineEnd(Vector3 endPosition)
+    
+    private void SetCurrentLineEnd(GameObject lineGameObject, Vector3 endPosition)
     {
-        if(ReferenceEquals(_currentLine,null)) return;
-        var toDraw = endPosition - _currentLine.transform.position;
-        _currentLine.transform.localScale = new Vector3(1f, toDraw.magnitude * 10f, 1f);
-        _currentLine.transform.up = toDraw.normalized;
+        if(ReferenceEquals(lineGameObject,null)) return;
+        var toDraw = endPosition - lineGameObject.transform.position;
+        lineGameObject.transform.localScale = new Vector3(1f, toDraw.magnitude * 10f, 1f);
+        lineGameObject.transform.up = toDraw.normalized;
         _currentForceVector = toDraw;
     }
-
+    
+    private void UpdateForceObj(GameObject forceObj, Vector3 forceVector)
+    {
+        forceObj.transform.position = transform.position;
+        forceObj.transform.localScale = new Vector3(1f, forceVector.magnitude * 10f, 1f);
+        forceObj.transform.up = forceVector.normalized;
+    }
     private Vector3 MousePosition()
     {
         var mousePos = Input.mousePosition;
@@ -70,7 +98,7 @@ public class ControllerSquare : MonoBehaviour
         return ServiceLocator.MyCamera.ScreenToWorldPoint(mousePos);
     }
 
-    public Vector3 netForceByPlayer()
+    public Vector3 PlayerForce()
     {
         if (holdingMouse) return _PreviousNetForceVector + _currentForceVector;
         return _PreviousNetForceVector;
