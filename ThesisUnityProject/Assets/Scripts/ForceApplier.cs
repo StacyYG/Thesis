@@ -23,7 +23,12 @@ public class ForceApplier : MonoBehaviour
 
     private void Update()
     {
-        UpdateForceObj(_playerForceObj, ServiceLocator.ControllerSquare.PlayerForce());
+        if (ServiceLocator.ControllerSquare.holdingMouse)
+        {
+            UpdateForceObj(_playerForceObj, ServiceLocator.ControllerSquare.PlayerForce());
+        }
+        _playerForceObj.transform.position = transform.position;
+        
     }
 
     // Update is called once per frame
@@ -57,7 +62,7 @@ public class ForceApplier : MonoBehaviour
             newNormalForceObj = InstantiateForceObj("N" + colliderToNormalForceObj.Count);
             colliderToNormalForceObj.Add(collision.collider, newNormalForceObj);
         }
-        
+
         UpdateForceObj(newNormalForceObj, NormalForceSetter(collision,true));
     }
 
@@ -82,20 +87,15 @@ public class ForceApplier : MonoBehaviour
 
     private Vector3 NormalForceSetter(Collision2D collision, bool isImpulse)
     {
-        var midPoint = (Vector3)(collision.GetContact(0).point + collision.GetContact(1).point) / 2f;
-        var direction = (transform.position - midPoint).normalized;
-        var directionDotY = Vector3.Dot(direction, Vector3.up);
-        Vector3 newDirection;
-        if (Mathf.Abs(directionDotY) > 0.5f)
+        var normalDirection = (Vector3) collision.GetContact(0).normal.normalized;
+        var magnitude = collision.GetContact(0).normalImpulse;
+        if (collision.contactCount > 1)
         {
-            newDirection = new Vector3(0f, direction.y,0f);
+            magnitude += collision.GetContact(1).normalImpulse;
         }
-        else
-        {
-            newDirection = new Vector3(direction.x, 0f, 0f);
-        }
-        var contactPoint0 = collision.GetContact(0);
-        if(isImpulse) return contactPoint0.normalImpulse * newDirection;
-        return (contactPoint0.normalImpulse / Time.fixedDeltaTime) * newDirection;
+        
+        if(isImpulse) return magnitude * normalDirection;
+        return magnitude / Time.fixedDeltaTime * normalDirection;
+        
     }
 }

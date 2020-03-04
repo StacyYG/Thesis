@@ -9,7 +9,7 @@ public class ControllerSquare : MonoBehaviour
     private GameObject _currentNetForceLine;
     private GameObject _previousNetForceLine;
     private Vector3 _currentForceVector;
-    private Vector3 _PreviousNetForceVector;
+    private Vector3 _netForceVector;
     public bool holdingMouse;
 
 
@@ -27,15 +27,22 @@ public class ControllerSquare : MonoBehaviour
         if (holdingMouse)
         {
             SetCurrentLineEnd(_currentLine, MousePosition());
+            UpdateForceObj(_currentNetForceLine,PlayerForce());
         }
-        UpdateForceObj(_currentNetForceLine,PlayerForce());
-        
+
     }
 
     private void OnMouseDown()
     {
         holdingMouse = true;
-        SetCurrentLineStart(transform.position);
+        if (ReferenceEquals(_currentLine, null))
+        { 
+            _currentLine = InstantiateLine(transform.position, "forceBeingDrawn");
+        }
+        else
+        {
+            _currentLine.SetActive(true);
+        }
         _previousNetForceLine.transform.localScale = _currentNetForceLine.transform.localScale;
         _previousNetForceLine.transform.up = _currentNetForceLine.transform.up;
         _previousNetForceLine.SetActive(true);
@@ -47,7 +54,7 @@ public class ControllerSquare : MonoBehaviour
     private void OnMouseUp()
     {
         holdingMouse = false;
-        _PreviousNetForceVector += _currentForceVector;
+        _netForceVector += _currentForceVector;
         _currentLine.SetActive(false);
         _previousNetForceLine.SetActive(false);
 
@@ -65,17 +72,7 @@ public class ControllerSquare : MonoBehaviour
         line.SetActive(true);
         return line;
     }
-    private void SetCurrentLineStart(Vector3 startPosition)
-    {
-        if(ReferenceEquals(_currentLine, null)) _currentLine = Instantiate(Resources.Load<GameObject>("square10"));
-        var spriteRenderer = _currentLine.GetComponent<SpriteRenderer>();
-        spriteRenderer.sortingOrder = ServiceLocator.GameController.orderInLayer;
-        ServiceLocator.GameController.orderInLayer++;
-        _currentLine.transform.position = startPosition;
-        _currentLine.transform.name = "currentLine";
-        _currentLine.SetActive(true);
-    }
-    
+
     private void SetCurrentLineEnd(GameObject lineGameObject, Vector3 endPosition)
     {
         if(ReferenceEquals(lineGameObject,null)) return;
@@ -87,10 +84,10 @@ public class ControllerSquare : MonoBehaviour
     
     private void UpdateForceObj(GameObject forceObj, Vector3 forceVector)
     {
-        forceObj.transform.position = transform.position;
         forceObj.transform.localScale = new Vector3(1f, forceVector.magnitude * 10f, 1f);
         forceObj.transform.up = forceVector.normalized;
     }
+    
     private Vector3 MousePosition()
     {
         var mousePos = Input.mousePosition;
@@ -100,7 +97,7 @@ public class ControllerSquare : MonoBehaviour
 
     public Vector3 PlayerForce()
     {
-        if (holdingMouse) return _PreviousNetForceVector + _currentForceVector;
-        return _PreviousNetForceVector;
+        if (holdingMouse) return _netForceVector + _currentForceVector;
+        return _netForceVector;
     }
 }
