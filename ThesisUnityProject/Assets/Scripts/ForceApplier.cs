@@ -79,7 +79,7 @@ public class ForceApplier : MonoBehaviour
             _colliderToFrictionObj.Add(collision.collider, newFrictionObg);
         }
 
-        UpdateForceObj(newNormalForceObj, NormalForceSetter(collision,true));
+        UpdateForceObj(newNormalForceObj, NormalForceVector(collision,true));
     }
 
     private void OnCollisionStay2D(Collision2D collision)
@@ -87,13 +87,13 @@ public class ForceApplier : MonoBehaviour
         GameObject currentNormalForce;
         if (_colliderToNormalForceObj.TryGetValue(collision.collider, out currentNormalForce))
         {
-            UpdateForceObj(currentNormalForce, NormalForceSetter(collision, false));
+            UpdateForceObj(currentNormalForce, NormalForceVector(collision, false));
         }
 
         GameObject currentFriction;
         if (_colliderToFrictionObj.TryGetValue(collision.collider, out currentFriction))
         {
-            UpdateForceObj(currentFriction,FrictionSetter(collision));
+            UpdateForceObj(currentFriction,FrictionVector(collision));
         }
 
     }
@@ -113,7 +113,7 @@ public class ForceApplier : MonoBehaviour
         }
     }
 
-    private Vector3 NormalForceSetter(Collision2D collision, bool isImpulse)
+    private Vector3 NormalForceVector(Collision2D collision, bool isImpulse)
     {
         var normalDirection = (Vector3) collision.GetContact(0).normal.normalized;
         var magnitude = collision.GetContact(0).normalImpulse;
@@ -127,7 +127,7 @@ public class ForceApplier : MonoBehaviour
         
     }
 
-    private Vector3 FrictionSetter(Collision2D collision)
+    private Vector3 FrictionVector(Collision2D collision)
     {
         var normalDirection = (Vector3) collision.GetContact(0).normal.normalized;
         var direction = Quaternion.AngleAxis(-90, Vector3.forward) * normalDirection;

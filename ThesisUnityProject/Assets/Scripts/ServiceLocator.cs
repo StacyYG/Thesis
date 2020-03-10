@@ -54,4 +54,5 @@ public static class ServiceLocator
         }
         set => _controllerSquare = value;
     }
+    
 }
