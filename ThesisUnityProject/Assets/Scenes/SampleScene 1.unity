@@ -222,7 +222,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 220425098}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -9.17, y: 0, z: 0}
+  m_LocalPosition: {x: -5.61, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 10.76, z: 1}
   m_Children: []
   m_Father: {fileID: 1049505539}
@@ -370,6 +370,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   holdingMouse: 0
+  lineWidth: 6
 --- !u!1 &416014200
 GameObject:
   m_ObjectHideFlags: 0
@@ -684,7 +685,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 533564937}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 5.28, z: 0}
+  m_LocalPosition: {x: 0, y: 3.71, z: 0}
   m_LocalScale: {x: 17.95, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1049505539}
@@ -909,7 +910,7 @@ Rigidbody2D:
   m_Mass: 0.2
   m_LinearDrag: 0
   m_AngularDrag: 0
-  m_GravityScale: 0
+  m_GravityScale: 1
   m_Material: {fileID: 6200000, guid: fdb284111d0144e448e53bc951b53d2d, type: 2}
   m_Interpolate: 0
   m_SleepingMode: 1
@@ -1016,6 +1017,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 592639f3723bb01469e535a70543ed51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lineWidth: 6
 --- !u!1 &1651835186
 GameObject:
   m_ObjectHideFlags: 0

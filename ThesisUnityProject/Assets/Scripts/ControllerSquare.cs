@@ -2,23 +2,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Vectrosity;
 
 public class ControllerSquare : MonoBehaviour
 {
-    private GameObject _currentLine;
-    private GameObject _currentNetForceLine;
-    private GameObject _previousNetForceLine;
-    private Vector3 _currentForceVector;
-    private Vector3 _netForceVector;
+    private VectorLine _currentLine;
+    private VectorLine _currentNetForceLine;
+    private VectorLine _previousNetForceLine;
+    private Vector2 _currentForceVector;
+    private Vector2 _netForceVector;
     public bool holdingMouse;
+    public float lineWidth = 6f;
+    private Vector2 _myWorldPosition;
 
 
 
     // Start is called before the first frame update
     void Start()
     {
-        _currentNetForceLine = InstantiateLine(transform.position, "currentNetForce");
-        _previousNetForceLine = InstantiateLine(transform.position, "previousNetForce");
+        _myWorldPosition = transform.position;
+        _currentNetForceLine = new VectorLine("currentNetForce", new List<Vector3> {_myWorldPosition, _myWorldPosition}, lineWidth);
+        _previousNetForceLine = new VectorLine("previousNetForce", new List<Vector3> {_myWorldPosition, _myWorldPosition}, lineWidth);
+        _currentLine = new VectorLine("forceBeingDrawn", new List<Vector3> {_myWorldPosition, _myWorldPosition}, lineWidth);
     }
 
     // Update is called once per frame
@@ -26,76 +31,42 @@ public class ControllerSquare : MonoBehaviour
     {
         if (holdingMouse)
         {
-            SetCurrentLineEnd(_currentLine, MousePosition());
-            UpdateForceObj(_currentNetForceLine,PlayerForce());
+            _currentLine.points3[1] = MouseWorldPosition();
+            _currentLine.Draw();
+            _currentForceVector = MouseWorldPosition() - _myWorldPosition;
+            _currentNetForceLine.points3[1] = _netForceVector + MouseWorldPosition();
+            _currentNetForceLine.Draw();
         }
 
     }
 
+    // figure out a better way to replace this when on mobile
     private void OnMouseDown()
     {
         holdingMouse = true;
-        if (ReferenceEquals(_currentLine, null))
-        { 
-            _currentLine = InstantiateLine(transform.position, "forceBeingDrawn");
-        }
-        else
-        {
-            _currentLine.SetActive(true);
-        }
-        _previousNetForceLine.transform.localScale = _currentNetForceLine.transform.localScale;
-        _previousNetForceLine.transform.up = _currentNetForceLine.transform.up;
-        _previousNetForceLine.SetActive(true);
-
+        _currentLine.active = true;
+        _previousNetForceLine.active = true;
+        _previousNetForceLine.points3[1] = _currentNetForceLine.points3[1];
+        _previousNetForceLine.Draw();
     }
-
-
 
     private void OnMouseUp()
     {
         holdingMouse = false;
         _netForceVector += _currentForceVector;
-        _currentLine.SetActive(false);
-        _previousNetForceLine.SetActive(false);
+        _currentLine.active = false;
+        _previousNetForceLine.active = false;
 
     }
-    
-    private GameObject InstantiateLine(Vector3 startPosition, string name)
-    {
-        var line = Instantiate(Resources.Load<GameObject>("square10"));
-        var spriteRenderer = line.GetComponent<SpriteRenderer>();
-        spriteRenderer.sortingOrder = ServiceLocator.GameController.orderInLayer;
-        ServiceLocator.GameController.orderInLayer++;
-        line.transform.position = startPosition;
-        line.transform.localScale = Vector3.zero;
-        line.transform.name = name;
-        line.SetActive(true);
-        return line;
-    }
 
-    private void SetCurrentLineEnd(GameObject lineGameObject, Vector3 endPosition)
-    {
-        if(ReferenceEquals(lineGameObject,null)) return;
-        var toDraw = endPosition - lineGameObject.transform.position;
-        lineGameObject.transform.localScale = new Vector3(1f, toDraw.magnitude * 10f, 1f);
-        lineGameObject.transform.up = toDraw.normalized;
-        _currentForceVector = toDraw;
-    }
-    
-    private void UpdateForceObj(GameObject forceObj, Vector3 forceVector)
-    {
-        forceObj.transform.localScale = new Vector3(1f, forceVector.magnitude * 10f, 1f);
-        forceObj.transform.up = forceVector.normalized;
-    }
-    
-    private Vector3 MousePosition()
+    private Vector2 MouseWorldPosition()
     {
         var mousePos = Input.mousePosition;
         mousePos.z = -ServiceLocator.MyCamera.transform.position.z;
         return ServiceLocator.MyCamera.ScreenToWorldPoint(mousePos);
     }
 
-    public Vector3 PlayerForce()
+    public Vector2 PlayerForce()
     {
         if (holdingMouse) return _netForceVector + _currentForceVector;
         return _netForceVector;

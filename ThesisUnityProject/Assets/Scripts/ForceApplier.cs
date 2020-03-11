@@ -2,134 +2,124 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Vectrosity;
+using Color = System.Drawing.Color;
 
 public class ForceApplier : MonoBehaviour
 {
     private Rigidbody2D _rb;
-    private GameObject _playerForceObj;
-    private GameObject _normalForceObj0;
-    private GameObject _normalForceObj1;
-    private Vector3 _normalForceVector;
-    private Dictionary<Collider2D, GameObject> _colliderToNormalForceObj;
-    private Dictionary<Collider2D, GameObject> _colliderToFrictionObj;
-    private GameObject _gravityObj;
+    private VectorLine _playerForceLine;
+    private Dictionary<Collider2D, VectorLine> _colliderToNormalForceObj;
+    private Dictionary<Collider2D, VectorLine> _colliderToFrictionObj;
+    private VectorLine _gravityLine;
+    public float lineWidth = 6f;
 
     
     // Start is called before the first frame update
     void Start()
     {
-        _playerForceObj = InstantiateForceObj("playerForceObj");
         _rb = GetComponent<Rigidbody2D>();
-        _colliderToNormalForceObj = new Dictionary<Collider2D, GameObject>();
-        _colliderToFrictionObj = new Dictionary<Collider2D, GameObject>();
-        SetGravity();
+        _colliderToNormalForceObj = new Dictionary<Collider2D, VectorLine>();
+        _colliderToFrictionObj = new Dictionary<Collider2D, VectorLine>();
+        _playerForceLine =
+            new VectorLine("playerForce", new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
+        _playerForceLine.drawTransform = transform;
+        _gravityLine = new VectorLine("Gravity",
+            new List<Vector3> {Vector2.zero, GravityVector()},
+            lineWidth);
+        _gravityLine.drawTransform = transform;
+        _gravityLine.color = UnityEngine.Color.gray;
+        _gravityLine.Draw();
     }
 
     private void Update()
     {
-        if (ServiceLocator.ControllerSquare.holdingMouse)
-        {
-            UpdateForceObj(_playerForceObj, ServiceLocator.ControllerSquare.PlayerForce());
-        }
-        _playerForceObj.transform.position = transform.position;
-        _gravityObj.transform.position = transform.position;
-
+        UpdateForceLine(_playerForceLine, ServiceLocator.ControllerSquare.PlayerForce());
+        UpdateForceLine(_gravityLine, GravityVector());
     }
     
     private void FixedUpdate()
     {
         _rb.AddForce(ServiceLocator.ControllerSquare.PlayerForce());
     }
-    
-    private GameObject InstantiateForceObj(string name)
-    {
-        var forceObj = Instantiate(Resources.Load<GameObject>("square10"));
-        forceObj.name = name;
-        var spriteRenderer = forceObj.GetComponent<SpriteRenderer>();
-        spriteRenderer.sortingOrder = ServiceLocator.GameController.orderInLayer;
-        ServiceLocator.GameController.orderInLayer++;
-        forceObj.transform.position = transform.position;
-        forceObj.transform.localScale = Vector3.zero;
-        return forceObj;
-    }
-    private void UpdateForceObj(GameObject forceObj, Vector3 forceVector)
-    {
-        forceObj.transform.position = transform.position;
-        forceObj.transform.localScale = new Vector3(1f, forceVector.magnitude * 10f, 1f);
-        forceObj.transform.up = forceVector.normalized;
-    }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        GameObject newNormalForceObj;
-        if (!_colliderToNormalForceObj.TryGetValue(collision.collider, out newNormalForceObj))
+        var collideObjColor = collision.gameObject.GetComponent<SpriteRenderer>().color;
+        VectorLine thisNormalForceLine;
+        if (!_colliderToNormalForceObj.TryGetValue(collision.collider, out thisNormalForceLine))
         {
-            newNormalForceObj = InstantiateForceObj("N" + _colliderToNormalForceObj.Count);
-            var spriteRenderer = newNormalForceObj.GetComponent<SpriteRenderer>();
-            spriteRenderer.color = collision.gameObject.GetComponent<SpriteRenderer>().color;
-            _colliderToNormalForceObj.Add(collision.collider, newNormalForceObj);
+            thisNormalForceLine = new VectorLine("N" + _colliderToNormalForceObj.Count,
+                new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
+            thisNormalForceLine.drawTransform = transform;
+            thisNormalForceLine.color = collideObjColor;
+            _colliderToNormalForceObj.Add(collision.collider, thisNormalForceLine);
+        }
+        
+        thisNormalForceLine.active = true;
+        
+        VectorLine thisFrictionLine;
+        if (!_colliderToFrictionObj.TryGetValue(collision.collider, out thisFrictionLine))
+        {
+            thisFrictionLine =new VectorLine("N" + _colliderToFrictionObj.Count,
+                new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
+            thisFrictionLine.drawTransform = transform;
+            thisFrictionLine.color = collideObjColor;
+            _colliderToFrictionObj.Add(collision.collider, thisFrictionLine);
         }
 
-        GameObject newFrictionObg;
-        if (!_colliderToFrictionObj.TryGetValue(collision.collider, out newFrictionObg))
-        {
-            newFrictionObg = InstantiateForceObj("f" + _colliderToFrictionObj.Count);
-            var spriteRenderer = newFrictionObg.GetComponent<SpriteRenderer>();
-            spriteRenderer.color = collision.gameObject.GetComponent<SpriteRenderer>().color;
-            _colliderToFrictionObj.Add(collision.collider, newFrictionObg);
-        }
+        thisFrictionLine.active = true;
 
-        UpdateForceObj(newNormalForceObj, NormalForceVector(collision,true));
     }
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        GameObject currentNormalForce;
-        if (_colliderToNormalForceObj.TryGetValue(collision.collider, out currentNormalForce))
+        VectorLine thisNormalForce;
+        if (_colliderToNormalForceObj.TryGetValue(collision.collider, out thisNormalForce))
         {
-            UpdateForceObj(currentNormalForce, NormalForceVector(collision, false));
+            UpdateForceLine(thisNormalForce, NormalForceVector(collision, false));
         }
 
-        GameObject currentFriction;
-        if (_colliderToFrictionObj.TryGetValue(collision.collider, out currentFriction))
+        VectorLine thisFriction;
+        if (_colliderToFrictionObj.TryGetValue(collision.collider, out thisFriction))
         {
-            UpdateForceObj(currentFriction,FrictionVector(collision));
+            UpdateForceLine(thisFriction, FrictionVector(collision));
         }
 
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        GameObject currentNormalForce;
-        if (_colliderToNormalForceObj.TryGetValue(collision.collider, out currentNormalForce))
+        VectorLine thisNormalForce;
+        if (_colliderToNormalForceObj.TryGetValue(collision.collider, out thisNormalForce))
         {
-            currentNormalForce.transform.localScale = Vector3.zero;
+            thisNormalForce.active = false;
         }
 
-        GameObject currentFriction;
-        if (_colliderToFrictionObj.TryGetValue(collision.collider, out currentFriction))
+        VectorLine thisFriction;
+        if (_colliderToFrictionObj.TryGetValue(collision.collider, out thisFriction))
         {
-            currentFriction.transform.localScale = Vector3.zero;
+            thisFriction.active = false;
         }
     }
 
-    private Vector3 NormalForceVector(Collision2D collision, bool isImpulse)
+    private Vector2 NormalForceVector(Collision2D collision, bool isImpulse)
     {
-        var normalDirection = (Vector3) collision.GetContact(0).normal.normalized;
+        var normalDirection = collision.GetContact(0).normal.normalized;
         var magnitude = collision.GetContact(0).normalImpulse;
         if (collision.contactCount > 1)
         {
             magnitude += collision.GetContact(1).normalImpulse;
         }
-        
-        if(isImpulse) return magnitude * normalDirection;
+
+        if (isImpulse) return magnitude * normalDirection;
         return magnitude / Time.fixedDeltaTime * normalDirection;
         
     }
 
-    private Vector3 FrictionVector(Collision2D collision)
+    private Vector2 FrictionVector(Collision2D collision)
     {
-        var normalDirection = (Vector3) collision.GetContact(0).normal.normalized;
+        var normalDirection = collision.GetContact(0).normal.normalized;
         var direction = Quaternion.AngleAxis(-90, Vector3.forward) * normalDirection;
         var magnitude = collision.GetContact(0).tangentImpulse;
         if (collision.contactCount > 1)
@@ -139,12 +129,16 @@ public class ForceApplier : MonoBehaviour
         
         return magnitude / Time.fixedDeltaTime * direction;
     }
-    
-    private void SetGravity()
+
+    private Vector2 GravityVector()
     {
-        _gravityObj = InstantiateForceObj("G");
-        _gravityObj.transform.localScale = new Vector3(1f, _rb.gravityScale * Physics2D.gravity.y * _rb.mass * 10f, 1f);
-        var spriteRenderer = _gravityObj.GetComponent<SpriteRenderer>();
-        spriteRenderer.color = Color.gray;
+        return new Vector2(0f, _rb.gravityScale * Physics2D.gravity.y * _rb.mass);
+    }
+
+    private void UpdateForceLine(VectorLine vectorLine, Vector2 forceVector)
+    {
+        Vector2 pureForceVector = transform.InverseTransformVector(forceVector);
+        vectorLine.points3[1] = pureForceVector;
+        vectorLine.Draw();
     }
 }
