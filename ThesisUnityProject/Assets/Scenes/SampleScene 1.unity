@@ -370,7 +370,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   holdingMouse: 0
-  lineWidth: 6
+  lineWidth: 35
+  frontTexture: {fileID: 2800000, guid: 56ca900415e4d8141a295a91444e9621, type: 3}
+  dashedLineTexture: {fileID: 2800000, guid: 73797c0fc945bc34ea84e438b589206f, type: 3}
+  fullLineTexture: {fileID: 2800000, guid: ff85bd36fc564be4c9ee460d1897ae87, type: 3}
 --- !u!1 &416014200
 GameObject:
   m_ObjectHideFlags: 0
@@ -910,7 +913,7 @@ Rigidbody2D:
   m_Mass: 0.2
   m_LinearDrag: 0
   m_AngularDrag: 0
-  m_GravityScale: 1
+  m_GravityScale: 0
   m_Material: {fileID: 6200000, guid: fdb284111d0144e448e53bc951b53d2d, type: 2}
   m_Interpolate: 0
   m_SleepingMode: 1
@@ -1017,7 +1020,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 592639f3723bb01469e535a70543ed51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lineWidth: 6
+  lineWidth: 35
 --- !u!1 &1651835186
 GameObject:
   m_ObjectHideFlags: 0

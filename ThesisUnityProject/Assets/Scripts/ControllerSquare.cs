@@ -14,16 +14,29 @@ public class ControllerSquare : MonoBehaviour
     public bool holdingMouse;
     public float lineWidth = 6f;
     private Vector2 _myWorldPosition;
+    public Texture2D frontTexture;
+    public Texture2D dashedLineTexture;
+    public Texture2D fullLineTexture;
 
 
+    private void Awake()
+    {
+        VectorLine.SetEndCap("dashedArrow", EndCap.Front, -0.5f, dashedLineTexture, frontTexture);
+        VectorLine.SetEndCap("fullArrow", EndCap.Front, -0.5f, fullLineTexture, frontTexture);
+    }
 
     // Start is called before the first frame update
     void Start()
     {
         _myWorldPosition = transform.position;
-        _currentNetForceLine = new VectorLine("currentNetForce", new List<Vector3> {_myWorldPosition, _myWorldPosition}, lineWidth);
-        _previousNetForceLine = new VectorLine("previousNetForce", new List<Vector3> {_myWorldPosition, _myWorldPosition}, lineWidth);
-        _currentLine = new VectorLine("forceBeingDrawn", new List<Vector3> {_myWorldPosition, _myWorldPosition}, lineWidth);
+        _currentNetForceLine = new VectorLine("currentNetForce", new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
+        _previousNetForceLine = new VectorLine("previousNetForce", new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
+        _currentLine = new VectorLine("forceBeingDrawn", new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
+        _currentNetForceLine.drawTransform =
+            _previousNetForceLine.drawTransform = _currentLine.drawTransform = transform;
+        _currentNetForceLine.endCap = "fullArrow";
+        _previousNetForceLine.endCap = _currentLine.endCap = "dashedArrow";
+        _previousNetForceLine.textureScale = _currentLine.textureScale = 1.0f;
     }
 
     // Update is called once per frame
@@ -31,10 +44,10 @@ public class ControllerSquare : MonoBehaviour
     {
         if (holdingMouse)
         {
-            _currentLine.points3[1] = MouseWorldPosition();
-            _currentLine.Draw();
             _currentForceVector = MouseWorldPosition() - _myWorldPosition;
-            _currentNetForceLine.points3[1] = _netForceVector + MouseWorldPosition();
+            _currentLine.points3[0] = _currentForceVector;
+            _currentLine.Draw();
+            _currentNetForceLine.points3[0] = _netForceVector + _currentForceVector;
             _currentNetForceLine.Draw();
         }
 
@@ -46,7 +59,7 @@ public class ControllerSquare : MonoBehaviour
         holdingMouse = true;
         _currentLine.active = true;
         _previousNetForceLine.active = true;
-        _previousNetForceLine.points3[1] = _currentNetForceLine.points3[1];
+        _previousNetForceLine.points3[0] = _currentNetForceLine.points3[0];
         _previousNetForceLine.Draw();
     }
 

@@ -9,8 +9,8 @@ public class ForceApplier : MonoBehaviour
 {
     private Rigidbody2D _rb;
     private VectorLine _playerForceLine;
-    private Dictionary<Collider2D, VectorLine> _colliderToNormalForceObj;
-    private Dictionary<Collider2D, VectorLine> _colliderToFrictionObj;
+    private Dictionary<Collider2D, VectorLine> _colliderToNormalForceLine;
+    private Dictionary<Collider2D, VectorLine> _colliderToFrictionLine;
     private VectorLine _gravityLine;
     public float lineWidth = 6f;
 
@@ -19,16 +19,18 @@ public class ForceApplier : MonoBehaviour
     void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
-        _colliderToNormalForceObj = new Dictionary<Collider2D, VectorLine>();
-        _colliderToFrictionObj = new Dictionary<Collider2D, VectorLine>();
+        _colliderToNormalForceLine = new Dictionary<Collider2D, VectorLine>();
+        _colliderToFrictionLine = new Dictionary<Collider2D, VectorLine>();
         _playerForceLine =
             new VectorLine("playerForce", new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
         _playerForceLine.drawTransform = transform;
+        _playerForceLine.endCap = "fullArrow";
         _gravityLine = new VectorLine("Gravity",
             new List<Vector3> {Vector2.zero, GravityVector()},
             lineWidth);
         _gravityLine.drawTransform = transform;
         _gravityLine.color = UnityEngine.Color.gray;
+        _gravityLine.endCap = "fullArrow";
         _gravityLine.Draw();
     }
 
@@ -47,25 +49,27 @@ public class ForceApplier : MonoBehaviour
     {
         var collideObjColor = collision.gameObject.GetComponent<SpriteRenderer>().color;
         VectorLine thisNormalForceLine;
-        if (!_colliderToNormalForceObj.TryGetValue(collision.collider, out thisNormalForceLine))
+        if (!_colliderToNormalForceLine.TryGetValue(collision.collider, out thisNormalForceLine))
         {
-            thisNormalForceLine = new VectorLine("N" + _colliderToNormalForceObj.Count,
+            thisNormalForceLine = new VectorLine("N" + _colliderToNormalForceLine.Count,
                 new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
             thisNormalForceLine.drawTransform = transform;
             thisNormalForceLine.color = collideObjColor;
-            _colliderToNormalForceObj.Add(collision.collider, thisNormalForceLine);
+            thisNormalForceLine.endCap = "fullArrow";
+            _colliderToNormalForceLine.Add(collision.collider, thisNormalForceLine);
         }
         
         thisNormalForceLine.active = true;
         
         VectorLine thisFrictionLine;
-        if (!_colliderToFrictionObj.TryGetValue(collision.collider, out thisFrictionLine))
+        if (!_colliderToFrictionLine.TryGetValue(collision.collider, out thisFrictionLine))
         {
-            thisFrictionLine =new VectorLine("N" + _colliderToFrictionObj.Count,
+            thisFrictionLine =new VectorLine("f" + _colliderToFrictionLine.Count,
                 new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
             thisFrictionLine.drawTransform = transform;
             thisFrictionLine.color = collideObjColor;
-            _colliderToFrictionObj.Add(collision.collider, thisFrictionLine);
+            thisFrictionLine.endCap = "fullArrow";
+            _colliderToFrictionLine.Add(collision.collider, thisFrictionLine);
         }
 
         thisFrictionLine.active = true;
@@ -75,13 +79,13 @@ public class ForceApplier : MonoBehaviour
     private void OnCollisionStay2D(Collision2D collision)
     {
         VectorLine thisNormalForce;
-        if (_colliderToNormalForceObj.TryGetValue(collision.collider, out thisNormalForce))
+        if (_colliderToNormalForceLine.TryGetValue(collision.collider, out thisNormalForce))
         {
             UpdateForceLine(thisNormalForce, NormalForceVector(collision, false));
         }
 
         VectorLine thisFriction;
-        if (_colliderToFrictionObj.TryGetValue(collision.collider, out thisFriction))
+        if (_colliderToFrictionLine.TryGetValue(collision.collider, out thisFriction))
         {
             UpdateForceLine(thisFriction, FrictionVector(collision));
         }
@@ -91,13 +95,13 @@ public class ForceApplier : MonoBehaviour
     private void OnCollisionExit2D(Collision2D collision)
     {
         VectorLine thisNormalForce;
-        if (_colliderToNormalForceObj.TryGetValue(collision.collider, out thisNormalForce))
+        if (_colliderToNormalForceLine.TryGetValue(collision.collider, out thisNormalForce))
         {
             thisNormalForce.active = false;
         }
 
         VectorLine thisFriction;
-        if (_colliderToFrictionObj.TryGetValue(collision.collider, out thisFriction))
+        if (_colliderToFrictionLine.TryGetValue(collision.collider, out thisFriction))
         {
             thisFriction.active = false;
         }
@@ -138,7 +142,7 @@ public class ForceApplier : MonoBehaviour
     private void UpdateForceLine(VectorLine vectorLine, Vector2 forceVector)
     {
         Vector2 pureForceVector = transform.InverseTransformVector(forceVector);
-        vectorLine.points3[1] = pureForceVector;
+        vectorLine.points3[0] = pureForceVector;
         vectorLine.Draw();
     }
 }
