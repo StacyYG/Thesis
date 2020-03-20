@@ -28,7 +28,7 @@ public class GameController : MonoBehaviour
 
     private void InitializeServices()
     {
-        ServiceLocator.MyCamera = Camera.main;
+        Services.MyCamera = Camera.main;
     }
 
 

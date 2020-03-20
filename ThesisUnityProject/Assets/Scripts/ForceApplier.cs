@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Vectrosity;
-using Color = System.Drawing.Color;
 
 public class ForceApplier : MonoBehaviour
 {
@@ -21,41 +20,35 @@ public class ForceApplier : MonoBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _colliderToNormalForceLine = new Dictionary<Collider2D, VectorLine>();
         _colliderToFrictionLine = new Dictionary<Collider2D, VectorLine>();
-        _playerForceLine =
-            new VectorLine("playerForce", new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
-        _playerForceLine.drawTransform = transform;
-        _playerForceLine.endCap = "fullArrow";
-        _gravityLine = new VectorLine("Gravity",
-            new List<Vector3> {Vector2.zero, GravityVector()},
-            lineWidth);
-        _gravityLine.drawTransform = transform;
-        _gravityLine.color = UnityEngine.Color.gray;
-        _gravityLine.endCap = "fullArrow";
+
+        _playerForceLine = CreateNewLine(Color.white, "fullArrow");
+        _playerForceLine.name = "PlayerForce";
+
+        _gravityLine = CreateNewLine(Color.gray, "fullArrow");
+        _gravityLine.name = "Gravity";
         _gravityLine.Draw();
     }
 
     private void Update()
     {
-        UpdateForceLine(_playerForceLine, ServiceLocator.ControllerSquare.PlayerForce());
+        UpdateForceLine(_playerForceLine, Services.ControllerSquare.PlayerForce());
         UpdateForceLine(_gravityLine, GravityVector());
     }
     
     private void FixedUpdate()
     {
-        _rb.AddForce(ServiceLocator.ControllerSquare.PlayerForce());
+        _rb.AddForce(Services.ControllerSquare.PlayerForce());
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         var collideObjColor = collision.gameObject.GetComponent<SpriteRenderer>().color;
+        
         VectorLine thisNormalForceLine;
         if (!_colliderToNormalForceLine.TryGetValue(collision.collider, out thisNormalForceLine))
         {
-            thisNormalForceLine = new VectorLine("N" + _colliderToNormalForceLine.Count,
-                new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
-            thisNormalForceLine.drawTransform = transform;
-            thisNormalForceLine.color = collideObjColor;
-            thisNormalForceLine.endCap = "fullArrow";
+            thisNormalForceLine = CreateNewLine(collideObjColor, "fullArrow");
+            thisNormalForceLine.name = "N" + _colliderToNormalForceLine.Count;
             _colliderToNormalForceLine.Add(collision.collider, thisNormalForceLine);
         }
         
@@ -64,11 +57,8 @@ public class ForceApplier : MonoBehaviour
         VectorLine thisFrictionLine;
         if (!_colliderToFrictionLine.TryGetValue(collision.collider, out thisFrictionLine))
         {
-            thisFrictionLine =new VectorLine("f" + _colliderToFrictionLine.Count,
-                new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
-            thisFrictionLine.drawTransform = transform;
-            thisFrictionLine.color = collideObjColor;
-            thisFrictionLine.endCap = "fullArrow";
+            thisFrictionLine = CreateNewLine(collideObjColor, "fullArrow");
+            thisFrictionLine.name = "f" + _colliderToFrictionLine.Count;
             _colliderToFrictionLine.Add(collision.collider, thisFrictionLine);
         }
 
@@ -76,12 +66,13 @@ public class ForceApplier : MonoBehaviour
 
     }
 
+    
     private void OnCollisionStay2D(Collision2D collision)
     {
         VectorLine thisNormalForce;
         if (_colliderToNormalForceLine.TryGetValue(collision.collider, out thisNormalForce))
         {
-            UpdateForceLine(thisNormalForce, NormalForceVector(collision, false));
+            UpdateForceLine(thisNormalForce, NormalForceVector(collision));
         }
 
         VectorLine thisFriction;
@@ -107,31 +98,36 @@ public class ForceApplier : MonoBehaviour
         }
     }
 
-    private Vector2 NormalForceVector(Collision2D collision, bool isImpulse)
+    private float _prevNormalForceSize;
+    private Vector2 NormalForceVector(Collision2D collision)
     {
-        var normalDirection = collision.GetContact(0).normal.normalized;
-        var magnitude = collision.GetContact(0).normalImpulse;
+        var direction = collision.GetContact(0).normal.normalized;
+        var size = collision.GetContact(0).normalImpulse / Time.fixedDeltaTime;
         if (collision.contactCount > 1)
         {
-            magnitude += collision.GetContact(1).normalImpulse;
+            size += collision.GetContact(1).normalImpulse / Time.fixedDeltaTime;
         }
-
-        if (isImpulse) return magnitude * normalDirection;
-        return magnitude / Time.fixedDeltaTime * normalDirection;
+        
+        var lerpSize = Mathf.Lerp(_prevNormalForceSize, size, 0.3f);
+        _prevNormalForceSize = lerpSize;
+        return lerpSize * direction;
         
     }
 
+    private float _prevFrictionSize;
     private Vector2 FrictionVector(Collision2D collision)
     {
         var normalDirection = collision.GetContact(0).normal.normalized;
         var direction = Quaternion.AngleAxis(-90, Vector3.forward) * normalDirection;
-        var magnitude = collision.GetContact(0).tangentImpulse;
+        var size = collision.GetContact(0).tangentImpulse / Time.fixedDeltaTime;
         if (collision.contactCount > 1)
         {
-            magnitude += collision.GetContact(1).tangentImpulse;
+            size += collision.GetContact(1).tangentImpulse / Time.fixedDeltaTime;
         }
-        
-        return magnitude / Time.fixedDeltaTime * direction;
+
+        var lerpSize = Mathf.Lerp(_prevFrictionSize, size, 0.3f);
+        _prevFrictionSize = lerpSize;
+        return lerpSize * direction;
     }
 
     private Vector2 GravityVector()
@@ -144,5 +140,14 @@ public class ForceApplier : MonoBehaviour
         Vector2 pureForceVector = transform.InverseTransformVector(forceVector);
         vectorLine.points3[0] = pureForceVector;
         vectorLine.Draw();
+    }
+
+    private VectorLine CreateNewLine(Color32 lineColor, string endCap)
+    {
+        var thisLine = new VectorLine("", new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
+        thisLine.drawTransform = transform;
+        thisLine.color = lineColor;
+        thisLine.endCap = endCap;
+        return thisLine;
     }
 }

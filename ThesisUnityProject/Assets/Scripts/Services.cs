@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public static class ServiceLocator
+public static class Services
 {
 
     private static Camera _myCamera;

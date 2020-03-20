@@ -75,8 +75,8 @@ public class ControllerSquare : MonoBehaviour
     private Vector2 MouseWorldPosition()
     {
         var mousePos = Input.mousePosition;
-        mousePos.z = -ServiceLocator.MyCamera.transform.position.z;
-        return ServiceLocator.MyCamera.ScreenToWorldPoint(mousePos);
+        mousePos.z = -Services.MyCamera.transform.position.z;
+        return Services.MyCamera.ScreenToWorldPoint(mousePos);
     }
 
     public Vector2 PlayerForce()
