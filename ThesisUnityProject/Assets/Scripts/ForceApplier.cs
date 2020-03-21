@@ -24,15 +24,23 @@ public class ForceApplier : MonoBehaviour
         _playerForceLine = CreateNewLine(Color.white, "fullArrow");
         _playerForceLine.name = "PlayerForce";
 
-        _gravityLine = CreateNewLine(Color.gray, "fullArrow");
-        _gravityLine.name = "Gravity";
-        _gravityLine.Draw();
+        if (Mathf.Abs(_rb.gravityScale) > Mathf.Epsilon)
+        {
+            _gravityLine = CreateNewLine(Color.gray, "fullArrow");
+            _gravityLine.name = "Gravity";
+            _gravityLine.Draw();
+        }
+        
     }
 
     private void Update()
     {
         UpdateForceLine(_playerForceLine, Services.ControllerSquare.PlayerForce());
-        UpdateForceLine(_gravityLine, GravityVector());
+        if (Mathf.Abs(_rb.gravityScale) > Mathf.Epsilon)
+        {
+            UpdateForceLine(_gravityLine, GravityVector());
+        }
+        
     }
     
     private void FixedUpdate()
@@ -52,7 +60,6 @@ public class ForceApplier : MonoBehaviour
             _colliderToNormalForceLine.Add(collision.collider, thisNormalForceLine);
         }
         
-        thisNormalForceLine.active = true;
         
         VectorLine thisFrictionLine;
         if (!_colliderToFrictionLine.TryGetValue(collision.collider, out thisFrictionLine))
@@ -61,40 +68,50 @@ public class ForceApplier : MonoBehaviour
             thisFrictionLine.name = "f" + _colliderToFrictionLine.Count;
             _colliderToFrictionLine.Add(collision.collider, thisFrictionLine);
         }
-
-        thisFrictionLine.active = true;
-
+        
     }
 
     
     private void OnCollisionStay2D(Collision2D collision)
     {
-        VectorLine thisNormalForce;
-        if (_colliderToNormalForceLine.TryGetValue(collision.collider, out thisNormalForce))
+        VectorLine thisNormalForceLine;
+        if (_colliderToNormalForceLine.TryGetValue(collision.collider, out thisNormalForceLine))
         {
-            UpdateForceLine(thisNormalForce, NormalForceVector(collision));
+            if (thisNormalForceLine.active == false)
+            {
+                thisNormalForceLine.active = true;
+            }
+            
+            UpdateForceLine(thisNormalForceLine, NormalForceVector(collision));
         }
 
-        VectorLine thisFriction;
-        if (_colliderToFrictionLine.TryGetValue(collision.collider, out thisFriction))
+        VectorLine thisFrictionLine;
+        if (_colliderToFrictionLine.TryGetValue(collision.collider, out thisFrictionLine))
         {
-            UpdateForceLine(thisFriction, FrictionVector(collision));
+            if (thisFrictionLine.active == false)
+            {
+                thisFrictionLine.active = true;
+            }
+            
+            UpdateForceLine(thisFrictionLine, FrictionVector(collision));
         }
 
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        VectorLine thisNormalForce;
-        if (_colliderToNormalForceLine.TryGetValue(collision.collider, out thisNormalForce))
+        VectorLine thisNormalForceLine;
+        if (_colliderToNormalForceLine.TryGetValue(collision.collider, out thisNormalForceLine))
         {
-            thisNormalForce.active = false;
+            _prevNormalForceSize = 0f;
+            thisNormalForceLine.active = false;
         }
 
-        VectorLine thisFriction;
-        if (_colliderToFrictionLine.TryGetValue(collision.collider, out thisFriction))
+        VectorLine thisFrictionLine;
+        if (_colliderToFrictionLine.TryGetValue(collision.collider, out thisFrictionLine))
         {
-            thisFriction.active = false;
+            _prevFrictionSize = 0f;
+            thisFrictionLine.active = false;
         }
     }
 
@@ -111,7 +128,6 @@ public class ForceApplier : MonoBehaviour
         var lerpSize = Mathf.Lerp(_prevNormalForceSize, size, 0.3f);
         _prevNormalForceSize = lerpSize;
         return lerpSize * direction;
-        
     }
 
     private float _prevFrictionSize;
