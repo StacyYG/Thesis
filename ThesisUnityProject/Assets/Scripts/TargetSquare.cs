@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Vectrosity;
 
-public class ForceApplier : MonoBehaviour
+public class TargetSquare : MonoBehaviour
 {
     private Rigidbody2D _rb;
     private VectorLine _playerForceLine;

@@ -11,14 +11,14 @@ public class ControllerSquare : MonoBehaviour
     private VectorLine _previousNetForceLine;
     private Vector2 _currentForceVector;
     private Vector2 _netForceVector;
-    public bool holdingMouse;
+    private bool _holdingMouse;
     public float lineWidth = 6f;
     private Vector2 _myWorldPosition;
     public Texture2D frontTexture;
     public Texture2D dashedLineTexture;
     public Texture2D fullLineTexture;
-
-
+    private float _maxForceSize = 2f;
+    
     private void Awake()
     {
         VectorLine.SetEndCap("dashedArrow", EndCap.Front, -0.5f, dashedLineTexture, frontTexture);
@@ -37,14 +37,17 @@ public class ControllerSquare : MonoBehaviour
         _currentNetForceLine.endCap = "fullArrow";
         _previousNetForceLine.endCap = _currentLine.endCap = "dashedArrow";
         _previousNetForceLine.textureScale = _currentLine.textureScale = 1.0f;
+
+        var boundCircle = new BoundCircle();
+        boundCircle.DrawCircle(transform.position, _maxForceSize);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (holdingMouse)
+        if (_holdingMouse)
         {
-            _currentForceVector = MouseWorldPosition() - _myWorldPosition;
+            _currentForceVector = Vector2.ClampMagnitude(MouseWorldPosition() - _myWorldPosition, _maxForceSize);
             _currentLine.points3[0] = _currentForceVector;
             _currentLine.Draw();
             _currentNetForceLine.points3[0] = _netForceVector + _currentForceVector;
@@ -56,7 +59,7 @@ public class ControllerSquare : MonoBehaviour
     // figure out a better way to replace this when on mobile
     private void OnMouseDown()
     {
-        holdingMouse = true;
+        _holdingMouse = true;
         _currentLine.active = true;
         _previousNetForceLine.active = true;
         _previousNetForceLine.points3[0] = _currentNetForceLine.points3[0];
@@ -65,7 +68,7 @@ public class ControllerSquare : MonoBehaviour
 
     private void OnMouseUp()
     {
-        holdingMouse = false;
+        _holdingMouse = false;
         _netForceVector += _currentForceVector;
         _currentLine.active = false;
         _previousNetForceLine.active = false;
@@ -81,7 +84,18 @@ public class ControllerSquare : MonoBehaviour
 
     public Vector2 PlayerForce()
     {
-        if (holdingMouse) return _netForceVector + _currentForceVector;
+        if (_holdingMouse) return _netForceVector + _currentForceVector;
         return _netForceVector;
+    }
+    
+    public class BoundCircle
+    {
+        public void DrawCircle(Vector3 origin, float radius)
+        {
+            int segments = 30;
+            var circleLine = new VectorLine("circle", new List<Vector3>(2 * segments), 8f, LineType.Points);
+            circleLine.MakeCircle(origin, radius, segments);
+            circleLine.Draw();
+        }
     }
 }

@@ -46,7 +46,7 @@ public static class Services
         {
             if (_controllerSquare == null)
             {
-                _controllerSquare = GameObject.FindGameObjectWithTag("controllerSquare")
+                _controllerSquare = GameObject.FindGameObjectWithTag("ControllerSquare")
                     .GetComponent<ControllerSquare>();
             }
 
@@ -54,5 +54,21 @@ public static class Services
         }
         set => _controllerSquare = value;
     }
-    
+
+    private static TargetSquare _targetSquare;
+
+    public static TargetSquare TargetSquare
+    {
+        get
+        {
+            if (_targetSquare == null)
+            {
+                _targetSquare = GameObject.FindGameObjectWithTag("TargetSquare").GetComponent<TargetSquare>();
+            }
+
+            return _targetSquare;
+        }
+        
+        set => _targetSquare = value;
+    }
 }

@@ -5,15 +5,14 @@ using Vectrosity;
 
 public class Path : MonoBehaviour
 {
-    public int maxPoints = 10;
-    public float dotSize = 10f;
+    public int maxPoints = 15;
+    public float dotSize = 15f;
     private VectorLine _pathLine;
 
     // Start is called before the first frame update
     void Start()
     {
         _pathLine = new VectorLine("Path", new List<Vector3>(maxPoints), dotSize, LineType.Points);
-        _pathLine.textureScale = 1.0f;
         var myColor = GetComponent<SpriteRenderer>().color;
         _pathLine.SetColor(myColor);
         StartCoroutine(WaitAndSamplePoints(transform));
@@ -23,7 +22,7 @@ public class Path : MonoBehaviour
     {
         for (int i = 0; i < maxPoints; i++)
         {
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.2f);
             _pathLine.points3[i] = thisTransform.position;
             _pathLine.Draw();
             if (i == maxPoints - 1)
