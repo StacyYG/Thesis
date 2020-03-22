@@ -47,7 +47,7 @@ public class ControllerSquare : MonoBehaviour
     {
         if (_holdingMouse)
         {
-            _currentForceVector = Vector2.ClampMagnitude(MouseWorldPosition() - _myWorldPosition, _maxForceSize);
+            _currentForceVector = Vector2.ClampMagnitude(MouseRelativePosition() - _myWorldPosition, _maxForceSize);
             _currentLine.points3[0] = _currentForceVector;
             _currentLine.Draw();
             _currentNetForceLine.points3[0] = _netForceVector + _currentForceVector;
@@ -75,11 +75,13 @@ public class ControllerSquare : MonoBehaviour
 
     }
 
-    private Vector2 MouseWorldPosition()
+    private Vector2 MouseRelativePosition()
     {
+        var myCameraPos = Services.MyCamera.transform.position;
         var mousePos = Input.mousePosition;
-        mousePos.z = -Services.MyCamera.transform.position.z;
-        return Services.MyCamera.ScreenToWorldPoint(mousePos);
+        mousePos.z = -myCameraPos.z;
+        var mouseWorldPos = Services.MyCamera.ScreenToWorldPoint(mousePos);
+        return mouseWorldPos - myCameraPos;
     }
 
     public Vector2 PlayerForce()
