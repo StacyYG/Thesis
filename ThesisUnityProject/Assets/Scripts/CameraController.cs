@@ -3,42 +3,62 @@ using UnityEngine;
 using System.Collections;
 using System.Linq;
 
-public class CameraController : MonoBehaviour {
-
-	private Transform targetSquare;
-	public Vector2 Margin;
-	public Vector2 smoothing;
-	
+public class CameraController
+{
+	private Camera _myCamera;
+	private Transform _targetSquare;
+	private Vector2 _margin = new Vector2(1f, 1f);
+	private Vector2 _smoothing = new Vector2(1f, 1f);
 	private Vector3 _min;
 	private Vector3 _max;
-
-	public bool IsFollowing;
-	
-	private void Start()
+	private bool _isFollowing;
+	private float cameraHalfSizeY;
+	private float cameraHalfSizeX;
+	private float edgeSize = 2f;
+	public CameraController(Camera camera, bool isFollow, Transform targetSquare)
 	{
-		IsFollowing = true;
-		targetSquare = Services.TargetSquare.transform;
-
+		_myCamera = camera;
+		_isFollowing = isFollow;
+		_targetSquare = targetSquare;
+		cameraHalfSizeY = _myCamera.orthographicSize;
+		cameraHalfSizeX = cameraHalfSizeY * ((float)Screen.width / Screen.height);
+		cameraHalfSizeX -= edgeSize;
+		cameraHalfSizeY -= edgeSize;
 	}
-	
 
-	private void Update()
+
+
+	public void Update()
 	{
-		var currentPos = transform.position;
+		var currentPos = _myCamera.transform.position;
 		var x = currentPos.x;
 		var y = currentPos.y;
-		if (IsFollowing) {
-			if (Mathf.Abs (x - targetSquare.position.x) > Margin.x)
+		if (_isFollowing) {
+			if (Mathf.Abs(x - _targetSquare.position.x)> cameraHalfSizeX)
 			{
-				x = Mathf.Lerp(x, targetSquare.position.x, smoothing.x * Time.deltaTime);
+				if (x - _targetSquare.position.x > 0) x = _targetSquare.position.x + cameraHalfSizeX;
+				else x = _targetSquare.position.x - cameraHalfSizeX;
+				_myCamera.transform.position = new Vector3(x, y, currentPos.z);
 			}
-			if (Mathf.Abs (y - targetSquare.position.y)> Margin.y)
+
+			if (Mathf.Abs(y - _targetSquare.position.y)> cameraHalfSizeY)
 			{
-				y = Mathf.Lerp(y, targetSquare.position.y, smoothing.y * Time.deltaTime);
+				if (y - _targetSquare.position.y > 0) y = _targetSquare.position.y + cameraHalfSizeY;
+				else y = _targetSquare.position.y - cameraHalfSizeY;
+				_myCamera.transform.position = new Vector3(x, y, currentPos.z);
+			}
+			
+			if (Mathf.Abs (x - _targetSquare.position.x) > _margin.x)
+			{
+				x = Mathf.Lerp(x, _targetSquare.position.x, _smoothing.x * Time.deltaTime);
+			}
+			if (Mathf.Abs (y - _targetSquare.position.y)> _margin.y)
+			{
+				y = Mathf.Lerp(y, _targetSquare.position.y, _smoothing.y * Time.deltaTime);
 			}
 		}
 
-		transform.position = new Vector3(x, y, currentPos.z);
+		_myCamera.transform.position = new Vector3(x, y, currentPos.z);
 	}
 	
 }

@@ -4,10 +4,9 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - target
-  - controllerSquare
   - TargetSquare
   - ControllerSquare
+  - LevelManager
   layers:
   - Default
   - TransparentFX

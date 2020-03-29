@@ -12,14 +12,10 @@ public static class Services
     {
         get
         {
-            if (_myCamera == null)
-            {
-                _myCamera = Camera.main;
-            }
-
+            Debug.Assert(_myCamera != null);
             return _myCamera;
         }
-        set => _myCamera = value;
+        set { _myCamera = value; }
     }
 
     private static GameController _gameController;
@@ -28,14 +24,10 @@ public static class Services
     {
         get
         {
-            if (_gameController == null)
-            {
-                _gameController = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
-            }
-
+            Debug.Assert(_gameController != null);
             return _gameController;
         }
-        set => _gameController = value;
+        set { _gameController = value; }
     }
 
     private static ControllerSquare _controllerSquare;
@@ -44,15 +36,10 @@ public static class Services
     {
         get
         {
-            if (_controllerSquare == null)
-            {
-                _controllerSquare = GameObject.FindGameObjectWithTag("ControllerSquare")
-                    .GetComponent<ControllerSquare>();
-            }
-
+            Debug.Assert(_controllerSquare != null);
             return _controllerSquare;
         }
-        set => _controllerSquare = value;
+        set { _controllerSquare = value; }
     }
 
     private static TargetSquare _targetSquare;
@@ -61,14 +48,21 @@ public static class Services
     {
         get
         {
-            if (_targetSquare == null)
-            {
-                _targetSquare = GameObject.FindGameObjectWithTag("TargetSquare").GetComponent<TargetSquare>();
-            }
-
+            Debug.Assert(_targetSquare != null);
             return _targetSquare;
         }
-        
-        set => _targetSquare = value;
+        set { _targetSquare = value; }
+    }
+
+    private static CameraController _cameraController;
+
+    public static CameraController CameraController
+    {
+        get
+        { 
+            Debug.Assert(_cameraController != null);
+            return _cameraController;
+        }
+        set { _cameraController = value; }
     }
 }
