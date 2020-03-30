@@ -12,8 +12,8 @@ public class CameraController
 	private Vector3 _min;
 	private Vector3 _max;
 	private bool _isFollowing;
-	private float cameraHalfSizeY;
-	private float cameraHalfSizeX;
+	public readonly float cameraHalfSizeY;
+	public readonly float cameraHalfSizeX;
 	private float edgeSize = 2f;
 	public CameraController(Camera camera, bool isFollow, Transform targetSquare)
 	{
