@@ -17,6 +17,7 @@ public class ParticleSystemManager : MonoBehaviour
         InstantiatePS();
         SetPositions();
         _particleSystems[0].gameObject.SetActive(true);
+        _currentPS = _particleSystems[0];
     }
 
     private void InstantiatePS()

@@ -156,5 +156,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc9cb34e3731aee4baeb9f77ccf32e52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxPoints: 15
+  maxPoints: 16
   dotSize: 15
