@@ -11,7 +11,7 @@ public class TargetSquare : MonoBehaviour
     private Dictionary<Collider2D, VectorLine> _colliderToNormalForceLine;
     private Dictionary<Collider2D, VectorLine> _colliderToFrictionLine;
     private VectorLine _gravityLine;
-    public float lineWidth = 6f;
+    public float lineWidth = 35f;
 
     
     // Start is called before the first frame update

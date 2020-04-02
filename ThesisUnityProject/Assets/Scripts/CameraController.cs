@@ -11,7 +11,7 @@ public class CameraController
 	private Vector2 _smoothing = new Vector2(1f, 1f);
 	private Vector3 _min;
 	private Vector3 _max;
-	private bool _isFollowing;
+	public bool _isFollowing;
 	public readonly float cameraHalfSizeY;
 	public readonly float cameraHalfSizeX;
 	private float edgeSize = 2f;

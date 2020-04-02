@@ -18,6 +18,7 @@ public class ControllerSquare : MonoBehaviour
     public Texture2D dashedLineTexture;
     public Texture2D fullLineTexture;
     private float _maxForceSize = 2f;
+    private Vector2 _calibration;
     
     private void Awake()
     {
@@ -26,9 +27,9 @@ public class ControllerSquare : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        _myWorldPosition = transform.position;
+        _calibration = transform.position - Services.MyCamera.transform.position;
         _currentNetForceLine = new VectorLine("currentNetForce", new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
         _previousNetForceLine = new VectorLine("previousNetForce", new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
         _currentLine = new VectorLine("forceBeingDrawn", new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
@@ -37,17 +38,14 @@ public class ControllerSquare : MonoBehaviour
         _currentNetForceLine.endCap = "fullArrow";
         _previousNetForceLine.endCap = _currentLine.endCap = "dashedArrow";
         _previousNetForceLine.textureScale = _currentLine.textureScale = 1.0f;
-
-        var boundCircle = new BoundCircle();
-        boundCircle.DrawCircle(transform.position, _maxForceSize);
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if (_holdingMouse)
         {
-            _currentForceVector = Vector2.ClampMagnitude(MouseRelativePosition() - _myWorldPosition, _maxForceSize);
+            _currentForceVector = Vector2.ClampMagnitude(MouseWorldPosition() - (Vector2)transform.position, _maxForceSize);
             _currentLine.points3[0] = _currentForceVector;
             _currentLine.Draw();
             _currentNetForceLine.points3[0] = _netForceVector + _currentForceVector;
@@ -75,13 +73,12 @@ public class ControllerSquare : MonoBehaviour
 
     }
 
-    private Vector2 MouseRelativePosition()
+    private Vector2 MouseWorldPosition()
     {
-        var myCameraPos = Services.MyCamera.transform.position;
         var mousePos = Input.mousePosition;
-        mousePos.z = -myCameraPos.z;
         var mouseWorldPos = Services.MyCamera.ScreenToWorldPoint(mousePos);
-        return mouseWorldPos - myCameraPos;
+        mouseWorldPos.z = 0f;
+        return mouseWorldPos;
     }
 
     public Vector2 PlayerForce()
@@ -90,14 +87,10 @@ public class ControllerSquare : MonoBehaviour
         return _netForceVector;
     }
     
-    public class BoundCircle
+    public void DrawBoundCircle(Vector3 origin, int segments = 30)
     {
-        public void DrawCircle(Vector3 origin, float radius)
-        {
-            int segments = 30;
-            var circleLine = new VectorLine("circle", new List<Vector3>(2 * segments), 8f, LineType.Points);
-            circleLine.MakeCircle(origin, radius, segments);
-            circleLine.Draw();
-        }
+        var circleLine = new VectorLine("circle", new List<Vector3>(2 * segments), 8f, LineType.Points);
+        circleLine.MakeCircle(origin, _maxForceSize, segments);
+        circleLine.Draw();
     }
 }

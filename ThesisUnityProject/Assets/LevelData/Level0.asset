@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7260f6bda8c4a9f419e12fd7119738e9, type: 3}
+  m_Name: Level0
+  m_EditorClassIdentifier: 
+  text1: This is your <b> control square </b>
+  v0: {x: 2, y: 0}
+  texts:
+  - 1^How does a box move when no forces are acting on it?^2
+  - 1^And how do forces affect that?^2
+  - 5^This is your <b>control box</b>,^2
+  - 1^it transfers any force it receives to the target box.^4
+  - 2^Now try to add a force!^2
+  showTargetSqr: 1
+  showCtrlSqr: 2
