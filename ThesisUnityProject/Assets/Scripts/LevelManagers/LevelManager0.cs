@@ -12,8 +12,8 @@ public class LevelManager0 : MonoBehaviour
     private List<float> _startWaitTime;
     private List<float> _durationTime;
     private Rigidbody2D _targetRB;
-    private GameObject _controlSqr;
-    private GameObject _targetSqr;
+    private GameObject _controlSqrObj;
+    private GameObject _targetSqrObj;
 
     public void Awake()
     {
@@ -23,13 +23,11 @@ public class LevelManager0 : MonoBehaviour
     private void Init()
     {
         Services.MyCamera = Camera.main;
-        _controlSqr = GameObject.FindGameObjectWithTag("ControllerSquare");
-        Services.ControllerSquare = _controlSqr.GetComponent<ControllerSquare>();
-
-        _targetSqr = GameObject.FindGameObjectWithTag("TargetSquare");
-        Services.TargetSquare = _targetSqr.GetComponent<TargetSquare>();
-        _targetRB = _targetSqr.GetComponent<Rigidbody2D>();
-
+        _controlSqrObj = GameObject.FindGameObjectWithTag("ControllerSquare");
+        Services.ControllerSquare = _controlSqrObj.GetComponent<ControllerSquare>();
+        _targetSqrObj = GameObject.FindGameObjectWithTag("TargetSquare");
+        Services.TargetSquare = _targetSqrObj.GetComponent<TargetSquare>();
+        _targetRB = _targetSqrObj.GetComponent<Rigidbody2D>();
         Services.CameraController = new CameraController(Services.MyCamera, false, Services.TargetSquare.transform);
         ParseTexts();
     }
@@ -116,8 +114,8 @@ public class LevelManager0 : MonoBehaviour
 
     private void ShowCtrlSqr()
     {
-        _controlSqr.transform.localPosition = new Vector3(6f, -2.5f, 10f);
-        Services.ControllerSquare.DrawBoundCircle(_controlSqr.transform.position);
+        _controlSqrObj.transform.localPosition = new Vector3(6f, -2.5f, 10f);
+        Services.ControllerSquare.DrawBoundCircle();
     }
 
     private bool _checked;

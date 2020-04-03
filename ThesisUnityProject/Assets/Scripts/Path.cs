@@ -9,14 +9,14 @@ public class Path : MonoBehaviour
     public float dotSize = 15f;
     private VectorLine _pathLine;
     private float _waitTime = 0.1f;
-    private Color myColor;
+    private Color _myColor;
     
     // Start is called before the first frame update
     void Start()
     {
         _pathLine = new VectorLine("Path", new List<Vector3>(), dotSize, LineType.Discrete);
-        myColor = GetComponent<SpriteRenderer>().color;
-        _pathLine.color = myColor;
+        _myColor = GetComponent<SpriteRenderer>().color;
+        _pathLine.color = _myColor;
         StartCoroutine(WaitAndSamplePointsNew());
     }
 

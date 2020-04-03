@@ -18,8 +18,11 @@ public class ControllerSquare : MonoBehaviour
     public Texture2D dashedLineTexture;
     public Texture2D fullLineTexture;
     private float _maxForceSize = 2f;
-    private Vector2 _calibration;
-    
+    public Color currentForceColor;
+    public Color previousNetForceColor;
+    public Color currentNetForceColor;
+    private VectorLine _circleLine;
+
     private void Awake()
     {
         VectorLine.SetEndCap("dashedArrow", EndCap.Front, -0.5f, dashedLineTexture, frontTexture);
@@ -29,10 +32,22 @@ public class ControllerSquare : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        _calibration = transform.position - Services.MyCamera.transform.position;
+        SetUpVectorLines();
+        DrawBoundCircle();
+    }
+
+    private void SetUpVectorLines()
+    {
         _currentNetForceLine = new VectorLine("currentNetForce", new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
-        _previousNetForceLine = new VectorLine("previousNetForce", new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
+        _currentNetForceLine.color = currentNetForceColor;
+
+        _previousNetForceLine =
+            new VectorLine("previousNetForce", new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
+        _previousNetForceLine.color = previousNetForceColor;
+
         _currentLine = new VectorLine("forceBeingDrawn", new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
+        _currentLine.color = currentForceColor;
+
         _currentNetForceLine.drawTransform =
             _previousNetForceLine.drawTransform = _currentLine.drawTransform = transform;
         _currentNetForceLine.endCap = "fullArrow";
@@ -72,7 +87,7 @@ public class ControllerSquare : MonoBehaviour
         _previousNetForceLine.active = false;
 
     }
-
+    
     private Vector2 MouseWorldPosition()
     {
         var mousePos = Input.mousePosition;
@@ -81,16 +96,43 @@ public class ControllerSquare : MonoBehaviour
         return mouseWorldPos;
     }
 
-    public Vector2 PlayerForce()
+    private Vector2 _playerForce;
+
+    public Vector2 PlayerForce
     {
-        if (_holdingMouse) return _netForceVector + _currentForceVector;
-        return _netForceVector;
+        get
+        {
+            if (_holdingMouse)
+            {
+                _playerForce = _netForceVector + _currentForceVector;
+                
+            }
+            else
+            {
+                _playerForce = _netForceVector;
+            }
+
+            return _playerForce;
+        }
+        set => _playerForce = value;
     }
-    
-    public void DrawBoundCircle(Vector3 origin, int segments = 30)
+
+    public void ResetPlayerForce()
     {
-        var circleLine = new VectorLine("circle", new List<Vector3>(2 * segments), 8f, LineType.Points);
-        circleLine.MakeCircle(origin, _maxForceSize, segments);
-        circleLine.Draw();
+        _netForceVector = Vector2.zero;
+        _currentForceVector = Vector2.zero;
+        _currentLine.points3[0] = Vector2.zero;
+        _currentNetForceLine.points3[0] = Vector2.zero;
+        _currentLine.Draw();
+        _currentNetForceLine.Draw();
+    }
+    public void DrawBoundCircle(int segments = 30)
+    {
+        if (_circleLine == null)
+        {
+            _circleLine = new VectorLine("circle", new List<Vector3>(2 * segments), 8f, LineType.Points);
+        }
+        _circleLine.MakeCircle(transform.position, _maxForceSize, segments);
+        _circleLine.Draw();
     }
 }

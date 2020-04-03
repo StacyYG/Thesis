@@ -7,10 +7,10 @@ using Vectrosity;
 public class TargetSquare : MonoBehaviour
 {
     private Rigidbody2D _rb;
-    private VectorLine _playerForceLine;
-    private Dictionary<Collider2D, VectorLine> _colliderToNormalForceLine;
-    private Dictionary<Collider2D, VectorLine> _colliderToFrictionLine;
-    private VectorLine _gravityLine;
+    private PlayerForce _playerForce;
+    private Dictionary<Collider2D, NormalForce> _normalForces;
+    private Dictionary<Collider2D, Friction> _frictions;
+    private Gravity _gravity;
     public float lineWidth = 35f;
 
     
@@ -18,100 +18,82 @@ public class TargetSquare : MonoBehaviour
     void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
-        _colliderToNormalForceLine = new Dictionary<Collider2D, VectorLine>();
-        _colliderToFrictionLine = new Dictionary<Collider2D, VectorLine>();
-
-        _playerForceLine = CreateNewLine(Color.white, "fullArrow");
-        _playerForceLine.name = "PlayerForce";
+        _normalForces = new Dictionary<Collider2D, NormalForce>();
+        _frictions = new Dictionary<Collider2D, Friction>();
+        
+        _playerForce = new PlayerForce(gameObject);
 
         if (Mathf.Abs(_rb.gravityScale) > Mathf.Epsilon)
         {
-            _gravityLine = CreateNewLine(Color.gray, "fullArrow");
-            _gravityLine.name = "Gravity";
-            _gravityLine.Draw();
+            _gravity = new Gravity(gameObject);
         }
         
     }
 
-    private void Update()
+    private void LateUpdate()
     {
-        UpdateForceLine(_playerForceLine, Services.ControllerSquare.PlayerForce());
+        _playerForce.Update();
         if (Mathf.Abs(_rb.gravityScale) > Mathf.Epsilon)
         {
-            UpdateForceLine(_gravityLine, GravityVector());
+            _gravity.Update();
         }
         
     }
     
     private void FixedUpdate()
     {
-        _rb.AddForce(Services.ControllerSquare.PlayerForce());
+        _rb.AddForce(Services.ControllerSquare.PlayerForce);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        var collideObjColor = collision.gameObject.GetComponent<SpriteRenderer>().color;
-        
-        VectorLine thisNormalForceLine;
-        if (!_colliderToNormalForceLine.TryGetValue(collision.collider, out thisNormalForceLine))
+        NormalForce normalForce;
+        if (!_normalForces.TryGetValue(collision.collider, out normalForce))
         {
-            thisNormalForceLine = CreateNewLine(collideObjColor, "fullArrow");
-            thisNormalForceLine.name = "N" + _colliderToNormalForceLine.Count;
-            _colliderToNormalForceLine.Add(collision.collider, thisNormalForceLine);
+            normalForce = new NormalForce(gameObject, collision, _normalForces.Count);
+            _normalForces.Add(collision.collider, normalForce);
         }
-        
-        
-        VectorLine thisFrictionLine;
-        if (!_colliderToFrictionLine.TryGetValue(collision.collider, out thisFrictionLine))
+
+
+        Friction friction;
+        if (!_frictions.TryGetValue(collision.collider, out friction))
         {
-            thisFrictionLine = CreateNewLine(collideObjColor, "fullArrow");
-            thisFrictionLine.name = "f" + _colliderToFrictionLine.Count;
-            _colliderToFrictionLine.Add(collision.collider, thisFrictionLine);
+            friction = new Friction(gameObject, collision, _frictions.Count);
+            _frictions.Add(collision.collider, friction);
         }
         
     }
 
-    
     private void OnCollisionStay2D(Collision2D collision)
     {
-        VectorLine thisNormalForceLine;
-        if (_colliderToNormalForceLine.TryGetValue(collision.collider, out thisNormalForceLine))
+        NormalForce normalForce;
+        if (_normalForces.TryGetValue(collision.collider, out normalForce))
         {
-            if (thisNormalForceLine.active == false)
-            {
-                thisNormalForceLine.active = true;
-            }
-            
-            UpdateForceLine(thisNormalForceLine, NormalForceVector(collision));
+            normalForce.SetForceVector(NormalForceVector(collision));
         }
 
-        VectorLine thisFrictionLine;
-        if (_colliderToFrictionLine.TryGetValue(collision.collider, out thisFrictionLine))
+        Friction friction;
+        if (_frictions.TryGetValue(collision.collider, out friction))
         {
-            if (thisFrictionLine.active == false)
-            {
-                thisFrictionLine.active = true;
-            }
-            
-            UpdateForceLine(thisFrictionLine, FrictionVector(collision));
+            friction.SetForceVector(FrictionVector(collision));
         }
 
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        VectorLine thisNormalForceLine;
-        if (_colliderToNormalForceLine.TryGetValue(collision.collider, out thisNormalForceLine))
+        NormalForce normalForce;
+        if (_normalForces.TryGetValue(collision.collider, out normalForce))
         {
+            normalForce.Reset();
             _prevNormalForceSize = 0f;
-            thisNormalForceLine.active = false;
         }
 
-        VectorLine thisFrictionLine;
-        if (_colliderToFrictionLine.TryGetValue(collision.collider, out thisFrictionLine))
+        Friction friction;
+        if (_frictions.TryGetValue(collision.collider, out friction))
         {
+            friction.Reset();
             _prevFrictionSize = 0f;
-            thisFrictionLine.active = false;
         }
     }
 
@@ -158,7 +140,7 @@ public class TargetSquare : MonoBehaviour
         vectorLine.Draw();
     }
 
-    private VectorLine CreateNewLine(Color32 lineColor, string endCap)
+    private VectorLine CreateNewLine(Color lineColor, string endCap)
     {
         var thisLine = new VectorLine("", new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
         thisLine.drawTransform = transform;
