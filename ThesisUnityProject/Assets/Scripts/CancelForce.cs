@@ -26,7 +26,8 @@ public class CancelForce : MonoBehaviour
     
     public void DrawBoundCircle(Vector3 origin, float radius, int segments = 15)
     {
-        var circleLine = new VectorLine("circle", new List<Vector3>(2 * segments), 8f, LineType.Points);
+        var circleLine = new VectorLine("circle", new List<Vector3>(segments), 8f, LineType.Points);
+        Services.TotalLineNumber++;
         circleLine.MakeCircle(origin, radius, segments);
         circleLine.Draw();
     }

@@ -37,7 +37,7 @@ public class LevelManager0 : MonoBehaviour
     {
         _tmp = GetComponent<TextMeshPro>();
         StartCoroutine(WaitAndPrintText());
-        
+
     }
 
     // Update is called once per frame

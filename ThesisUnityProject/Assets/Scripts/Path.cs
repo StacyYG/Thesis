@@ -15,22 +15,32 @@ public class Path : MonoBehaviour
     void Start()
     {
         _pathLine = new VectorLine("Path", new List<Vector3>(), dotSize, LineType.Discrete);
+        Services.TotalLineNumber++;
         _myColor = GetComponent<SpriteRenderer>().color;
         _pathLine.color = _myColor;
+        _pathLine.endPointsUpdate = 2;
+        _pathLine.drawDepth = 0;
+        _pathLine.Draw();
         StartCoroutine(WaitAndSamplePointsNew());
     }
 
+    private int _pointIndex = 0;
     private IEnumerator WaitAndSamplePointsNew()
     {
         yield return new WaitForSeconds(_waitTime);
-
+        
         _pathLine.points3.Add(transform.position);
-        if (_pathLine.points3.Count >= maxPoints)
-        {
-            _pathLine.points3.RemoveAt(0);
-        }
+        _pointIndex++;
 
-        _pathLine.Draw();
+        if (_pointIndex % 2 == 0)
+        {
+            _pathLine.Draw();
+            if (_pointIndex > maxPoints * 2)
+            {
+                _pathLine.drawStart += 2;
+            }
+            
+        }
         
         StartCoroutine(WaitAndSamplePointsNew());
     }

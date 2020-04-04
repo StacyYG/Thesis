@@ -39,13 +39,16 @@ public class ControllerSquare : MonoBehaviour
     private void SetUpVectorLines()
     {
         _currentNetForceLine = new VectorLine("currentNetForce", new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
+        Services.TotalLineNumber++;
         _currentNetForceLine.color = currentNetForceColor;
 
         _previousNetForceLine =
             new VectorLine("previousNetForce", new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
+        Services.TotalLineNumber++;
         _previousNetForceLine.color = previousNetForceColor;
 
         _currentLine = new VectorLine("forceBeingDrawn", new List<Vector3> {Vector2.zero, Vector2.zero}, lineWidth);
+        Services.TotalLineNumber++;
         _currentLine.color = currentForceColor;
 
         _currentNetForceLine.drawTransform =
@@ -128,10 +131,11 @@ public class ControllerSquare : MonoBehaviour
     }
     public void DrawBoundCircle(int segments = 30)
     {
-        if (_circleLine == null)
+        if (_circleLine != null)
         {
-            _circleLine = new VectorLine("circle", new List<Vector3>(2 * segments), 8f, LineType.Points);
+            VectorLine.Destroy(ref _circleLine);
         }
+        _circleLine = new VectorLine("circle", new List<Vector3>(segments), 8f, LineType.Points);
         _circleLine.MakeCircle(transform.position, _maxForceSize, segments);
         _circleLine.Draw();
     }

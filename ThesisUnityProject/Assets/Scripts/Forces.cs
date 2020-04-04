@@ -15,6 +15,7 @@ public abstract class Forces
         _transform = gameObject.transform;
         _rb = gameObject.GetComponent<Rigidbody2D>();
         _line = new VectorLine("", new List<Vector3> {Vector2.zero, Vector2.zero}, LineWidth);
+        Services.TotalLineNumber++;
         _line.drawTransform = _transform;
     }
 
@@ -76,15 +77,29 @@ public class NormalForce : Forces
         _line.color = collision.gameObject.GetComponent<SpriteRenderer>().color;
     }
     
-    public override void Update()
+    public override void Update() {}
+
+    private float _prevNormalForceSize;
+    
+    public void Change(Collision2D collision)
     {
+        var direction = collision.GetContact(0).normal.normalized;
+        var size = collision.GetContact(0).normalImpulse / Time.fixedDeltaTime;
+        if (collision.contactCount > 1)
+        {
+            size += collision.GetContact(1).normalImpulse / Time.fixedDeltaTime;
+        }
         
+        var lerpSize = Mathf.Lerp(_prevNormalForceSize, size, 0.3f);
+        _prevNormalForceSize = lerpSize;
+        SetForceVector(lerpSize * direction);
     }
 
     public void Reset()
     {
         _line.points3[0] = Vector2.zero;
         _line.Draw();
+        _prevNormalForceSize = 0f;
     }
 }
 
@@ -96,14 +111,28 @@ public class Friction : Forces
         _line.name = "f" + index;
         _line.color = collision.gameObject.GetComponent<SpriteRenderer>().color;
     }
-    public override void Update()
-    {
-        
-    }
+    public override void Update() {}
+
+    private float _prevFrictionSize;
     
+    public void Change(Collision2D collision)
+    {
+        var normalDirection = collision.GetContact(0).normal.normalized;
+        var direction = Quaternion.AngleAxis(-90, Vector3.forward) * normalDirection;
+        var size = collision.GetContact(0).tangentImpulse / Time.fixedDeltaTime;
+        if (collision.contactCount > 1)
+        {
+            size += collision.GetContact(1).tangentImpulse / Time.fixedDeltaTime;
+        }
+
+        var lerpSize = Mathf.Lerp(_prevFrictionSize, size, 0.3f);
+        _prevFrictionSize = lerpSize;
+        SetForceVector(lerpSize * direction);
+    }
     public void Reset()
     {
         _line.points3[0] = Vector2.zero;
         _line.Draw();
+        _prevFrictionSize = 0f;
     }
 }
