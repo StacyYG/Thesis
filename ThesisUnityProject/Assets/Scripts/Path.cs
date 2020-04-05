@@ -20,7 +20,7 @@ public class Path : MonoBehaviour
         _pathLine.color = _myColor;
         _pathLine.endPointsUpdate = 2;
         _pathLine.drawDepth = 0;
-        _pathLine.Draw();
+        _pathLine.Draw3D();
         StartCoroutine(WaitAndSamplePointsNew());
     }
 
@@ -34,7 +34,7 @@ public class Path : MonoBehaviour
 
         if (_pointIndex % 2 == 0)
         {
-            _pathLine.Draw();
+            _pathLine.Draw3D();
             if (_pointIndex > maxPoints * 2)
             {
                 _pathLine.drawStart += 2;

@@ -9,6 +9,13 @@ public abstract class Forces
     private const float LineWidth = 35f;
     protected Transform _transform;
     protected Rigidbody2D _rb;
+    private Vector2 _vector;
+
+    public Vector2 Vector
+    {
+        get => _vector;
+    }
+
 
     protected Forces(GameObject gameObject)
     {
@@ -24,10 +31,15 @@ public abstract class Forces
         VectorLine.Destroy(ref _line);
     }
 
-    public void SetForceVector(Vector2 forceVector)
+    public void SetVector(Vector2 forceVector)
     {
+        _vector = forceVector;
         Vector2 pureForceVector = _transform.InverseTransformVector(forceVector);
         _line.points3[0] = pureForceVector;
+    }
+
+    public void Draw()
+    {
         _line.Draw();
     }
 
@@ -42,19 +54,14 @@ public class Gravity : Forces
         _line.endCap = "fullArrow";
         _line.color = Color.gray;
         var vector = new Vector2(0f, _rb.gravityScale * Physics2D.gravity.y * _rb.mass);
-        SetForceVector(vector);
+        SetVector(vector);
     }
-
-    public override void Update()
-    {
-        _line.Draw();
-    }
+    public override void Update() {}
 }
 
 public class PlayerForce : Forces
 {
     private ControllerSquare _controllerSquare;
-    
     public PlayerForce(GameObject gameObject) : base(gameObject)
     {
         _line.name = "PlayerForce";
@@ -64,8 +71,9 @@ public class PlayerForce : Forces
     }
     public override void Update()
     {
-        SetForceVector(_controllerSquare.PlayerForce);
+        SetVector(_controllerSquare.PlayerForce);
     }
+    
 }
 
 public class NormalForce : Forces
@@ -92,12 +100,13 @@ public class NormalForce : Forces
         
         var lerpSize = Mathf.Lerp(_prevNormalForceSize, size, 0.3f);
         _prevNormalForceSize = lerpSize;
-        SetForceVector(lerpSize * direction);
+        SetVector(lerpSize * direction);
+        _line.Draw();
     }
 
     public void Reset()
     {
-        _line.points3[0] = Vector2.zero;
+        SetVector(Vector2.zero);
         _line.Draw();
         _prevNormalForceSize = 0f;
     }
@@ -127,11 +136,12 @@ public class Friction : Forces
 
         var lerpSize = Mathf.Lerp(_prevFrictionSize, size, 0.3f);
         _prevFrictionSize = lerpSize;
-        SetForceVector(lerpSize * direction);
+        SetVector(lerpSize * direction);
+        _line.Draw();
     }
     public void Reset()
     {
-        _line.points3[0] = Vector2.zero;
+        SetVector(Vector2.zero);
         _line.Draw();
         _prevFrictionSize = 0f;
     }

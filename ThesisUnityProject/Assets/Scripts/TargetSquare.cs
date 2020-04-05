@@ -28,20 +28,20 @@ public class TargetSquare : MonoBehaviour
         }
         
     }
-
-    private void LateUpdate()
-    {
-        _playerForce.Update();
-        if (Mathf.Abs(_rb.gravityScale) > Mathf.Epsilon)
-        {
-            _gravity.Update();
-        }
-        
-    }
     
     private void FixedUpdate()
     {
-        _rb.AddForce(Services.ControllerSquare.PlayerForce);
+        _playerForce.Update();
+        _rb.AddForce(_playerForce.Vector);
+    }
+    
+    private void LateUpdate()
+    {
+        _playerForce.Draw();
+        if (Mathf.Abs(_rb.gravityScale) > Mathf.Epsilon)
+        {
+            _gravity.Draw();
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

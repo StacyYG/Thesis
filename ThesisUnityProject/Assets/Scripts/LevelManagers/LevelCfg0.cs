@@ -8,4 +8,5 @@ public class LevelCfg0 : ScriptableObject
     public List<string> texts;
     public int showTargetSqr;
     public int showCtrlSqr;
+    public int firstForce;
 }

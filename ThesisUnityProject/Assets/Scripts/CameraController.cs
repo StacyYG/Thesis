@@ -5,7 +5,6 @@ using System.Linq;
 
 public class CameraController
 {
-	private Camera _myCamera;
 	private Transform _targetSquare;
 	private Vector2 _margin = new Vector2(1f, 1f);
 	private Vector2 _smoothing = new Vector2(1f, 1f);
@@ -15,12 +14,13 @@ public class CameraController
 	public readonly float cameraHalfSizeY;
 	public readonly float cameraHalfSizeX;
 	private float edgeSize = 2f;
+	private Transform _transform;
 	public CameraController(Camera camera, bool isFollow, Transform targetSquare)
 	{
-		_myCamera = camera;
+		_transform = camera.transform;
 		_isFollowing = isFollow;
 		_targetSquare = targetSquare;
-		cameraHalfSizeY = _myCamera.orthographicSize;
+		cameraHalfSizeY = camera.orthographicSize;
 		cameraHalfSizeX = cameraHalfSizeY * ((float)Screen.width / Screen.height);
 		cameraHalfSizeX -= edgeSize;
 		cameraHalfSizeY -= edgeSize;
@@ -30,7 +30,7 @@ public class CameraController
 
 	public void Update()
 	{
-		var currentPos = _myCamera.transform.position;
+		var currentPos = _transform.position;
 		var x = currentPos.x;
 		var y = currentPos.y;
 		if (_isFollowing) {
@@ -38,14 +38,12 @@ public class CameraController
 			{
 				if (x - _targetSquare.position.x > 0) x = _targetSquare.position.x + cameraHalfSizeX;
 				else x = _targetSquare.position.x - cameraHalfSizeX;
-				_myCamera.transform.position = new Vector3(x, y, currentPos.z);
 			}
 
 			if (Mathf.Abs(y - _targetSquare.position.y)> cameraHalfSizeY)
 			{
 				if (y - _targetSquare.position.y > 0) y = _targetSquare.position.y + cameraHalfSizeY;
 				else y = _targetSquare.position.y - cameraHalfSizeY;
-				_myCamera.transform.position = new Vector3(x, y, currentPos.z);
 			}
 			
 			if (Mathf.Abs (x - _targetSquare.position.x) > _margin.x)
@@ -58,7 +56,7 @@ public class CameraController
 			}
 		}
 
-		_myCamera.transform.position = new Vector3(x, y, currentPos.z);
+		_transform.position = new Vector3(x, y, currentPos.z);
 	}
 	
 }

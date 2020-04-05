@@ -73,4 +73,15 @@ public static class Services
         get => _totalLineNumber;
         set => _totalLineNumber = value;
     }
+
+    private static EventManager _eventManager;
+    public static EventManager EventManager
+    {
+        get
+        { 
+            Debug.Assert(_eventManager != null);
+            return _eventManager;
+        }
+        set => _eventManager = value;
+    }
 }
