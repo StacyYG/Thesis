@@ -47,14 +47,14 @@ public class LevelManager0 : MonoBehaviour
 
     private IEnumerator Whole()
     {
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 5; i++)
         {
-            if (i == levelCfg0.showCtrlSqr)
+            if (i == levelCfg0.showCtrlSqrIndex)
             {
                 ShowCtrlSqr();
             }
 
-            if (i == levelCfg0.showTargetSqr)
+            if (i == levelCfg0.showTargetSqrIndex)
             {
                 ShowTargetSqr();
             }
@@ -66,15 +66,18 @@ public class LevelManager0 : MonoBehaviour
         
         if (Services.ControllerSquare.PlayerForce != Vector2.zero)
         {
-            _printTexts[4].Do();
+            yield return new WaitForSeconds(_startWaitTimes[levelCfg0.alreadyForceIndex]);
+            _printTexts[levelCfg0.alreadyForceIndex].Print();
+            yield return new WaitForSeconds(_durationTimes[levelCfg0.alreadyForceIndex]);
+            _printTexts[levelCfg0.alreadyForceIndex].Clear();
         }
         else
         {
             Services.EventManager.Register<FirstForce>(OnFirstForce);
-            yield return new WaitForSeconds(_startWaitTimes[5]);
-            _printTexts[5].Print();
+            yield return new WaitForSeconds(_startWaitTimes[levelCfg0.addForceInstruction]);
+            _printTexts[levelCfg0.addForceInstruction].Print();
         }
-        
+        yield return new WaitForSeconds();
         
     }
     // Update is called once per frame
@@ -119,7 +122,7 @@ public class LevelManager0 : MonoBehaviour
 
     private void OnFirstForce(AGPEvent e)
     {
-        _printTexts[levelCfg0.firstForce].Do();
+        _printTexts[levelCfg0.firstForceIndex].Do();
 
         Debug.Log("yes");
         Services.EventManager.Unregister<FirstForce>(OnFirstForce);
@@ -132,12 +135,12 @@ public class LevelManager0 : MonoBehaviour
             yield break;
         }
         
-        if (index == levelCfg0.showCtrlSqr)
+        if (index == levelCfg0.showCtrlSqrIndex)
         {
             ShowCtrlSqr();
         }
 
-        if (index == levelCfg0.showTargetSqr)
+        if (index == levelCfg0.showTargetSqrIndex)
         {
             ShowTargetSqr();
         }
@@ -183,6 +186,58 @@ public class LevelManager0 : MonoBehaviour
         {
             Services.CameraController._isFollowing = true;
             _checked = true;
+        }
+    }
+    
+    private abstract class InstructionState : FiniteStateMachine<LevelManager0>.State
+    {
+        public override void OnEnter()
+        {
+        }
+
+        public override void Update()
+        {
+        }
+
+        public override void OnExit()
+        {
+        }
+    }
+
+    private class Initial : InstructionState
+    {
+        public override void OnEnter()
+        {
+            Context.StartCoroutine(InitialInstructions());
+        }
+
+        private IEnumerator InitialInstructions()
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                if (i == Context.levelCfg0.showCtrlSqrIndex)
+                {
+                    Context.ShowCtrlSqr();
+                }
+
+                if (i == Context.levelCfg0.showTargetSqrIndex)
+                {
+                    Context.ShowTargetSqr();
+                }
+                yield return new WaitForSeconds(Context._startWaitTimes[i]);
+                Context._printTexts[i].Print();
+                yield return new WaitForSeconds(Context._durationTimes[i]);
+                Context._printTexts[i].Clear();
+            }
+            TransitionTo<>();
+        }
+    }
+
+    private class AlreadyForce : InstructionState
+    {
+        public override void OnEnter()
+        {
+            Context._printTexts[Context.levelCfg0.alreadyForceIndex].Do();
         }
     }
     

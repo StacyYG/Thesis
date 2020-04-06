@@ -5,8 +5,10 @@ using UnityEngine;
 public class LevelCfg0 : ScriptableObject
 {
     public Vector2 v0 = new Vector2(2f, 0f);
+    public int showTargetSqrIndex;
+    public int showCtrlSqrIndex;
+    public int alreadyForceIndex;
+    public int addForceInstruction;
+    public int firstForceIndex;
     public List<string> texts;
-    public int showTargetSqr;
-    public int showCtrlSqr;
-    public int firstForce;
 }

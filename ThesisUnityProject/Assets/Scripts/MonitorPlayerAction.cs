@@ -17,15 +17,22 @@ public class MonitorPlayerAction : MonoBehaviour
         
     }
 
-    private bool _isFirstTime = true; 
+    public int ClickTimes { get; private set; }
     private void OnMouseDown()
     {
-        if (_isFirstTime)
+        ClickTimes++;
+        if (ClickTimes == 1)
         {
             Services.EventManager.Fire(new FirstForce());
-            _isFirstTime = false;
+        }
+
+        if (ClickTimes == 2)
+        {
+            Services.EventManager.Fire(new SecondForce());
         }
     }
 }
 
 public class FirstForce : AGPEvent{}
+
+public class SecondForce : AGPEvent{}

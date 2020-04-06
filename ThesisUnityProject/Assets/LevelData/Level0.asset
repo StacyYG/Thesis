@@ -13,15 +13,16 @@ MonoBehaviour:
   m_Name: Level0
   m_EditorClassIdentifier: 
   v0: {x: 2, y: 0}
+  showTargetSqrIndex: 1
+  showCtrlSqrIndex: 3
+  alreadyForceIndex: 5
+  firstForceIndex: 8
   texts:
-  - 2^How does a box move when no forces are acting on it?^3
-  - 2^And how do forces affect that?^3
+  - 1^How does a box move when no forces are acting on it?^3
+  - 1^And how do forces affect that?^2
+  - 1^Let's explore it!^2
   - 1^This is your <b>control box</b>,^2
   - 1^it transfers any force it receives to the target box.^4
-  - 1^Now try to add a force!^2
-  - 1^Oh, seems you already did that, smart.^2
-  - 1^You need to click the <b>control box</b> and drag.^2
+  - 1^Oh, seems you already added a force, smart.^2
+  - 1^To add a force, you need to click the <b>control box</b> and drag.^2
   - 0^Yes! you just added a force.^2
-  showTargetSqr: 1
-  showCtrlSqr: 2
-  firstForce: 7
