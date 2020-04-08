@@ -33,6 +33,7 @@ public class TargetSquare : MonoBehaviour
     {
         _playerForce.Update();
         _rb.AddForce(_playerForce.Vector);
+        Services.CameraController.Update();
     }
     
     private void LateUpdate()

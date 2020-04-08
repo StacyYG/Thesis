@@ -9,13 +9,21 @@ public class LevelManager0 : MonoBehaviour
     public LevelCfg0 levelCfg0;
     private TextMeshPro _tmp;
     private List<string> _instructions;
-    private List<float> _startWaitTimes;
+    private List<float> _startTimes;
     private List<float> _durationTimes;
     private List<PrintText> _printTexts;
     private Rigidbody2D _targetRB;
     private GameObject _controlSqrObj;
     private GameObject _targetSqrObj;
     private FiniteStateMachine<LevelManager0> _level0StateMachine;
+    private MonitorPlayerAction _monitor;
+    private bool _hasShowTargetSqr, _hasShowCtrlSqr, _hasAllowControl;
+    private BoxCollider2D _ctrlSqrCollider;
+    private bool _stopTalking;
+    private GameObject _shade;
+    private float _timeSinceFirstForce;
+    private bool _hasFirstForce;
+    private bool _hasRemind;
 
     public void Awake()
     {
@@ -33,134 +41,115 @@ public class LevelManager0 : MonoBehaviour
         Services.CameraController = new CameraController(Services.MyCamera, false, Services.TargetSquare.transform);
         Services.EventManager = new EventManager();
         _printTexts = new List<PrintText>();
+        _monitor = _targetSqrObj.GetComponent<MonitorPlayerAction>();
+        _ctrlSqrCollider = _controlSqrObj.GetComponent<BoxCollider2D>();
+        _ctrlSqrCollider.enabled = false;
+        _shade = GameObject.FindGameObjectWithTag("Shade");
+        _shade.SetActive(false);
+        _tmp = GetComponent<TextMeshPro>();
         ParseTexts();
     }
     
     // Start is called before the first frame update
     void Start()
     {
-        _tmp = GetComponent<TextMeshPro>();
-        SetUpTexts();
-        StartCoroutine(Whole());
-        
-    }
 
-    private IEnumerator Whole()
-    {
-        for (int i = 0; i < 5; i++)
-        {
-            if (i == levelCfg0.showCtrlSqrIndex)
-            {
-                ShowCtrlSqr();
-            }
-
-            if (i == levelCfg0.showTargetSqrIndex)
-            {
-                ShowTargetSqr();
-            }
-            yield return new WaitForSeconds(_startWaitTimes[i]);
-            _printTexts[i].Print();
-            yield return new WaitForSeconds(_durationTimes[i]);
-            _printTexts[i].Clear();
-        }
-        
-        if (Services.ControllerSquare.PlayerForce != Vector2.zero)
-        {
-            yield return new WaitForSeconds(_startWaitTimes[levelCfg0.alreadyForceIndex]);
-            _printTexts[levelCfg0.alreadyForceIndex].Print();
-            yield return new WaitForSeconds(_durationTimes[levelCfg0.alreadyForceIndex]);
-            _printTexts[levelCfg0.alreadyForceIndex].Clear();
-        }
-        else
-        {
-            Services.EventManager.Register<FirstForce>(OnFirstForce);
-            yield return new WaitForSeconds(_startWaitTimes[levelCfg0.addForceInstruction]);
-            _printTexts[levelCfg0.addForceInstruction].Print();
-        }
-        yield return new WaitForSeconds();
-        
     }
+    
+
+
+    
     // Update is called once per frame
     void Update()
     {
         CheckTarget();
+        if (!_stopTalking)
+        {
+            _tmp.text = _instructions[InstructionIndex(0)];
+        }
+        
+        if (Time.timeSinceLevelLoad > levelCfg0.showTargetSqrTime && !_hasShowTargetSqr)
+        {
+            ShowTargetSqr();
+            _hasShowTargetSqr = true;
+        }
+
+        if (Time.timeSinceLevelLoad > levelCfg0.showCtrlSqrTime && !_hasShowCtrlSqr)
+        {
+            ShowCtrlSqr();
+            _hasShowCtrlSqr = true;
+        }
+
+        if (Time.timeSinceLevelLoad > levelCfg0.allowControlTime && !_hasAllowControl)
+        {
+            _ctrlSqrCollider.enabled = true;
+            Services.EventManager.Register<FirstForce>(OnFirstForce);
+            Services.EventManager.Register<SecondForce>(OnSecondForce);
+            _hasAllowControl = true;
+        }
+
+        if (_hasFirstForce)
+        {
+            _timeSinceFirstForce += Time.deltaTime;
+        }
+
+        if (_timeSinceFirstForce > levelCfg0.secondForceRemindTime && !_hasRemind)
+        {
+            _tmp.text = levelCfg0.secondForceReminder;
+            _hasRemind = true;
+        }
     }
 
     private void FixedUpdate()
     {
-        Services.CameraController.Update();
+        
     }
     
     private void ParseTexts()
     {
         _instructions = new List<string>();
-        _startWaitTimes = new List<float>();
-        _durationTimes = new List<float>();
+        _startTimes = new List<float>();
         for (int i = 0; i < levelCfg0.texts.Count; i++)
         {
             var line = levelCfg0.texts[i].Split('^');
             float t1;
             if (float.TryParse(line[0], out t1)) 
-                _startWaitTimes.Add(t1);
+                _startTimes.Add(t1);
             
             _instructions.Add(line[1]);
-
-            float t2;
-            if (float.TryParse(line[2], out t2)) 
-                _durationTimes.Add(t2);
         }
     }
     
-    private void SetUpTexts()
-    {
-        for (int i = 0; i < _instructions.Count; i++)
-        {
-            var t = new PrintText(this, _tmp, _instructions[i], _startWaitTimes[i], _durationTimes[i]);
-            _printTexts.Add(t);
-        }
-    }
 
     private void OnFirstForce(AGPEvent e)
     {
-        _printTexts[levelCfg0.firstForceIndex].Do();
-
-        Debug.Log("yes");
+        _stopTalking = true;
+        _hasFirstForce = true;
+        _tmp.text = levelCfg0.whenFirstForce;
         Services.EventManager.Unregister<FirstForce>(OnFirstForce);
     }
-
-    private IEnumerator WaitAndPrintText(int index = 0)
-    {
-        if (index >= _instructions.Count)
-        {
-            yield break;
-        }
-        
-        if (index == levelCfg0.showCtrlSqrIndex)
-        {
-            ShowCtrlSqr();
-        }
-
-        if (index == levelCfg0.showTargetSqrIndex)
-        {
-            ShowTargetSqr();
-        }
-        yield return new WaitForSeconds(_startWaitTimes[index]);
-        _tmp.text = _instructions[index];
-
-        StartCoroutine(WaitAndDeleteText(index));
-    }
     
-    private IEnumerator WaitAndDeleteText(int index = 0)
+    private void OnSecondForce(AGPEvent e)
     {
-        if (index >= _instructions.Count)
-        {
-            yield break;
-        }
-        
-        yield return new WaitForSeconds(_durationTimes[index]);
-        _tmp.text = "";
+        _shade.SetActive(true);
+        _tmp.text = levelCfg0.whenSecondForce;
+        Services.EventManager.Unregister<SecondForce>(OnSecondForce);
+    }
 
-        StartCoroutine(WaitAndPrintText(index + 1));
+    private int InstructionIndex(int i)
+    {
+        if (i >= _startTimes.Count - 1)
+        {
+            return _startTimes.Count - 1;
+        }
+        if (Time.timeSinceLevelLoad < _startTimes[i + 1])
+        {
+            return i;
+        }
+        else
+        {
+            return InstructionIndex(i + 1);
+        }
     }
 
     private void ShowTargetSqr()
@@ -173,7 +162,7 @@ public class LevelManager0 : MonoBehaviour
         _controlSqrObj.transform.localPosition = new Vector3(6f, -2.5f, 10f);
         Services.ControllerSquare.DrawBoundCircle();
     }
-
+    
     private bool _checked;
     private void CheckTarget()
     {
@@ -188,59 +177,6 @@ public class LevelManager0 : MonoBehaviour
             _checked = true;
         }
     }
-    
-    private abstract class InstructionState : FiniteStateMachine<LevelManager0>.State
-    {
-        public override void OnEnter()
-        {
-        }
-
-        public override void Update()
-        {
-        }
-
-        public override void OnExit()
-        {
-        }
-    }
-
-    private class Initial : InstructionState
-    {
-        public override void OnEnter()
-        {
-            Context.StartCoroutine(InitialInstructions());
-        }
-
-        private IEnumerator InitialInstructions()
-        {
-            for (int i = 0; i < 5; i++)
-            {
-                if (i == Context.levelCfg0.showCtrlSqrIndex)
-                {
-                    Context.ShowCtrlSqr();
-                }
-
-                if (i == Context.levelCfg0.showTargetSqrIndex)
-                {
-                    Context.ShowTargetSqr();
-                }
-                yield return new WaitForSeconds(Context._startWaitTimes[i]);
-                Context._printTexts[i].Print();
-                yield return new WaitForSeconds(Context._durationTimes[i]);
-                Context._printTexts[i].Clear();
-            }
-            TransitionTo<>();
-        }
-    }
-
-    private class AlreadyForce : InstructionState
-    {
-        public override void OnEnter()
-        {
-            Context._printTexts[Context.levelCfg0.alreadyForceIndex].Do();
-        }
-    }
-    
 }
 
 public abstract class Command
@@ -256,14 +192,14 @@ public class PrintText : Command
     private float _startWaitTime;
     private float _durationTime;
 
-    public PrintText(MonoBehaviour mono, TextMeshPro tmp, string toPrint, float startWaitTime, float durationTime)
-    {
-        _mono = mono;
-        _tmp = tmp;
-        _toPrint = toPrint;
-        _startWaitTime = startWaitTime;
-        _durationTime = durationTime;
-    }
+//    public PrintText(MonoBehaviour mono, TextMeshPro tmp, string toPrint, float startWaitTime, float durationTime, bool waitForResponse = false,)
+//    {
+//        _mono = mono;
+//        _tmp = tmp;
+//        _toPrint = toPrint;
+//        _startWaitTime = startWaitTime;
+//        _durationTime = durationTime;
+//    }
 
     public void Print()
     {
@@ -285,7 +221,108 @@ public class PrintText : Command
         _tmp.text = _toPrint;
         yield return new WaitForSeconds(_durationTime);
         _tmp.text = "";
+        nextCommand.Do();
     }
-    
+
+    public Command nextCommand;
 }
+public class Check : Command
+{
+    private Command _nextCommandIfTrue;
+    private Command _nextCommandIfFalse;
+    private int _playerForceNumber;
+    private int _threshold;
+
+    public Check(Command nextCommandIfTrue, Command nextCommandIfFalse, int playerForceNumber, int threshold)
+    {
+        _nextCommandIfTrue = nextCommandIfTrue;
+        _nextCommandIfFalse = nextCommandIfFalse;
+        _playerForceNumber = playerForceNumber;
+        _threshold = threshold;
+    }
+    public override void Do()
+    {
+        if (_playerForceNumber >= _threshold )
+        {
+            _nextCommandIfTrue.Do();
+        }
+        else
+        {
+            _nextCommandIfFalse.Do();
+        }
+    }
+}
+
+public class WaitForPlayerResponse : Command
+{
+    private Command _nextCommand;
+    private EventManager _eventManager;
+    public override void Do()
+    {
+        throw new NotImplementedException();
+    }
+
+    public WaitForPlayerResponse(Command nextCommand, EventManager eventManager)
+    {
+        _nextCommand = nextCommand;
+        _eventManager = eventManager;
+    }
+}
+
+//    private abstract class InstructionState : FiniteStateMachine<LevelManager0>.State
+//    { 
+//        public override void OnEnter()
+//        {
+//        }
+//
+//        public override void Update()
+//        {
+//        }
+//
+//        public override void OnExit()
+//        {
+//        }
+//    }
+//
+//    private class Initial : InstructionState
+//    {
+//        public override void OnEnter()
+//        {
+//            Context.StartCoroutine(InitialInstructions());
+//        }
+//
+//        private IEnumerator InitialInstructions()
+//        {
+//            for (int i = 0; i < 5; i++)
+//            {
+//                if (i == Context.levelCfg0.showCtrlSqrIndex)
+//                {
+//                    Context.ShowCtrlSqr();
+//                }
+//
+//                if (i == Context.levelCfg0.showTargetSqrIndex)
+//                {
+//                    Context.ShowTargetSqr();
+//                }
+//                yield return new WaitForSeconds(Context._startWaitTimes[i]);
+//                Context._printTexts[i].Print();
+//                yield return new WaitForSeconds(Context._durationTimes[i]);
+//                Context._printTexts[i].Clear();
+//            }
+//
+//        }
+//    }
+//
+//    private class AlreadyForce : InstructionState
+//    {
+//        public override void OnEnter()
+//        {
+//            Context._printTexts[Context.levelCfg0.alreadyForceIndex].Do();
+//        }
+//
+//        private IEnumerator a()
+//        {
+//
+//        }
+//    }
 

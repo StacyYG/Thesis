@@ -7,6 +7,7 @@ TagManager:
   - TargetSquare
   - ControllerSquare
   - LevelManager
+  - Shade
   layers:
   - Default
   - TransparentFX

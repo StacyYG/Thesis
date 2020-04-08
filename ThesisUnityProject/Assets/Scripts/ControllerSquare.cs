@@ -65,11 +65,15 @@ public class ControllerSquare : MonoBehaviour
         {
             _currentForceVector = Vector2.ClampMagnitude(MouseWorldPosition() - (Vector2)transform.position, _maxForceSize);
             _currentLine.points3[0] = _currentForceVector;
-            _currentLine.Draw();
             _currentNetForceLine.points3[0] = _netForceVector + _currentForceVector;
-            _currentNetForceLine.Draw();
         }
 
+    }
+
+    private void LateUpdate()
+    {
+        _currentLine.Draw();
+        _currentNetForceLine.Draw();
     }
 
     // figure out a better way to replace this when on mobile
