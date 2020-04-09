@@ -18,7 +18,7 @@ MonoBehaviour:
   allowControlTime: 12
   initialInstructions:
   - 1^How does a box move when no forces are acting on it?
-  - 3^And how do forces affect that?
+  - 4^And how do forces affect that?
   - 6^Let's explore it!
   - 8^This is your <b>Control Box</b>,
   - 10^it transfers any force it receives to the target box.
@@ -29,9 +29,10 @@ MonoBehaviour:
   whenSecondForce: When more than one forces are acting on the object, we replace
     them with their sum--<color=red>Net Force</color>
   secondForceInstructionDuration: 5
-  lastInstructionsWaitTime: 3
   showCancelButtonTime: 4
+  allowCancelTime: 7
   lastInstructions:
   - 3^One last thing,
   - 4^This is your <b>Cancel Button</b>,
-  - 6^it removes all the forces you added.
+  - 6^it removes all the forces you added. (You can also use Space key if on PC)
+  whenFirstCancel: Just like that!

@@ -20,7 +20,7 @@ public class LevelManager0 : MonoBehaviour
     private MonitorPlayerAction _monitor;
     private bool _hasShowTargetSqr, _hasShowCtrlSqr, _hasAllowControl;
     private BoxCollider2D _ctrlSqrCollider;
-    private bool _stopTalking;
+    private bool _isInitialInstruction = true;
     private GameObject _shade;
     private float _timeSinceFirstForce;
     private bool _hasFirstForce;
@@ -29,10 +29,12 @@ public class LevelManager0 : MonoBehaviour
     private float _firstForceMoment;
     private float _secondForceMoment;
     private bool _hasSecondForce;
-    private bool _lastInstructionsStart;
+    private bool _hasHideShade;
+    private bool _isLastInstructions;
     private float _lastInstructionStartMoment;
-    private bool _indexChanged;
     private int _lastIndex;
+    private CircleCollider2D _cancelButtonCollider;
+    private bool _hasAllowCancel;
 
     public void Awake()
     {
@@ -55,6 +57,8 @@ public class LevelManager0 : MonoBehaviour
         _monitor = _targetSqrObj.GetComponent<MonitorPlayerAction>();
         _ctrlSqrCollider = _controlSqrObj.GetComponent<BoxCollider2D>();
         _ctrlSqrCollider.enabled = false;
+        _cancelButtonCollider = _cancelButtonObj.GetComponent<CircleCollider2D>();
+        _cancelButtonCollider.enabled = false;
         _shade = GameObject.FindGameObjectWithTag("Shade");
         _shade.SetActive(false);
         _tmp = GetComponent<TextMeshPro>();
@@ -74,63 +78,73 @@ public class LevelManager0 : MonoBehaviour
     void Update()
     {
         CheckTarget();
-        if (!_stopTalking && !_lastInstructionsStart)
+        if (_isInitialInstruction)
         {
-            var i = InstructionIndex(Time.timeSinceLevelLoad, _lastIndex);
-            if (_indexChanged)
+            var duration = Time.timeSinceLevelLoad;
+            var i = InstructionIndex(duration, _lastIndex);
+            if (i > _lastIndex)
             {
                 _tmp.text = _instructions[i];
+                _lastIndex = i;
             }
             
+            if (duration > levelCfg0.showTargetSqrTime && !_hasShowTargetSqr)
+            {
+                ShowTargetSqr();
+                _hasShowTargetSqr = true;
+            }
+
+            else if (duration > levelCfg0.showCtrlSqrTime && !_hasShowCtrlSqr)
+            {
+                ShowCtrlSqr();
+                _hasShowCtrlSqr = true;
+            }
+
+            else if (duration > levelCfg0.allowControlTime && !_hasAllowControl)
+            {
+                _ctrlSqrCollider.enabled = true;
+                Services.EventManager.Register<FirstForce>(OnFirstForce);
+                Services.EventManager.Register<SecondForce>(OnSecondForce);
+                _hasAllowControl = true;
+            }
         }
         
-        if (Time.timeSinceLevelLoad > levelCfg0.showTargetSqrTime && !_hasShowTargetSqr)
-        {
-            ShowTargetSqr();
-            _hasShowTargetSqr = true;
-        }
-
-        if (Time.timeSinceLevelLoad > levelCfg0.showCtrlSqrTime && !_hasShowCtrlSqr)
-        {
-            ShowCtrlSqr();
-            _hasShowCtrlSqr = true;
-        }
-
-        if (Time.timeSinceLevelLoad > levelCfg0.allowControlTime && !_hasAllowControl)
-        {
-            _ctrlSqrCollider.enabled = true;
-            Services.EventManager.Register<FirstForce>(OnFirstForce);
-            Services.EventManager.Register<SecondForce>(OnSecondForce);
-            _hasAllowControl = true;
-        }
-        
-        if (_hasFirstForce && Time.timeSinceLevelLoad - _firstForceMoment > levelCfg0.secondForceRemindTime && !_hasRemind)
+        if (_hasFirstForce && !_hasSecondForce && Time.timeSinceLevelLoad - _firstForceMoment > levelCfg0.secondForceRemindTime && !_hasRemind)
         {
             _tmp.text = levelCfg0.secondForceReminder;
             _hasRemind = true;
         }
 
-        if (_hasSecondForce && Time.timeSinceLevelLoad - _secondForceMoment > levelCfg0.secondForceInstructionDuration && !_lastInstructionsStart)
+        if (_hasSecondForce && Time.timeSinceLevelLoad - _secondForceMoment > levelCfg0.secondForceInstructionDuration && !_hasHideShade)
         {
             _lastInstructionStartMoment = Time.timeSinceLevelLoad;
             Destroy(_shade);
             _tmp.text = "";
             ParseTexts(levelCfg0.lastInstructions);
-            _lastInstructionsStart = true;
+            _isLastInstructions = true;
+            _hasHideShade = true;
         }
 
-        if (_lastInstructionsStart)
+        if (_isLastInstructions)
         {
             var duration = Time.timeSinceLevelLoad - _lastInstructionStartMoment;
             var i = InstructionIndex(duration, _lastIndex);
-            if (_indexChanged)
+            if (i > _lastIndex)
             {
                 _tmp.text = _instructions[i];
+                _lastIndex = i;
             }
 
             if (duration > levelCfg0.showCancelButtonTime && !_hasShowCancelButton)
             {
                 ShowCancelButton();
+                _hasShowCancelButton = true;
+            }
+
+            else if (duration > levelCfg0.allowCancelTime && !_hasAllowCancel)
+            {
+                _cancelButtonCollider.enabled = true;
+                Services.EventManager.Register<FirstCancel>(OnFirstCancel);
             }
         }
         
@@ -150,37 +164,10 @@ public class LevelManager0 : MonoBehaviour
             _instructions.Add(line[1]);
         }
     }
-    
-    private List<string> ParseInstructions(List<string> toParse)
-    {
-        var toReturn = new List<string>();
-        for (int i = 0; i < toParse.Count; i++)
-        {
-            var line = toParse[i].Split('^');
-            toReturn.Add(line[1]);
-        }
-
-        return toReturn;
-    }
-
-    private List<float> ParseStartTimes(List<string> toParse)
-    {
-        var toReturn = new List<float>();
-        for (int i = 0; i < toParse.Count; i++)
-        {
-            var line = toParse[i].Split('^');
-            float t1;
-            if (float.TryParse(line[0], out t1)) 
-                toReturn.Add(t1);
-        }
-
-        return toReturn;
-    }
-    
 
     private void OnFirstForce(AGPEvent e)
     {
-        _stopTalking = true;
+        _isInitialInstruction = false;
         _hasFirstForce = true;
         _firstForceMoment = Time.timeSinceLevelLoad;
         _tmp.text = levelCfg0.whenFirstForce;
@@ -196,24 +183,21 @@ public class LevelManager0 : MonoBehaviour
         Services.EventManager.Unregister<SecondForce>(OnSecondForce);
     }
 
+    private void OnFirstCancel(AGPEvent e)
+    {
+        _isLastInstructions = false;
+        _tmp.text = levelCfg0.whenFirstCancel;
+        Services.EventManager.Unregister<FirstCancel>(OnFirstCancel);
+    }
+    
     private int InstructionIndex(float time, int i)
     {
         if (i >= _startTimes.Count - 1)
         {
-            _indexChanged = true;
             return _startTimes.Count - 1;
         }
         if (time < _startTimes[i + 1])
         {
-            if (i > _lastIndex)
-            {
-                _lastIndex = i;
-                _indexChanged = true;
-            }
-            else
-            {
-                _indexChanged = false;
-            }
             return i;
         }
         else

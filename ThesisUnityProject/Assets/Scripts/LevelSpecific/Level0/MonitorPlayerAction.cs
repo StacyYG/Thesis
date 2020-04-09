@@ -29,6 +29,7 @@ public class MonitorPlayerAction : MonoBehaviour
         if (ClickTimes == 2)
         {
             Services.EventManager.Fire(new SecondForce());
+            Destroy(this);
         }
     }
 }
