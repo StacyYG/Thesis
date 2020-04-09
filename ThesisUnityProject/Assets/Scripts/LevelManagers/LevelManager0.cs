@@ -15,6 +15,7 @@ public class LevelManager0 : MonoBehaviour
     private Rigidbody2D _targetRB;
     private GameObject _controlSqrObj;
     private GameObject _targetSqrObj;
+    private GameObject _cancelButtonObj;
     private FiniteStateMachine<LevelManager0> _level0StateMachine;
     private MonitorPlayerAction _monitor;
     private bool _hasShowTargetSqr, _hasShowCtrlSqr, _hasAllowControl;
@@ -24,6 +25,14 @@ public class LevelManager0 : MonoBehaviour
     private float _timeSinceFirstForce;
     private bool _hasFirstForce;
     private bool _hasRemind;
+    private bool _hasShowCancelButton;
+    private float _firstForceMoment;
+    private float _secondForceMoment;
+    private bool _hasSecondForce;
+    private bool _lastInstructionsStart;
+    private float _lastInstructionStartMoment;
+    private bool _indexChanged;
+    private int _lastIndex;
 
     public void Awake()
     {
@@ -38,6 +47,8 @@ public class LevelManager0 : MonoBehaviour
         _targetSqrObj = GameObject.FindGameObjectWithTag("TargetSquare");
         Services.TargetSquare = _targetSqrObj.GetComponent<TargetSquare>();
         _targetRB = _targetSqrObj.GetComponent<Rigidbody2D>();
+        _cancelButtonObj = GameObject.FindGameObjectWithTag("CancelButton");
+        Services.CancelButton = _cancelButtonObj.GetComponent<CancelButton>();
         Services.CameraController = new CameraController(Services.MyCamera, false, Services.TargetSquare.transform);
         Services.EventManager = new EventManager();
         _printTexts = new List<PrintText>();
@@ -47,7 +58,7 @@ public class LevelManager0 : MonoBehaviour
         _shade = GameObject.FindGameObjectWithTag("Shade");
         _shade.SetActive(false);
         _tmp = GetComponent<TextMeshPro>();
-        ParseTexts();
+        ParseTexts(levelCfg0.initialInstructions);
     }
     
     // Start is called before the first frame update
@@ -63,9 +74,14 @@ public class LevelManager0 : MonoBehaviour
     void Update()
     {
         CheckTarget();
-        if (!_stopTalking)
+        if (!_stopTalking && !_lastInstructionsStart)
         {
-            _tmp.text = _instructions[InstructionIndex(0)];
+            var i = InstructionIndex(Time.timeSinceLevelLoad, _lastIndex);
+            if (_indexChanged)
+            {
+                _tmp.text = _instructions[i];
+            }
+            
         }
         
         if (Time.timeSinceLevelLoad > levelCfg0.showTargetSqrTime && !_hasShowTargetSqr)
@@ -87,37 +103,78 @@ public class LevelManager0 : MonoBehaviour
             Services.EventManager.Register<SecondForce>(OnSecondForce);
             _hasAllowControl = true;
         }
-
-        if (_hasFirstForce)
-        {
-            _timeSinceFirstForce += Time.deltaTime;
-        }
-
-        if (_timeSinceFirstForce > levelCfg0.secondForceRemindTime && !_hasRemind)
+        
+        if (_hasFirstForce && Time.timeSinceLevelLoad - _firstForceMoment > levelCfg0.secondForceRemindTime && !_hasRemind)
         {
             _tmp.text = levelCfg0.secondForceReminder;
             _hasRemind = true;
         }
-    }
 
-    private void FixedUpdate()
-    {
+        if (_hasSecondForce && Time.timeSinceLevelLoad - _secondForceMoment > levelCfg0.secondForceInstructionDuration && !_lastInstructionsStart)
+        {
+            _lastInstructionStartMoment = Time.timeSinceLevelLoad;
+            Destroy(_shade);
+            _tmp.text = "";
+            ParseTexts(levelCfg0.lastInstructions);
+            _lastInstructionsStart = true;
+        }
+
+        if (_lastInstructionsStart)
+        {
+            var duration = Time.timeSinceLevelLoad - _lastInstructionStartMoment;
+            var i = InstructionIndex(duration, _lastIndex);
+            if (_indexChanged)
+            {
+                _tmp.text = _instructions[i];
+            }
+
+            if (duration > levelCfg0.showCancelButtonTime && !_hasShowCancelButton)
+            {
+                ShowCancelButton();
+            }
+        }
         
     }
-    
-    private void ParseTexts()
+
+    private void ParseTexts(List<string> toParse)
     {
         _instructions = new List<string>();
         _startTimes = new List<float>();
-        for (int i = 0; i < levelCfg0.texts.Count; i++)
+        _lastIndex = -1;
+        for (int i = 0; i < toParse.Count; i++)
         {
-            var line = levelCfg0.texts[i].Split('^');
+            var line = toParse[i].Split('^');
             float t1;
             if (float.TryParse(line[0], out t1)) 
                 _startTimes.Add(t1);
-            
             _instructions.Add(line[1]);
         }
+    }
+    
+    private List<string> ParseInstructions(List<string> toParse)
+    {
+        var toReturn = new List<string>();
+        for (int i = 0; i < toParse.Count; i++)
+        {
+            var line = toParse[i].Split('^');
+            toReturn.Add(line[1]);
+        }
+
+        return toReturn;
+    }
+
+    private List<float> ParseStartTimes(List<string> toParse)
+    {
+        var toReturn = new List<float>();
+        for (int i = 0; i < toParse.Count; i++)
+        {
+            var line = toParse[i].Split('^');
+            float t1;
+            if (float.TryParse(line[0], out t1)) 
+                toReturn.Add(t1);
+        }
+
+        return toReturn;
     }
     
 
@@ -125,6 +182,7 @@ public class LevelManager0 : MonoBehaviour
     {
         _stopTalking = true;
         _hasFirstForce = true;
+        _firstForceMoment = Time.timeSinceLevelLoad;
         _tmp.text = levelCfg0.whenFirstForce;
         Services.EventManager.Unregister<FirstForce>(OnFirstForce);
     }
@@ -132,23 +190,35 @@ public class LevelManager0 : MonoBehaviour
     private void OnSecondForce(AGPEvent e)
     {
         _shade.SetActive(true);
+        _hasSecondForce = true;
+        _secondForceMoment = Time.timeSinceLevelLoad;
         _tmp.text = levelCfg0.whenSecondForce;
         Services.EventManager.Unregister<SecondForce>(OnSecondForce);
     }
 
-    private int InstructionIndex(int i)
+    private int InstructionIndex(float time, int i)
     {
         if (i >= _startTimes.Count - 1)
         {
+            _indexChanged = true;
             return _startTimes.Count - 1;
         }
-        if (Time.timeSinceLevelLoad < _startTimes[i + 1])
+        if (time < _startTimes[i + 1])
         {
+            if (i > _lastIndex)
+            {
+                _lastIndex = i;
+                _indexChanged = true;
+            }
+            else
+            {
+                _indexChanged = false;
+            }
             return i;
         }
         else
         {
-            return InstructionIndex(i + 1);
+            return InstructionIndex(time, i + 1);
         }
     }
 
@@ -161,6 +231,12 @@ public class LevelManager0 : MonoBehaviour
     {
         _controlSqrObj.transform.localPosition = new Vector3(6f, -2.5f, 10f);
         Services.ControllerSquare.DrawBoundCircle();
+    }
+
+    private void ShowCancelButton()
+    {
+        _cancelButtonObj.transform.localPosition = new Vector3(-6f, -2.5f, 10f);
+        Services.CancelButton.DrawBoundCircle();
     }
     
     private bool _checked;

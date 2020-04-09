@@ -5,25 +5,25 @@ using System.Linq;
 
 public class CameraController
 {
-	private Transform _targetSquare;
-	private Vector2 _margin = new Vector2(1f, 1f);
-	private Vector2 _smoothing = new Vector2(1f, 1f);
+	private readonly Transform _targetSquare;
+	private readonly Vector2 _innerMargin = new Vector2(1f, 1f);
+	private readonly Vector2 _outerMargin = new Vector2(2f, 2f);
+	private readonly Vector2 _smoothing = new Vector2(1f, 1f);
 	private Vector3 _min;
 	private Vector3 _max;
 	public bool _isFollowing;
-	public readonly float cameraHalfSizeY;
-	public readonly float cameraHalfSizeX;
-	private float edgeSize = 2f;
-	private Transform _transform;
+	public readonly float CameraBoundHalfY;
+	public readonly float CameraBoundHalfX;
+	private readonly Transform _transform;
 	public CameraController(Camera camera, bool isFollow, Transform targetSquare)
 	{
 		_transform = camera.transform;
 		_isFollowing = isFollow;
 		_targetSquare = targetSquare;
-		cameraHalfSizeY = camera.orthographicSize;
-		cameraHalfSizeX = cameraHalfSizeY * ((float)Screen.width / Screen.height);
-		cameraHalfSizeX -= edgeSize;
-		cameraHalfSizeY -= edgeSize;
+		CameraBoundHalfY = camera.orthographicSize;
+		CameraBoundHalfX = CameraBoundHalfY * ((float)Screen.width / Screen.height);
+		CameraBoundHalfX -= _outerMargin.x;
+		CameraBoundHalfY -= _outerMargin.y;
 	}
 
 
@@ -34,25 +34,26 @@ public class CameraController
 		var x = currentPos.x;
 		var y = currentPos.y;
 		if (_isFollowing) {
-			if (Mathf.Abs(x - _targetSquare.position.x)> cameraHalfSizeX)
+			if (Mathf.Abs(x - _targetSquare.position.x)> CameraBoundHalfX)
 			{
-				if (x - _targetSquare.position.x > 0) x = _targetSquare.position.x + cameraHalfSizeX;
-				else x = _targetSquare.position.x - cameraHalfSizeX;
+				if (x - _targetSquare.position.x > 0) x = _targetSquare.position.x + CameraBoundHalfX;
+				else x = _targetSquare.position.x - CameraBoundHalfX;
 			}
 
-			if (Mathf.Abs(y - _targetSquare.position.y)> cameraHalfSizeY)
+			if (Mathf.Abs(y - _targetSquare.position.y)> CameraBoundHalfY)
 			{
-				if (y - _targetSquare.position.y > 0) y = _targetSquare.position.y + cameraHalfSizeY;
-				else y = _targetSquare.position.y - cameraHalfSizeY;
+				if (y - _targetSquare.position.y > 0) y = _targetSquare.position.y + CameraBoundHalfY;
+				else y = _targetSquare.position.y - CameraBoundHalfY;
 			}
-			
-			if (Mathf.Abs (x - _targetSquare.position.x) > _margin.x)
+
+			var targetPos = _targetSquare.position;
+			if (Mathf.Abs (x - targetPos.x) > _innerMargin.x)
 			{
-				x = Mathf.Lerp(x, _targetSquare.position.x, _smoothing.x * Time.deltaTime);
+				x = Mathf.Lerp(x, targetPos.x, (Mathf.Abs(x - targetPos.x) - _innerMargin.x) * Time.fixedDeltaTime);
 			}
-			if (Mathf.Abs (y - _targetSquare.position.y)> _margin.y)
+			if (Mathf.Abs (y - targetPos.y)> _innerMargin.y)
 			{
-				y = Mathf.Lerp(y, _targetSquare.position.y, _smoothing.y * Time.deltaTime);
+				y = Mathf.Lerp(y, targetPos.y, (Mathf.Abs(y - targetPos.y) - _innerMargin.y) * Time.fixedDeltaTime);
 			}
 		}
 

@@ -13,20 +13,25 @@ MonoBehaviour:
   m_Name: Level0
   m_EditorClassIdentifier: 
   v0: {x: 2, y: 0}
-  addForceInstruction: 6
-  firstForceIndex: 7
-  texts:
-  - 0^How does a box move when no forces are acting on it?
+  showTargetSqrTime: 2
+  showCtrlSqrTime: 8
+  allowControlTime: 12
+  initialInstructions:
+  - 1^How does a box move when no forces are acting on it?
   - 3^And how do forces affect that?
   - 6^Let's explore it!
-  - 8^This is your <b>control box</b>,
+  - 8^This is your <b>Control Box</b>,
   - 10^it transfers any force it receives to the target box.
-  - 14^To add a force, you need to click the <b>control box</b> and drag.
+  - 14^To add a force, you need to click the <b>Control Box</b> and drag.
   whenFirstForce: Yes! you just added a force.
-  whenSecondForce: When more than one forces are acting on the object, we replace
-    them with their sum--<color=red>Net Force</color>
-  showTargetSqrTime: 2
-  showCtrlSqrTime: 7
-  allowControlTime: 12
   secondForceRemindTime: 5
   secondForceReminder: Now add another force
+  whenSecondForce: When more than one forces are acting on the object, we replace
+    them with their sum--<color=red>Net Force</color>
+  secondForceInstructionDuration: 5
+  lastInstructionsWaitTime: 3
+  showCancelButtonTime: 4
+  lastInstructions:
+  - 3^One last thing,
+  - 4^This is your <b>Cancel Button</b>,
+  - 6^it removes all the forces you added.

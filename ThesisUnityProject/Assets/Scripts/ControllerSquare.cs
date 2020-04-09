@@ -138,8 +138,10 @@ public class ControllerSquare : MonoBehaviour
         if (_circleLine != null)
         {
             VectorLine.Destroy(ref _circleLine);
+            Services.TotalLineNumber--;
         }
         _circleLine = new VectorLine("circle", new List<Vector3>(segments), 8f, LineType.Points);
+        Services.TotalLineNumber++;
         _circleLine.MakeCircle(transform.position, _maxForceSize, segments);
         _circleLine.Draw();
     }

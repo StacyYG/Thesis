@@ -84,4 +84,16 @@ public static class Services
         }
         set => _eventManager = value;
     }
+
+    private static CancelButton _cancelButton;
+
+    public static CancelButton CancelButton
+    {
+        get
+        { 
+            Debug.Assert(_cancelButton != null);
+            return _cancelButton;
+        }
+        set => _cancelButton = value;
+    }
 }
