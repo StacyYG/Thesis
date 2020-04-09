@@ -36,3 +36,7 @@ MonoBehaviour:
   - 4^This is your <b>Cancel Button</b>,
   - 6^it removes all the forces you added. (You can also use Space key if on PC)
   whenFirstCancel: Just like that!
+  showGoalTime: 2
+  goalExplanation: 'Now comes your mission: Go through that area with a <b>constant
+    velocity</b>. Good Luck!'
+  errorHint: It has to be a <b>constant velocity</b>!

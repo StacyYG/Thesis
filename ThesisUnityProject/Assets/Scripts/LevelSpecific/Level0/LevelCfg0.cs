@@ -24,4 +24,8 @@ public class LevelCfg0 : ScriptableObject
     public List<string> lastInstructions;
     [Header("Responses-Second half")] 
     public string whenFirstCancel;
+    [Header("Goal")] 
+    public float showGoalTime;
+    public string goalExplanation;
+    public string errorHint;
 }

@@ -10,31 +10,30 @@ public class LevelManager0 : MonoBehaviour
     private TextMeshPro _tmp;
     private List<string> _instructions;
     private List<float> _startTimes;
-    private List<float> _durationTimes;
-    private List<PrintText> _printTexts;
     private Rigidbody2D _targetRB;
-    private GameObject _controlSqrObj;
-    private GameObject _targetSqrObj;
-    private GameObject _cancelButtonObj;
-    private FiniteStateMachine<LevelManager0> _level0StateMachine;
-    private MonitorPlayerAction _monitor;
-    private bool _hasShowTargetSqr, _hasShowCtrlSqr, _hasAllowControl;
+    private GameObject _controlSqrObj, _targetSqrObj, _cancelButtonObj, _shade, _goal;
+
+    private bool _hasShowTargetSqr,
+        _hasShowCtrlSqr,
+        _hasAllowControl,
+        _hasFirstForce,
+        _hasRemind,
+        _hasShowCancelButton,
+        _hasSecondForce,
+        _hasHideShade,
+        _isLastInstructions,
+        _hasAllowCancel,
+        _isGoal,
+        _hasShowGoal;
     private BoxCollider2D _ctrlSqrCollider;
     private bool _isInitialInstruction = true;
-    private GameObject _shade;
-    private float _timeSinceFirstForce;
-    private bool _hasFirstForce;
-    private bool _hasRemind;
-    private bool _hasShowCancelButton;
-    private float _firstForceMoment;
-    private float _secondForceMoment;
-    private bool _hasSecondForce;
-    private bool _hasHideShade;
-    private bool _isLastInstructions;
-    private float _lastInstructionStartMoment;
+    private float _timeSinceFirstForce,
+        _firstForceMoment,
+        _secondForceMoment,
+        _lastInstructionStartMoment,
+        _firstCancelMoment;
     private int _lastIndex;
     private CircleCollider2D _cancelButtonCollider;
-    private bool _hasAllowCancel;
 
     public void Awake()
     {
@@ -53,14 +52,14 @@ public class LevelManager0 : MonoBehaviour
         Services.CancelButton = _cancelButtonObj.GetComponent<CancelButton>();
         Services.CameraController = new CameraController(Services.MyCamera, false, Services.TargetSquare.transform);
         Services.EventManager = new EventManager();
-        _printTexts = new List<PrintText>();
-        _monitor = _targetSqrObj.GetComponent<MonitorPlayerAction>();
         _ctrlSqrCollider = _controlSqrObj.GetComponent<BoxCollider2D>();
         _ctrlSqrCollider.enabled = false;
         _cancelButtonCollider = _cancelButtonObj.GetComponent<CircleCollider2D>();
         _cancelButtonCollider.enabled = false;
         _shade = GameObject.FindGameObjectWithTag("Shade");
         _shade.SetActive(false);
+        _goal = GameObject.FindGameObjectWithTag("Goal");
+        _goal.SetActive(false);
         _tmp = GetComponent<TextMeshPro>();
         ParseTexts(levelCfg0.initialInstructions);
     }
@@ -109,13 +108,13 @@ public class LevelManager0 : MonoBehaviour
             }
         }
         
-        if (_hasFirstForce && !_hasSecondForce && Time.timeSinceLevelLoad - _firstForceMoment > levelCfg0.secondForceRemindTime && !_hasRemind)
+        else if (_hasFirstForce && !_hasSecondForce && Time.timeSinceLevelLoad - _firstForceMoment > levelCfg0.secondForceRemindTime && !_hasRemind)
         {
             _tmp.text = levelCfg0.secondForceReminder;
             _hasRemind = true;
         }
 
-        if (_hasSecondForce && Time.timeSinceLevelLoad - _secondForceMoment > levelCfg0.secondForceInstructionDuration && !_hasHideShade)
+        else if (_hasSecondForce && Time.timeSinceLevelLoad - _secondForceMoment > levelCfg0.secondForceInstructionDuration && !_hasHideShade)
         {
             _lastInstructionStartMoment = Time.timeSinceLevelLoad;
             Destroy(_shade);
@@ -125,7 +124,7 @@ public class LevelManager0 : MonoBehaviour
             _hasHideShade = true;
         }
 
-        if (_isLastInstructions)
+        else if (_isLastInstructions)
         {
             var duration = Time.timeSinceLevelLoad - _lastInstructionStartMoment;
             var i = InstructionIndex(duration, _lastIndex);
@@ -147,7 +146,18 @@ public class LevelManager0 : MonoBehaviour
                 Services.EventManager.Register<FirstCancel>(OnFirstCancel);
             }
         }
-        
+
+        else if (_isGoal)
+        {
+            var duration = Time.timeSinceLevelLoad - _firstCancelMoment;
+            if (duration > levelCfg0.showGoalTime && !_hasShowGoal)
+            {
+                ShowGoal();
+                _hasShowGoal = true;
+                _tmp.text = levelCfg0.goalExplanation;
+            }
+        }
+
     }
 
     private void ParseTexts(List<string> toParse)
@@ -187,6 +197,8 @@ public class LevelManager0 : MonoBehaviour
     {
         _isLastInstructions = false;
         _tmp.text = levelCfg0.whenFirstCancel;
+        _firstCancelMoment = Time.timeSinceLevelLoad;
+        _isGoal = true;
         Services.EventManager.Unregister<FirstCancel>(OnFirstCancel);
     }
     
@@ -223,6 +235,12 @@ public class LevelManager0 : MonoBehaviour
         Services.CancelButton.DrawBoundCircle();
     }
     
+    private void ShowGoal()
+    {
+        _goal.transform.position = transform.position + new Vector3(8f, 0f, 0f);
+        _goal.SetActive(true);
+    }
+    
     private bool _checked;
     private void CheckTarget()
     {
@@ -239,150 +257,4 @@ public class LevelManager0 : MonoBehaviour
     }
 }
 
-public abstract class Command
-{
-    public abstract void Do();
-}
-
-public class PrintText : Command
-{
-    private MonoBehaviour _mono;
-    private TextMeshPro _tmp;
-    private string _toPrint;
-    private float _startWaitTime;
-    private float _durationTime;
-
-//    public PrintText(MonoBehaviour mono, TextMeshPro tmp, string toPrint, float startWaitTime, float durationTime, bool waitForResponse = false,)
-//    {
-//        _mono = mono;
-//        _tmp = tmp;
-//        _toPrint = toPrint;
-//        _startWaitTime = startWaitTime;
-//        _durationTime = durationTime;
-//    }
-
-    public void Print()
-    {
-        _tmp.text = _toPrint;
-    }
-
-    public void Clear()
-    {
-        _tmp.text = "";
-    }
-
-    public override void Do()
-    {
-        _mono.StartCoroutine(TextAction());
-    }
-    public IEnumerator TextAction()
-    {
-        yield return new WaitForSeconds(_startWaitTime);
-        _tmp.text = _toPrint;
-        yield return new WaitForSeconds(_durationTime);
-        _tmp.text = "";
-        nextCommand.Do();
-    }
-
-    public Command nextCommand;
-}
-public class Check : Command
-{
-    private Command _nextCommandIfTrue;
-    private Command _nextCommandIfFalse;
-    private int _playerForceNumber;
-    private int _threshold;
-
-    public Check(Command nextCommandIfTrue, Command nextCommandIfFalse, int playerForceNumber, int threshold)
-    {
-        _nextCommandIfTrue = nextCommandIfTrue;
-        _nextCommandIfFalse = nextCommandIfFalse;
-        _playerForceNumber = playerForceNumber;
-        _threshold = threshold;
-    }
-    public override void Do()
-    {
-        if (_playerForceNumber >= _threshold )
-        {
-            _nextCommandIfTrue.Do();
-        }
-        else
-        {
-            _nextCommandIfFalse.Do();
-        }
-    }
-}
-
-public class WaitForPlayerResponse : Command
-{
-    private Command _nextCommand;
-    private EventManager _eventManager;
-    public override void Do()
-    {
-        throw new NotImplementedException();
-    }
-
-    public WaitForPlayerResponse(Command nextCommand, EventManager eventManager)
-    {
-        _nextCommand = nextCommand;
-        _eventManager = eventManager;
-    }
-}
-
-//    private abstract class InstructionState : FiniteStateMachine<LevelManager0>.State
-//    { 
-//        public override void OnEnter()
-//        {
-//        }
-//
-//        public override void Update()
-//        {
-//        }
-//
-//        public override void OnExit()
-//        {
-//        }
-//    }
-//
-//    private class Initial : InstructionState
-//    {
-//        public override void OnEnter()
-//        {
-//            Context.StartCoroutine(InitialInstructions());
-//        }
-//
-//        private IEnumerator InitialInstructions()
-//        {
-//            for (int i = 0; i < 5; i++)
-//            {
-//                if (i == Context.levelCfg0.showCtrlSqrIndex)
-//                {
-//                    Context.ShowCtrlSqr();
-//                }
-//
-//                if (i == Context.levelCfg0.showTargetSqrIndex)
-//                {
-//                    Context.ShowTargetSqr();
-//                }
-//                yield return new WaitForSeconds(Context._startWaitTimes[i]);
-//                Context._printTexts[i].Print();
-//                yield return new WaitForSeconds(Context._durationTimes[i]);
-//                Context._printTexts[i].Clear();
-//            }
-//
-//        }
-//    }
-//
-//    private class AlreadyForce : InstructionState
-//    {
-//        public override void OnEnter()
-//        {
-//            Context._printTexts[Context.levelCfg0.alreadyForceIndex].Do();
-//        }
-//
-//        private IEnumerator a()
-//        {
-//
-//        }
-//    }
 
