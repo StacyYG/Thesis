@@ -39,4 +39,12 @@ MonoBehaviour:
   showGoalTime: 2
   goalExplanation: 'Now comes your mission: Go through that area with a <b>constant
     velocity</b>. Good Luck!'
-  errorHint: It has to be a <b>constant velocity</b>!
+  startDetectTime: 3
+  errorHints:
+  - It has to be a <b>constant velocity</b>!
+  - 'So the box should move with a steady speed in a straight line. '
+  - Forces change the box's moving direction or speed, did you see that?
+  - In a word, remove the forces before your box enters the area.
+  whenSuccess: YAYYY, good job!
+  successParticles: {fileID: 2709907116110291074, guid: 6c69dd43126cbb4479d38f1226e08b72,
+    type: 3}

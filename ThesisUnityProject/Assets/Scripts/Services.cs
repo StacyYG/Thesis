@@ -96,4 +96,16 @@ public static class Services
         }
         set => _cancelButton = value;
     }
+
+    private static Goal _goal;
+
+    public static Goal Goal
+    {
+        get
+        { 
+            Debug.Assert(_goal != null);
+            return _goal;
+        }
+        set => _goal = value;
+    }
 }

@@ -11,7 +11,7 @@ public class LevelManager0 : MonoBehaviour
     private List<string> _instructions;
     private List<float> _startTimes;
     private Rigidbody2D _targetRB;
-    private GameObject _controlSqrObj, _targetSqrObj, _cancelButtonObj, _shade, _goal;
+    private GameObject _controlSqrObj, _targetSqrObj, _cancelButtonObj, _shadeObj, _goalObj;
 
     private bool _hasShowTargetSqr,
         _hasShowCtrlSqr,
@@ -23,9 +23,9 @@ public class LevelManager0 : MonoBehaviour
         _hasHideShade,
         _isLastInstructions,
         _hasAllowCancel,
-        _isGoal,
-        _hasShowGoal;
-    private BoxCollider2D _ctrlSqrCollider;
+        _isGoalPhase,
+        _hasShowGoal,
+        _hasStartDetect;
     private bool _isInitialInstruction = true;
     private float _timeSinceFirstForce,
         _firstForceMoment,
@@ -33,8 +33,7 @@ public class LevelManager0 : MonoBehaviour
         _lastInstructionStartMoment,
         _firstCancelMoment;
     private int _lastIndex;
-    private CircleCollider2D _cancelButtonCollider;
-
+    
     public void Awake()
     {
         Init();
@@ -45,21 +44,20 @@ public class LevelManager0 : MonoBehaviour
         Services.MyCamera = Camera.main;
         _controlSqrObj = GameObject.FindGameObjectWithTag("ControllerSquare");
         Services.ControllerSquare = _controlSqrObj.GetComponent<ControllerSquare>();
+        Services.ControllerSquare.respond = false;
         _targetSqrObj = GameObject.FindGameObjectWithTag("TargetSquare");
         Services.TargetSquare = _targetSqrObj.GetComponent<TargetSquare>();
         _targetRB = _targetSqrObj.GetComponent<Rigidbody2D>();
         _cancelButtonObj = GameObject.FindGameObjectWithTag("CancelButton");
         Services.CancelButton = _cancelButtonObj.GetComponent<CancelButton>();
+        Services.CancelButton.respond = false;
         Services.CameraController = new CameraController(Services.MyCamera, false, Services.TargetSquare.transform);
         Services.EventManager = new EventManager();
-        _ctrlSqrCollider = _controlSqrObj.GetComponent<BoxCollider2D>();
-        _ctrlSqrCollider.enabled = false;
-        _cancelButtonCollider = _cancelButtonObj.GetComponent<CircleCollider2D>();
-        _cancelButtonCollider.enabled = false;
-        _shade = GameObject.FindGameObjectWithTag("Shade");
-        _shade.SetActive(false);
-        _goal = GameObject.FindGameObjectWithTag("Goal");
-        _goal.SetActive(false);
+        _shadeObj = GameObject.FindGameObjectWithTag("Shade");
+        _shadeObj.SetActive(false);
+        _goalObj = GameObject.FindGameObjectWithTag("Goal");
+        Services.Goal = _goalObj.GetComponent<Goal>();
+        _goalObj.SetActive(false);
         _tmp = GetComponent<TextMeshPro>();
         ParseTexts(levelCfg0.initialInstructions);
     }
@@ -101,7 +99,7 @@ public class LevelManager0 : MonoBehaviour
 
             else if (duration > levelCfg0.allowControlTime && !_hasAllowControl)
             {
-                _ctrlSqrCollider.enabled = true;
+                Services.ControllerSquare.respond = true;
                 Services.EventManager.Register<FirstForce>(OnFirstForce);
                 Services.EventManager.Register<SecondForce>(OnSecondForce);
                 _hasAllowControl = true;
@@ -117,7 +115,7 @@ public class LevelManager0 : MonoBehaviour
         else if (_hasSecondForce && Time.timeSinceLevelLoad - _secondForceMoment > levelCfg0.secondForceInstructionDuration && !_hasHideShade)
         {
             _lastInstructionStartMoment = Time.timeSinceLevelLoad;
-            Destroy(_shade);
+            Destroy(_shadeObj);
             _tmp.text = "";
             ParseTexts(levelCfg0.lastInstructions);
             _isLastInstructions = true;
@@ -142,12 +140,13 @@ public class LevelManager0 : MonoBehaviour
 
             else if (duration > levelCfg0.allowCancelTime && !_hasAllowCancel)
             {
-                _cancelButtonCollider.enabled = true;
+                Services.CancelButton.respond = true;
                 Services.EventManager.Register<FirstCancel>(OnFirstCancel);
+                _hasAllowCancel = true;
             }
         }
 
-        else if (_isGoal)
+        else if (_isGoalPhase)
         {
             var duration = Time.timeSinceLevelLoad - _firstCancelMoment;
             if (duration > levelCfg0.showGoalTime && !_hasShowGoal)
@@ -155,6 +154,16 @@ public class LevelManager0 : MonoBehaviour
                 ShowGoal();
                 _hasShowGoal = true;
                 _tmp.text = levelCfg0.goalExplanation;
+                _targetRB.velocity = Vector2.zero;
+            }
+
+            else if (duration > levelCfg0.startDetectTime && !_hasStartDetect)
+            {
+                Services.Goal.isDetect = true;
+                Services.EventManager.Register<Success>(OnSuccess);
+                Services.EventManager.Register<Fail>(OnFail);
+                _hasStartDetect = true;
+                
             }
         }
 
@@ -186,7 +195,7 @@ public class LevelManager0 : MonoBehaviour
     
     private void OnSecondForce(AGPEvent e)
     {
-        _shade.SetActive(true);
+        _shadeObj.SetActive(true);
         _hasSecondForce = true;
         _secondForceMoment = Time.timeSinceLevelLoad;
         _tmp.text = levelCfg0.whenSecondForce;
@@ -198,7 +207,7 @@ public class LevelManager0 : MonoBehaviour
         _isLastInstructions = false;
         _tmp.text = levelCfg0.whenFirstCancel;
         _firstCancelMoment = Time.timeSinceLevelLoad;
-        _isGoal = true;
+        _isGoalPhase = true;
         Services.EventManager.Unregister<FirstCancel>(OnFirstCancel);
     }
     
@@ -237,8 +246,8 @@ public class LevelManager0 : MonoBehaviour
     
     private void ShowGoal()
     {
-        _goal.transform.position = transform.position + new Vector3(8f, 0f, 0f);
-        _goal.SetActive(true);
+        _goalObj.transform.position = _targetSqrObj.transform.position + new Vector3(6f, 1f, 0f);
+        _goalObj.SetActive(true);
     }
     
     private bool _checked;
@@ -254,6 +263,27 @@ public class LevelManager0 : MonoBehaviour
             Services.CameraController._isFollowing = true;
             _checked = true;
         }
+    }
+
+    private void OnSuccess(AGPEvent e)
+    {
+        _tmp.text = levelCfg0.whenSuccess;
+        var p = Instantiate(levelCfg0.successParticles, _targetSqrObj.transform.position, Quaternion.identity);
+        StartCoroutine(WaitAndDestroy(p));
+        Services.EventManager.Unregister<Success>(OnSuccess);
+        Services.EventManager.Unregister<Fail>(OnFail);
+    }
+
+    private IEnumerator WaitAndDestroy(GameObject toDestroy)
+    {
+        yield return new WaitForSeconds(1);
+        Destroy(toDestroy);
+    }
+
+    private void OnFail(AGPEvent e)
+    {
+        var failEvent = (Fail) e;
+        _tmp.text = levelCfg0.errorHints[failEvent._failTimes];
     }
 }
 

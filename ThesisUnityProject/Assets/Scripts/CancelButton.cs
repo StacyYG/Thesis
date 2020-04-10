@@ -8,6 +8,7 @@ public class CancelButton : MonoBehaviour
 {
     private float _boundCircleRadius;
     private VectorLine _circleLine;
+    public bool respond = true;
     
     // Start is called before the first frame update
     void Start()
@@ -19,6 +20,8 @@ public class CancelButton : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!respond) return;
+        
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Services.ControllerSquare.ResetPlayerForce();
@@ -27,6 +30,8 @@ public class CancelButton : MonoBehaviour
 
     private void OnMouseDown()
     {
+        if (!respond) return;
+        
         Services.ControllerSquare.ResetPlayerForce();
     }
     

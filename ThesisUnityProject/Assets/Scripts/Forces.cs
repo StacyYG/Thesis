@@ -78,24 +78,24 @@ public class PlayerForce : Forces
 
 public class NormalForce : Forces
 {
-    public NormalForce(GameObject gameObject, Collision2D collision, int index) : base(gameObject)
+    public NormalForce(GameObject gameObject, Collision2D other, int index) : base(gameObject)
     {
         _line.endCap = "fullArrow";
         _line.name = "N" + index;
-        _line.color = collision.gameObject.GetComponent<SpriteRenderer>().color;
+        _line.color = other.gameObject.GetComponent<SpriteRenderer>().color;
     }
     
     public override void Update() {}
 
     private float _prevNormalForceSize;
     
-    public void Change(Collision2D collision)
+    public void Change(Collision2D other)
     {
-        var direction = collision.GetContact(0).normal.normalized;
-        var size = collision.GetContact(0).normalImpulse / Time.fixedDeltaTime;
-        if (collision.contactCount > 1)
+        var direction = other.GetContact(0).normal.normalized;
+        var size = other.GetContact(0).normalImpulse / Time.fixedDeltaTime;
+        if (other.contactCount > 1)
         {
-            size += collision.GetContact(1).normalImpulse / Time.fixedDeltaTime;
+            size += other.GetContact(1).normalImpulse / Time.fixedDeltaTime;
         }
         
         var lerpSize = Mathf.Lerp(_prevNormalForceSize, size, 0.3f);
@@ -114,24 +114,24 @@ public class NormalForce : Forces
 
 public class Friction : Forces
 {
-    public Friction(GameObject gameObject, Collision2D collision, int index) : base(gameObject)
+    public Friction(GameObject gameObject, Collision2D other, int index) : base(gameObject)
     {
         _line.endCap = "fullArrow";
         _line.name = "f" + index;
-        _line.color = collision.gameObject.GetComponent<SpriteRenderer>().color;
+        _line.color = other.gameObject.GetComponent<SpriteRenderer>().color;
     }
     public override void Update() {}
 
     private float _prevFrictionSize;
     
-    public void Change(Collision2D collision)
+    public void Change(Collision2D other)
     {
-        var normalDirection = collision.GetContact(0).normal.normalized;
+        var normalDirection = other.GetContact(0).normal.normalized;
         var direction = Quaternion.AngleAxis(-90, Vector3.forward) * normalDirection;
-        var size = collision.GetContact(0).tangentImpulse / Time.fixedDeltaTime;
-        if (collision.contactCount > 1)
+        var size = other.GetContact(0).tangentImpulse / Time.fixedDeltaTime;
+        if (other.contactCount > 1)
         {
-            size += collision.GetContact(1).tangentImpulse / Time.fixedDeltaTime;
+            size += other.GetContact(1).tangentImpulse / Time.fixedDeltaTime;
         }
 
         var lerpSize = Mathf.Lerp(_prevFrictionSize, size, 0.3f);

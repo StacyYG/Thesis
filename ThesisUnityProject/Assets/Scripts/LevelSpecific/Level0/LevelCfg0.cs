@@ -27,5 +27,10 @@ public class LevelCfg0 : ScriptableObject
     [Header("Goal")] 
     public float showGoalTime;
     public string goalExplanation;
-    public string errorHint;
+    public float startDetectTime;
+    public List<string> errorHints;
+    public string whenSuccess;
+    
+    [Header("Prefabs")] 
+    public GameObject successParticles;
 }

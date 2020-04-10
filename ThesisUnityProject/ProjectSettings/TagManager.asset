@@ -10,6 +10,7 @@ TagManager:
   - Shade
   - CancelButton
   - Goal
+  - BarrierObject
   layers:
   - Default
   - TransparentFX

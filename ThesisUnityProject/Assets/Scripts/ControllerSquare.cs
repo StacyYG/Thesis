@@ -22,6 +22,7 @@ public class ControllerSquare : MonoBehaviour
     public Color previousNetForceColor;
     public Color currentNetForceColor;
     private VectorLine _circleLine;
+    public bool respond = true;
 
     private void Awake()
     {
@@ -59,7 +60,7 @@ public class ControllerSquare : MonoBehaviour
     }
 
     // Update is called once per frame
-    private void Update()
+    private void FixedUpdate()
     {
         if (_holdingMouse)
         {
@@ -79,6 +80,8 @@ public class ControllerSquare : MonoBehaviour
     // figure out a better way to replace this when on mobile
     private void OnMouseDown()
     {
+        if (!respond) return;
+        
         _holdingMouse = true;
         _currentLine.active = true;
         _previousNetForceLine.active = true;
@@ -88,11 +91,12 @@ public class ControllerSquare : MonoBehaviour
 
     private void OnMouseUp()
     {
+        if(!respond) return;
+        
         _holdingMouse = false;
         _netForceVector += _currentForceVector;
         _currentLine.active = false;
         _previousNetForceLine.active = false;
-
     }
     
     private Vector2 MouseWorldPosition()

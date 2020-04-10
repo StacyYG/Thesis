@@ -45,56 +45,66 @@ public class TargetSquare : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnCollisionEnter2D(Collision2D other)
     {
-        NormalForce normalForce;
-        if (!_normalForces.TryGetValue(collision.collider, out normalForce))
+        if (other.gameObject.CompareTag("BarrierObject"))
         {
-            normalForce = new NormalForce(gameObject, collision, _normalForces.Count);
-            _normalForces.Add(collision.collider, normalForce);
+            NormalForce normalForce;
+            if (!_normalForces.TryGetValue(other.collider, out normalForce))
+            {
+                normalForce = new NormalForce(gameObject, other, _normalForces.Count);
+                _normalForces.Add(other.collider, normalForce);
+            }
+
+
+            Friction friction;
+            if (!_frictions.TryGetValue(other.collider, out friction))
+            {
+                friction = new Friction(gameObject, other, _frictions.Count);
+                _frictions.Add(other.collider, friction);
+            }
         }
 
+    }
 
-        Friction friction;
-        if (!_frictions.TryGetValue(collision.collider, out friction))
+    private void OnCollisionStay2D(Collision2D other)
+    {
+        if (other.gameObject.CompareTag("BarrierObject"))
         {
-            friction = new Friction(gameObject, collision, _frictions.Count);
-            _frictions.Add(collision.collider, friction);
+            NormalForce normalForce;
+            if (_normalForces.TryGetValue(other.collider, out normalForce))
+            {
+                normalForce.Change(other);
+            }
+
+            Friction friction;
+            if (_frictions.TryGetValue(other.collider, out friction))
+            {
+                friction.Change(other);
+            }
+        }
+
+    }
+
+    private void OnCollisionExit2D(Collision2D other)
+    {
+        if (other.gameObject.CompareTag("BarrierObject"))
+        {
+            NormalForce normalForce;
+            if (_normalForces.TryGetValue(other.collider, out normalForce))
+            {
+                normalForce.Reset();
+            
+            }
+
+            Friction friction;
+            if (_frictions.TryGetValue(other.collider, out friction))
+            {
+                friction.Reset();
+            
+            }
         }
         
-    }
-
-    private void OnCollisionStay2D(Collision2D collision)
-    {
-        NormalForce normalForce;
-        if (_normalForces.TryGetValue(collision.collider, out normalForce))
-        {
-            normalForce.Change(collision);
-        }
-
-        Friction friction;
-        if (_frictions.TryGetValue(collision.collider, out friction))
-        {
-            friction.Change(collision);
-        }
-
-    }
-
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        NormalForce normalForce;
-        if (_normalForces.TryGetValue(collision.collider, out normalForce))
-        {
-            normalForce.Reset();
-            
-        }
-
-        Friction friction;
-        if (_frictions.TryGetValue(collision.collider, out friction))
-        {
-            friction.Reset();
-            
-        }
     }
     
 }

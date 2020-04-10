@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MonitorPlayerAction : MonoBehaviour
+public class ControlMonitor : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
@@ -20,6 +20,8 @@ public class MonitorPlayerAction : MonoBehaviour
     public int ClickTimes { get; private set; }
     private void OnMouseDown()
     {
+        if (!Services.ControllerSquare.respond) return;
+        
         ClickTimes++;
         if (ClickTimes == 1)
         {
