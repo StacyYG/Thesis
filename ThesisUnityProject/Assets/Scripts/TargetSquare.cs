@@ -7,16 +7,23 @@ using Vectrosity;
 public class TargetSquare : MonoBehaviour
 {
     private Rigidbody2D _rb;
+    private SpriteRenderer _sr;
     private PlayerForce _playerForce;
     private Dictionary<Collider2D, NormalForce> _normalForces;
     private Dictionary<Collider2D, Friction> _frictions;
     private Gravity _gravity;
-
+    public Color hurtColor;
+    public Color liveColor;
+    public float recoverTime;
+    private bool _isHurt;
+    private float _hurtTimer;
+    
 
     // Start is called before the first frame update
     void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
+        _sr = GetComponent<SpriteRenderer>();
         _normalForces = new Dictionary<Collider2D, NormalForce>();
         _frictions = new Dictionary<Collider2D, Friction>();
         
@@ -27,15 +34,31 @@ public class TargetSquare : MonoBehaviour
             _gravity = new Gravity(gameObject);
         }
         
+        Services.EventManager.Register<LoseLife>(OnLoseLife);
     }
-    
+
+    private void OnDestroy()
+    {
+        Services.EventManager.Unregister<LoseLife>(OnLoseLife);
+    }
+
     private void FixedUpdate()
     {
         _playerForce.Update();
         _rb.AddForce(_playerForce.Vector);
         Services.CameraController.Update();
     }
-    
+
+    private void Update()
+    {
+        if (_isHurt)
+        {
+            _hurtTimer += Time.deltaTime;
+            _sr.color = Color.Lerp(hurtColor, liveColor, _hurtTimer / recoverTime);
+            
+        }
+    }
+
     private void LateUpdate()
     {
         _playerForce.Draw();
@@ -63,6 +86,12 @@ public class TargetSquare : MonoBehaviour
                 friction = new Friction(gameObject, other, _frictions.Count);
                 _frictions.Add(other.collider, friction);
             }
+        }
+
+        if (other.gameObject.CompareTag("HazardObject"))
+        {
+            if(_isHurt) return;
+            Services.EventManager.Fire(new LoseLife());
         }
 
     }
@@ -106,5 +135,21 @@ public class TargetSquare : MonoBehaviour
         }
         
     }
-    
+
+    private IEnumerator Recover()
+    {
+        yield return new WaitForSeconds(recoverTime);
+        _isHurt = false;
+    }
+
+    private void OnLoseLife(AGPEvent e)
+    {
+        _rb.velocity = Vector2.zero;
+        _isHurt = true;
+        _sr.color = hurtColor;
+        _hurtTimer = 0f;
+        StartCoroutine(Recover());
+    }
 }
+
+public class LoseLife : AGPEvent{}

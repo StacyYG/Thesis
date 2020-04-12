@@ -41,7 +41,7 @@ public class LevelManager0 : MonoBehaviour
 
     private void Init()
     {
-        Services.MyCamera = Camera.main;
+        Services.MainCamera = Camera.main;
         _controlSqrObj = GameObject.FindGameObjectWithTag("ControllerSquare");
         Services.ControllerSquare = _controlSqrObj.GetComponent<ControllerSquare>();
         Services.ControllerSquare.respond = false;
@@ -51,7 +51,7 @@ public class LevelManager0 : MonoBehaviour
         _cancelButtonObj = GameObject.FindGameObjectWithTag("CancelButton");
         Services.CancelButton = _cancelButtonObj.GetComponent<CancelButton>();
         Services.CancelButton.respond = false;
-        Services.CameraController = new CameraController(Services.MyCamera, false, Services.TargetSquare.transform);
+        Services.CameraController = new CameraController(Services.MainCamera, false, Services.TargetSquare.transform);
         Services.EventManager = new EventManager();
         _shadeObj = GameObject.FindGameObjectWithTag("Shade");
         _shadeObj.SetActive(false);
@@ -260,7 +260,7 @@ public class LevelManager0 : MonoBehaviour
         
         if (Services.TargetSquare.transform.position.x > 0)
         {
-            Services.CameraController._isFollowing = true;
+            Services.CameraController.IsFollowing = true;
             _checked = true;
         }
     }

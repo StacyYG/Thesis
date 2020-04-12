@@ -7,18 +7,18 @@ public class CameraController
 {
 	private readonly Transform _targetSquare;
 	private readonly Vector2 _innerMargin = new Vector2(1f, 1f);
-	private readonly Vector2 _outerMargin = new Vector2(2f, 2f);
+	private readonly Vector2 _outerMargin = new Vector2(2f, 2.2f);
 	private readonly Vector2 _smoothing = new Vector2(1f, 1f);
 	private Vector3 _min;
 	private Vector3 _max;
-	public bool _isFollowing;
+	public bool IsFollowing;
 	public readonly float CameraBoundHalfY;
 	public readonly float CameraBoundHalfX;
 	private readonly Transform _transform;
 	public CameraController(Camera camera, bool isFollow, Transform targetSquare)
 	{
 		_transform = camera.transform;
-		_isFollowing = isFollow;
+		IsFollowing = isFollow;
 		_targetSquare = targetSquare;
 		CameraBoundHalfY = camera.orthographicSize;
 		CameraBoundHalfX = CameraBoundHalfY * ((float)Screen.width / Screen.height);
@@ -33,7 +33,8 @@ public class CameraController
 		var currentPos = _transform.position;
 		var x = currentPos.x;
 		var y = currentPos.y;
-		if (_isFollowing) {
+		if (IsFollowing) 
+		{
 			if (Mathf.Abs(x - _targetSquare.position.x)> CameraBoundHalfX)
 			{
 				if (x - _targetSquare.position.x > 0) x = _targetSquare.position.x + CameraBoundHalfX;

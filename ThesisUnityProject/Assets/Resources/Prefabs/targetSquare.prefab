@@ -144,6 +144,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 592639f3723bb01469e535a70543ed51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hurtColor: {r: 1, g: 0.41960785, b: 0.16470589, a: 1}
+  liveColor: {r: 1, g: 0.7921569, b: 0.16470589, a: 1}
+  recoverTime: 1
 --- !u!114 &254217622167208240
 MonoBehaviour:
   m_ObjectHideFlags: 0

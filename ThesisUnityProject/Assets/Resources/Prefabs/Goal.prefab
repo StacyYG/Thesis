@@ -12,7 +12,8 @@ GameObject:
   - component: {fileID: 6510428200852934308}
   - component: {fileID: 6510428200852934311}
   - component: {fileID: 6510428200852934310}
-  m_Layer: 0
+  - component: {fileID: 6510428199283679542}
+  m_Layer: 8
   m_Name: Goal
   m_TagString: Goal
   m_Icon: {fileID: 0}
@@ -47,7 +48,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.0109939575, y: -0.009469986}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -58,7 +59,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 2.0771208, y: 4.071261}
   m_EdgeRadius: 0
 --- !u!198 &6510428200852934311
 ParticleSystem:
@@ -68,7 +69,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6510428200852934331}
   serializedVersion: 6
-  lengthInSec: 5
+  lengthInSec: 1
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 0
@@ -4782,6 +4783,20 @@ ParticleSystemRenderer:
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
   m_MaskInteraction: 0
+--- !u!114 &6510428199283679542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6510428200852934331}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7686fd220d03ac840b309fdde31015f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isDetect: 0
+  hazardMaterial: {fileID: 2100000, guid: 7350290ee26aa3d4e97f9ed4c1676917, type: 2}
 --- !u!1 &6510428200861099706
 GameObject:
   m_ObjectHideFlags: 0
@@ -4822,7 +4837,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6510428200861099706}
   serializedVersion: 6
-  lengthInSec: 5
+  lengthInSec: 1
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 0

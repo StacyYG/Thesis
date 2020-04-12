@@ -13,7 +13,7 @@ public class ParticleSystemManager : MonoBehaviour
     void Start()
     {
         _cameraController = Services.CameraController;
-        _camera = Services.MyCamera.transform;
+        _camera = Services.MainCamera.transform;
         InstantiatePS();
         SetPositions();
         _particleSystems[0].gameObject.SetActive(true);

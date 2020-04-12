@@ -28,12 +28,12 @@ public class SandBoxManager : MonoBehaviour
 
     private void Init()
     {
-        Services.MyCamera = Camera.main;
+        Services.MainCamera = Camera.main;
         _controlSqr = GameObject.FindGameObjectWithTag("ControllerSquare");
         Services.ControllerSquare = _controlSqr.GetComponent<ControllerSquare>();
         _targetSqr = GameObject.FindGameObjectWithTag("TargetSquare");
         Services.TargetSquare = _targetSqr.GetComponent<TargetSquare>();
         _targetRB = _targetSqr.GetComponent<Rigidbody2D>();
-        Services.CameraController = new CameraController(Services.MyCamera, false, Services.TargetSquare.transform);
+        Services.CameraController = new CameraController(Services.MainCamera, false, Services.TargetSquare.transform);
     }
 }

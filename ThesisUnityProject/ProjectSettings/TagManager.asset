@@ -11,6 +11,7 @@ TagManager:
   - CancelButton
   - Goal
   - BarrierObject
+  - HazardObject
   layers:
   - Default
   - TransparentFX

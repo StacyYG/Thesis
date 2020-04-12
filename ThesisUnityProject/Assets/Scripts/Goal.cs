@@ -12,9 +12,13 @@ public class Goal : MonoBehaviour
     public bool isDetect;
 
     private int _failTimes;
+
+    public Material hazardMaterial;
+    private ParticleSystemRenderer[] _particleRDs;
     // Start is called before the first frame update
     void Start()
     {
+        _particleRDs = GetComponentsInChildren<ParticleSystemRenderer>();
         
     }
 
@@ -47,6 +51,11 @@ public class Goal : MonoBehaviour
                 _constantVelocity = false;
                 Services.EventManager.Fire(new Fail(_failTimes));
                 _failTimes++;
+                Services.EventManager.Fire(new LoseLife());
+                foreach (var particleRD in _particleRDs)
+                {
+                    particleRD.material = hazardMaterial;
+                }
             }
         }
     }

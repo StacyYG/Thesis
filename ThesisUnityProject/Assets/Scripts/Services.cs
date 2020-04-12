@@ -5,10 +5,9 @@ using UnityEngine;
 
 public static class Services
 {
-
     private static Camera _myCamera;
 
-    public static Camera MyCamera
+    public static Camera MainCamera
     {
         get
         {
