@@ -35,5 +35,6 @@ public class SandBoxManager : MonoBehaviour
         Services.TargetSquare = _targetSqr.GetComponent<TargetSquare>();
         _targetRB = _targetSqr.GetComponent<Rigidbody2D>();
         Services.CameraController = new CameraController(Services.MainCamera, false, Services.TargetSquare.transform);
+        Services.EventManager = new EventManager();
     }
 }

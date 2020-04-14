@@ -11,7 +11,7 @@ public class LevelCfg0 : ScriptableObject
     public float showTargetSqrTime;
     public float showCtrlSqrTime;
     public float allowControlTime;
-    [FormerlySerializedAs("texts")] public List<string> initialInstructions;
+    public List<InstructionItem> initialInstructions;
     [Header("Responses-First half")]
     public string whenFirstForce;
     public float secondForceRemindTime;
@@ -21,7 +21,7 @@ public class LevelCfg0 : ScriptableObject
     [Header("Last Instructions")] 
     public float showCancelButtonTime;
     public float allowCancelTime;
-    public List<string> lastInstructions;
+    public List<InstructionItem> lastInstructions;
     [Header("Responses-Second half")] 
     public string whenFirstCancel;
     [Header("Goal")] 

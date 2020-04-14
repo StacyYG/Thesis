@@ -17,12 +17,18 @@ MonoBehaviour:
   showCtrlSqrTime: 8
   allowControlTime: 12
   initialInstructions:
-  - 1^How does a box move when no forces are acting on it?
-  - 4^And how do forces affect that?
-  - 6^Let's explore it!
-  - 8^This is your <b>Control Box</b>,
-  - 10^it transfers any force it receives to the target box.
-  - 14^To add a force, you need to click the <b>Control Box</b> and drag.
+  - StartTime: 1
+    Content: How does a box move when no forces are acting on it?
+  - StartTime: 4
+    Content: And how do forces affect that?
+  - StartTime: 6
+    Content: Let's explore it!
+  - StartTime: 8
+    Content: This is your <b>Control Box</b>,
+  - StartTime: 10
+    Content: it transfers any force it receives to the target box.
+  - StartTime: 15
+    Content: To add a force, you need to click the <b>Control Box</b> and drag.
   whenFirstForce: Yes! you just added a force.
   secondForceRemindTime: 5
   secondForceReminder: Now add another force
@@ -32,9 +38,13 @@ MonoBehaviour:
   showCancelButtonTime: 4
   allowCancelTime: 7
   lastInstructions:
-  - 3^One last thing,
-  - 4^This is your <b>Cancel Button</b>,
-  - 6^it removes all the forces you added. (You can also use Space key if on PC)
+  - StartTime: 3
+    Content: One last thing,
+  - StartTime: 4
+    Content: this is your <b>Cancel Button</b>,
+  - StartTime: 6
+    Content: it removes all the forces you added. <size=4>You can also use Space
+      bar if on PC.</size>
   whenFirstCancel: Just like that!
   showGoalTime: 2
   goalExplanation: 'Now comes your mission: Go through that area with a <b>constant

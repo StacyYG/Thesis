@@ -8,8 +8,7 @@ public class LevelManager0 : MonoBehaviour
 {
     public LevelCfg0 levelCfg0;
     private TextMeshPro _tmp;
-    private List<string> _instructions;
-    private List<float> _startTimes;
+    private Instructions0 _instructions0;
     private Rigidbody2D _targetRB;
     private GameObject _controlSqrObj, _targetSqrObj, _cancelButtonObj, _shadeObj, _goalObj;
 
@@ -32,7 +31,7 @@ public class LevelManager0 : MonoBehaviour
         _secondForceMoment,
         _lastInstructionStartMoment,
         _firstCancelMoment;
-    private int _lastIndex;
+    private int _lastIndex = -1;
     
     public void Awake()
     {
@@ -59,7 +58,7 @@ public class LevelManager0 : MonoBehaviour
         Services.Goal = _goalObj.GetComponent<Goal>();
         _goalObj.SetActive(false);
         _tmp = GetComponent<TextMeshPro>();
-        ParseTexts(levelCfg0.initialInstructions);
+        _instructions0 = Instructions0.Load(levelCfg0);
     }
     
     // Start is called before the first frame update
@@ -78,10 +77,10 @@ public class LevelManager0 : MonoBehaviour
         if (_isInitialInstruction)
         {
             var duration = Time.timeSinceLevelLoad;
-            var i = InstructionIndex(duration, _lastIndex);
+            var i = InstructionIndex(_instructions0.InitialInstructions, duration, _lastIndex);
             if (i > _lastIndex)
             {
-                _tmp.text = _instructions[i];
+                _tmp.text = _instructions0.InitialInstructions[i].Content;
                 _lastIndex = i;
             }
             
@@ -117,7 +116,7 @@ public class LevelManager0 : MonoBehaviour
             _lastInstructionStartMoment = Time.timeSinceLevelLoad;
             Destroy(_shadeObj);
             _tmp.text = "";
-            ParseTexts(levelCfg0.lastInstructions);
+            _lastIndex = -1;
             _isLastInstructions = true;
             _hasHideShade = true;
         }
@@ -125,10 +124,10 @@ public class LevelManager0 : MonoBehaviour
         else if (_isLastInstructions)
         {
             var duration = Time.timeSinceLevelLoad - _lastInstructionStartMoment;
-            var i = InstructionIndex(duration, _lastIndex);
+            var i = InstructionIndex(_instructions0.LastInstructions, duration, _lastIndex);
             if (i > _lastIndex)
             {
-                _tmp.text = _instructions[i];
+                _tmp.text = _instructions0.LastInstructions[i].Content;
                 _lastIndex = i;
             }
 
@@ -163,27 +162,10 @@ public class LevelManager0 : MonoBehaviour
                 Services.EventManager.Register<Success>(OnSuccess);
                 Services.EventManager.Register<Fail>(OnFail);
                 _hasStartDetect = true;
-                
             }
         }
-
     }
-
-    private void ParseTexts(List<string> toParse)
-    {
-        _instructions = new List<string>();
-        _startTimes = new List<float>();
-        _lastIndex = -1;
-        for (int i = 0; i < toParse.Count; i++)
-        {
-            var line = toParse[i].Split('^');
-            float t1;
-            if (float.TryParse(line[0], out t1)) 
-                _startTimes.Add(t1);
-            _instructions.Add(line[1]);
-        }
-    }
-
+    
     private void OnFirstForce(AGPEvent e)
     {
         _isInitialInstruction = false;
@@ -211,20 +193,17 @@ public class LevelManager0 : MonoBehaviour
         Services.EventManager.Unregister<FirstCancel>(OnFirstCancel);
     }
     
-    private int InstructionIndex(float time, int i)
+    private int InstructionIndex(List<InstructionItem> instructionItems, float time, int i)
     {
-        if (i >= _startTimes.Count - 1)
+        if (i >= instructionItems.Count - 1)
         {
-            return _startTimes.Count - 1;
+            return instructionItems.Count - 1;
         }
-        if (time < _startTimes[i + 1])
+        if (time < instructionItems[i + 1].StartTime)
         {
             return i;
         }
-        else
-        {
-            return InstructionIndex(time, i + 1);
-        }
+        return InstructionIndex(instructionItems, time, i + 1);
     }
 
     private void ShowTargetSqr()
@@ -246,7 +225,7 @@ public class LevelManager0 : MonoBehaviour
     
     private void ShowGoal()
     {
-        _goalObj.transform.position = _targetSqrObj.transform.position + new Vector3(6f, 1f, 0f);
+        _goalObj.transform.position = _targetSqrObj.transform.position + new Vector3(6f, 0f, 0f);
         _goalObj.SetActive(true);
     }
     
