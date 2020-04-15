@@ -78,7 +78,7 @@ public class ControllerSquare : MonoBehaviour
     }
 
     // figure out a better way to replace this when on mobile
-    private void OnMouseDown()
+    public void OnMouseDown()
     {
         if (!respond) return;
         
@@ -89,7 +89,7 @@ public class ControllerSquare : MonoBehaviour
         _previousNetForceLine.Draw();
     }
 
-    private void OnMouseUp()
+    public void OnMouseUp()
     {
         if(!respond) return;
         

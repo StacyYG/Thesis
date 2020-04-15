@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7894216739082252588}
   - component: {fileID: 7894216739082252595}
   - component: {fileID: 7894216739082252589}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: CancleButton
   m_TagString: CancelButton
   m_Icon: {fileID: 0}
@@ -60,3 +60,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1beb20e3153127499850d7d0466c0a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  respond: 1
