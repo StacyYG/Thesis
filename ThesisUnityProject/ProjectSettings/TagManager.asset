@@ -12,6 +12,7 @@ TagManager:
   - Goal
   - BarrierObject
   - HazardObject
+  - GateConstant
   layers:
   - Default
   - TransparentFX

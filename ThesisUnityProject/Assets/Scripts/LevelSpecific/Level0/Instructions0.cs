@@ -14,15 +14,16 @@ public class Instructions0
         _levelData = data;
         toReturn.InitialInstructions = new List<InstructionItem>();
         toReturn.LastInstructions = new List<InstructionItem>();
-        for (int i = 0; i < _levelData.initialInstructions.Count; i++)
+        foreach (var instruction in _levelData.initialInstructions)
         {
-            toReturn.InitialInstructions.Add(_levelData.initialInstructions[i]);
+            toReturn.InitialInstructions.Add(instruction);
         }
 
-        for (int i = 0; i < _levelData.lastInstructions.Count; i++)
+        foreach (var instruction in _levelData.lastInstructions)
         {
-            toReturn.LastInstructions.Add(_levelData.lastInstructions[i]);
+            toReturn.LastInstructions.Add(instruction);
         }
+        
         return toReturn;
     }
 }
@@ -30,6 +31,6 @@ public class Instructions0
 [System.Serializable]
 public struct InstructionItem
 {
-    public int StartTime;
-    public string Content;
+    public int startTime;
+    public string content;
 }

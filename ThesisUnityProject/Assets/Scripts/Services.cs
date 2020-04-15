@@ -96,15 +96,15 @@ public static class Services
         set => _cancelButton = value;
     }
 
-    private static Goal _goal;
+    private static Gate _gate;
 
-    public static Goal Goal
+    public static Gate Gate
     {
         get
         { 
-            Debug.Assert(_goal != null);
-            return _goal;
+            Debug.Assert(_gate != null);
+            return _gate;
         }
-        set => _goal = value;
+        set => _gate = value;
     }
 }

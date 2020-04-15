@@ -10,7 +10,7 @@ public class LevelManager0 : MonoBehaviour
     private TextMeshPro _tmp;
     private Instructions0 _instructions0;
     private Rigidbody2D _targetRB;
-    private GameObject _controlSqrObj, _targetSqrObj, _cancelButtonObj, _shadeObj, _goalObj;
+    private GameObject _controlSqrObj, _targetSqrObj, _cancelButtonObj, _shadeObj, _gateObj, _flagObj;
 
     private bool _hasShowTargetSqr,
         _hasShowCtrlSqr,
@@ -32,6 +32,7 @@ public class LevelManager0 : MonoBehaviour
         _lastInstructionStartMoment,
         _firstCancelMoment;
     private int _lastIndex = -1;
+    private int _failTimes;
     
     public void Awake()
     {
@@ -54,9 +55,11 @@ public class LevelManager0 : MonoBehaviour
         Services.EventManager = new EventManager();
         _shadeObj = GameObject.FindGameObjectWithTag("Shade");
         _shadeObj.SetActive(false);
-        _goalObj = GameObject.FindGameObjectWithTag("Goal");
-        Services.Goal = _goalObj.GetComponent<Goal>();
-        _goalObj.SetActive(false);
+        _gateObj = GameObject.FindGameObjectWithTag("GateConstant");
+        Services.Gate = _gateObj.GetComponent<Gate>();
+        _gateObj.SetActive(false);
+        _flagObj = GameObject.FindGameObjectWithTag("Goal");
+        _flagObj.SetActive(false);
         _tmp = GetComponent<TextMeshPro>();
         _instructions0 = Instructions0.Load(levelCfg0);
     }
@@ -80,7 +83,7 @@ public class LevelManager0 : MonoBehaviour
             var i = InstructionIndex(_instructions0.InitialInstructions, duration, _lastIndex);
             if (i > _lastIndex)
             {
-                _tmp.text = _instructions0.InitialInstructions[i].Content;
+                _tmp.text = _instructions0.InitialInstructions[i].content;
                 _lastIndex = i;
             }
             
@@ -127,7 +130,7 @@ public class LevelManager0 : MonoBehaviour
             var i = InstructionIndex(_instructions0.LastInstructions, duration, _lastIndex);
             if (i > _lastIndex)
             {
-                _tmp.text = _instructions0.LastInstructions[i].Content;
+                _tmp.text = _instructions0.LastInstructions[i].content;
                 _lastIndex = i;
             }
 
@@ -158,9 +161,9 @@ public class LevelManager0 : MonoBehaviour
 
             else if (duration > levelCfg0.startDetectTime && !_hasStartDetect)
             {
-                Services.Goal.isDetect = true;
+                Services.Gate.isDetect = true;
                 Services.EventManager.Register<Success>(OnSuccess);
-                Services.EventManager.Register<Fail>(OnFail);
+                Services.EventManager.Register<LoseLife>(OnLoseLife);
                 _hasStartDetect = true;
             }
         }
@@ -199,7 +202,7 @@ public class LevelManager0 : MonoBehaviour
         {
             return instructionItems.Count - 1;
         }
-        if (time < instructionItems[i + 1].StartTime)
+        if (time < instructionItems[i + 1].startTime)
         {
             return i;
         }
@@ -225,8 +228,10 @@ public class LevelManager0 : MonoBehaviour
     
     private void ShowGoal()
     {
-        _goalObj.transform.position = _targetSqrObj.transform.position + new Vector3(6f, 0f, 0f);
-        _goalObj.SetActive(true);
+        _gateObj.transform.position = _targetSqrObj.transform.position + new Vector3(6f, 0f, 0f);
+        _flagObj.transform.position = _gateObj.transform.position;
+        _gateObj.SetActive(true);
+        _flagObj.SetActive(true);
     }
     
     private bool _checked;
@@ -247,10 +252,12 @@ public class LevelManager0 : MonoBehaviour
     private void OnSuccess(AGPEvent e)
     {
         _tmp.text = levelCfg0.whenSuccess;
+        _flagObj.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+        _flagObj.transform.parent = _targetSqrObj.transform;
         var p = Instantiate(levelCfg0.successParticles, _targetSqrObj.transform.position, Quaternion.identity);
         StartCoroutine(WaitAndDestroy(p));
         Services.EventManager.Unregister<Success>(OnSuccess);
-        Services.EventManager.Unregister<Fail>(OnFail);
+        Services.EventManager.Unregister<LoseLife>(OnLoseLife);
     }
 
     private IEnumerator WaitAndDestroy(GameObject toDestroy)
@@ -259,10 +266,16 @@ public class LevelManager0 : MonoBehaviour
         Destroy(toDestroy);
     }
 
-    private void OnFail(AGPEvent e)
+    private void OnLoseLife(AGPEvent e)
     {
-        var failEvent = (Fail) e;
-        _tmp.text = levelCfg0.errorHints[failEvent._failTimes];
+        var totalHintNum = levelCfg0.errorHints.Count;
+        if (_failTimes >= totalHintNum)
+        {
+            _tmp.text = levelCfg0.errorHints[totalHintNum - 1];
+            return;
+        }
+        _tmp.text = levelCfg0.errorHints[_failTimes];
+        _failTimes++;
     }
 }
 

@@ -55,7 +55,7 @@ public class TargetSquare : MonoBehaviour
         {
             _hurtTimer += Time.deltaTime;
             _sr.color = Color.Lerp(hurtColor, liveColor, _hurtTimer / recoverTime);
-            
+            if (_hurtTimer >= recoverTime) _isHurt = false;
         }
     }
 
@@ -93,7 +93,7 @@ public class TargetSquare : MonoBehaviour
             if(_isHurt) return;
             Services.EventManager.Fire(new LoseLife());
         }
-
+        
     }
 
     private void OnCollisionStay2D(Collision2D other)
@@ -136,10 +136,12 @@ public class TargetSquare : MonoBehaviour
         
     }
 
-    private IEnumerator Recover()
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        yield return new WaitForSeconds(recoverTime);
-        _isHurt = false;
+        if (other.gameObject.CompareTag("Goal"))
+        {
+            Services.EventManager.Fire(new Success());
+        }
     }
 
     private void OnLoseLife(AGPEvent e)
@@ -148,8 +150,5 @@ public class TargetSquare : MonoBehaviour
         _isHurt = true;
         _sr.color = hurtColor;
         _hurtTimer = 0f;
-        StartCoroutine(Recover());
     }
 }
-
-public class LoseLife : AGPEvent{}

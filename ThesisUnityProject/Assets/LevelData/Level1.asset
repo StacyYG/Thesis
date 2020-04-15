@@ -12,4 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c26db9053480e6044ae8ec63cc7bb79f, type: 3}
   m_Name: Level1
   m_EditorClassIdentifier: 
-  livesInstruction: 
+  explainTriangle: Oh, red triangle hurts you.
+  explainConstantGate: This <b>Constant-Velocity-Gate</b> hurts when your velocity
+    changes.
+  explainLives: By the way, these are your lives, and you just lost one.
+  comfort: Don't be sad, here is another one.
