@@ -27,13 +27,7 @@ public class CancelButton : MonoBehaviour
             Services.ControllerSquare.ResetPlayerForce();
         }
     }
-
-    private void OnMouseDown()
-    {
-        if (!respond) return;
-        
-        Services.ControllerSquare.ResetPlayerForce();
-    }
+    
     
     public void DrawBoundCircle(int segments = 15)
     {

@@ -5,6 +5,18 @@ using UnityEngine;
 
 public static class Services
 {
+    private static InputManager _input;
+
+    public static InputManager Input
+    {
+        get
+        { 
+            Debug.Assert(_input != null);
+            return _input;
+        }
+        set => _input = value;
+    }
+
     private static Camera _myCamera;
 
     public static Camera MainCamera

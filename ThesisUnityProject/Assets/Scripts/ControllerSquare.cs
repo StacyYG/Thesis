@@ -9,9 +9,7 @@ public class ControllerSquare : MonoBehaviour
     private VectorLine _currentLine;
     private VectorLine _currentNetForceLine;
     private VectorLine _previousNetForceLine;
-    private Vector2 _currentForceVector;
-    private Vector2 _netForceVector;
-    private bool _holdingMouse;
+    private Vector2 _currentForce, _sum, _netForce;
     public float lineWidth = 6f;
     private Vector2 _myWorldPosition;
     public Texture2D frontTexture;
@@ -59,16 +57,14 @@ public class ControllerSquare : MonoBehaviour
         _previousNetForceLine.textureScale = _currentLine.textureScale = 1.0f;
     }
 
-    // Update is called once per frame
-    private void FixedUpdate()
+    public void UpdateCurrentPlayerForce(Vector2 mouseWorldPos)
     {
-        if (_holdingMouse)
-        {
-            _currentForceVector = Vector2.ClampMagnitude(MouseWorldPosition() - (Vector2)transform.position, _maxForceSize);
-            _currentLine.points3[0] = _currentForceVector;
-            _currentNetForceLine.points3[0] = _netForceVector + _currentForceVector;
-        }
-
+        _currentForce =
+            Vector2.ClampMagnitude(mouseWorldPos - (Vector2) transform.position,
+                _maxForceSize);
+        _currentLine.points3[0] = _currentForce;
+        _netForce = _sum + _currentForce;
+        _currentNetForceLine.points3[0] = _netForce;
     }
 
     private void LateUpdate()
@@ -78,25 +74,23 @@ public class ControllerSquare : MonoBehaviour
     }
 
     // figure out a better way to replace this when on mobile
-    public void OnMouseDown()
+    public void OnMouseOrTouchDown()
     {
         if (!respond) return;
         
-        _holdingMouse = true;
         _currentLine.active = true;
         _previousNetForceLine.active = true;
-        _previousNetForceLine.points3[0] = _currentNetForceLine.points3[0];
         _previousNetForceLine.Draw();
     }
 
-    public void OnMouseUp()
+    public void OnMouseOrTouchUp()
     {
         if(!respond) return;
-        
-        _holdingMouse = false;
-        _netForceVector += _currentForceVector;
+
+        _sum = _netForce;
         _currentLine.active = false;
         _previousNetForceLine.active = false;
+        _previousNetForceLine.points3[0] = _netForce;
     }
     
     private Vector2 MouseWorldPosition()
@@ -106,31 +100,12 @@ public class ControllerSquare : MonoBehaviour
         return mouseWorldPos;
     }
 
-    private Vector2 _playerForce;
-
-    public Vector2 PlayerForce
-    {
-        get
-        {
-            if (_holdingMouse)
-            {
-                _playerForce = _netForceVector + _currentForceVector;
-                
-            }
-            else
-            {
-                _playerForce = _netForceVector;
-            }
-
-            return _playerForce;
-        }
-        set => _playerForce = value;
-    }
+    public Vector2 PlayerForce => _netForce;
 
     public void ResetPlayerForce()
     {
-        _netForceVector = Vector2.zero;
-        _currentForceVector = Vector2.zero;
+        _sum = Vector2.zero;
+        _currentForce = Vector2.zero;
         _currentLine.points3[0] = Vector2.zero;
         _currentNetForceLine.points3[0] = Vector2.zero;
         _currentLine.Draw();

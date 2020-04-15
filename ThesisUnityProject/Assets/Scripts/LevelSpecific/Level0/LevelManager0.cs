@@ -42,6 +42,7 @@ public class LevelManager0 : MonoBehaviour
     private void Init()
     {
         Services.MainCamera = Camera.main;
+        Services.Input = new InputManager();
         _controlSqrObj = GameObject.FindGameObjectWithTag("ControllerSquare");
         Services.ControllerSquare = _controlSqrObj.GetComponent<ControllerSquare>();
         Services.ControllerSquare.respond = false;
@@ -71,7 +72,11 @@ public class LevelManager0 : MonoBehaviour
     }
     
 
+    private void FixedUpdate()
+    {
+        Services.Input.Update();
 
+    }
     
     // Update is called once per frame
     void Update()

@@ -4,23 +4,13 @@ using UnityEngine;
 
 public class InputManager
 {
-    public List<KeyCode> KeysDown { get; private set; }
-    public List<KeyCode> KeysUp { get; private set; }
-    public List<KeyCode> KeysStay { get; private set; }
-
-    public bool mouseDown  { get; private set; }
-    public bool mouseUp  { get; private set; }
-    public bool mouseStay { get; private set; }
+    public bool mouseStayOnCtrlSqr { get; private set; }
 
     public Vector2 MousePositionWorldUnits { get; private set; }
 
-    private int _fingerTouching = -1;
+    private int _fingerOnCtrlSqr = -1;
     public void Update()
     {
-        mouseDown = false;
-        mouseUp = false;
-        mouseStay = false;
-        
         if (Input.touchSupported)
         {
             foreach (var touch in Input.touches)
@@ -30,28 +20,36 @@ public class InputManager
                 switch (touch.phase)
                 {
                     case TouchPhase.Began:
-                        var hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(touch.position), Vector2.zero,
-                            Mathf.Infinity, 5);
-                        if (hit.collider.gameObject.CompareTag("ControllerSquare"))
+                        var hit = Physics2D.Raycast(Services.MainCamera.ScreenToWorldPoint(touch.position), Vector2.zero,
+                            Mathf.Infinity, ~5);
+                        if (!ReferenceEquals(hit.collider, null))
                         {
-                            mouseDown = true;
-                            MousePositionWorldUnits = _toWorldUnits(touch.position);
-                            //call controller on mouse down
-                        }
+                            if (hit.collider.gameObject.CompareTag("ControllerSquare"))
+                            {
+                                _fingerOnCtrlSqr = touch.fingerId;
+                                Services.ControllerSquare.OnMouseOrTouchDown();
+                            }
 
-                        if (hit.collider.gameObject.CompareTag("CancelButton"))
-                        {
-                            //call cancel force
+                            if (hit.collider.gameObject.CompareTag("CancelButton"))
+                            {
+                                if (Services.CancelButton.respond)
+                                    Services.ControllerSquare.ResetPlayerForce();
+                            }
                         }
                         break;
                     case TouchPhase.Moved:
+                        if (touch.fingerId == _fingerOnCtrlSqr)
+                            Services.ControllerSquare.UpdateCurrentPlayerForce(_toWorldUnits(touch.position));
+                        break;
                     case TouchPhase.Stationary:
-                        mouseStay = true;
-                        MousePositionWorldUnits = _toWorldUnits(touch.position);
                         break;
                     case TouchPhase.Ended:
                     case TouchPhase.Canceled:
-                        mouseUp = true;
+                        if (touch.fingerId == _fingerOnCtrlSqr)
+                        {
+                            _fingerOnCtrlSqr = -1;
+                            Services.ControllerSquare.OnMouseOrTouchUp();
+                        }
                         break;
                 }
             }
@@ -59,33 +57,46 @@ public class InputManager
         else
         {
             if (Input.GetMouseButtonDown(0))
-                mouseDown = true;
+            {
+                var hit = Physics2D.Raycast(Services.MainCamera.ScreenToWorldPoint(Input.mousePosition), Vector2.zero,
+                    Mathf.Infinity, ~5);
+                if (!ReferenceEquals(hit.collider, null))
+                {
+                    if (hit.collider.gameObject.CompareTag("ControllerSquare"))
+                    {
+                        mouseStayOnCtrlSqr = true;
+                        Services.ControllerSquare.OnMouseOrTouchDown();
+                    }
+
+                    if (hit.collider.gameObject.CompareTag("CancelButton"))
+                    {
+                        if (Services.CancelButton.respond)
+                            Services.ControllerSquare.ResetPlayerForce();
+                    }
+                }
+            }
             if (Input.GetMouseButton(0))
-                mouseStay = true;
-            if (Input.GetMouseButtonUp(0))                        
-                mouseUp = true;
-            
-            MousePositionWorldUnits = _toWorldUnits(Input.mousePosition);
+                if (mouseStayOnCtrlSqr)
+                    Services.ControllerSquare.UpdateCurrentPlayerForce(_toWorldUnits(Input.mousePosition));
+                
+            if (Input.GetMouseButtonUp(0))
+                if (mouseStayOnCtrlSqr)
+                {
+                    mouseStayOnCtrlSqr = false;
+                    Services.ControllerSquare.OnMouseOrTouchUp();
+                }
         }
-        
-        KeysDown = new List<KeyCode>();
-        KeysUp = new List<KeyCode>();
-        KeysStay = new List<KeyCode>();
-        
-        foreach(KeyCode keycode in Enum.GetValues(typeof(KeyCode)))
+
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (Input.GetKeyDown(keycode))
-                KeysDown.Add(keycode);
-            if (Input.GetKey(keycode))
-                KeysStay.Add(keycode);
-            if (Input.GetKeyUp(keycode))
-                KeysStay.Add(keycode);
+            if (Services.CancelButton.respond)
+                Services.ControllerSquare.ResetPlayerForce();
         }
     }
 
     private Vector2 _toWorldUnits(Vector3 inputPosition)
     {
-        var worldPosition = Camera.main.ScreenToWorldPoint(inputPosition);
+        var worldPosition = Services.MainCamera.ScreenToWorldPoint(inputPosition);
         return new Vector2(worldPosition.x, worldPosition.y);
     }
 }
