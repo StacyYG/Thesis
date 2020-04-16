@@ -4,12 +4,13 @@ using UnityEngine;
 
 public class InputManager
 {
+    private bool _useTouch = false;
     public bool mouseStayOnCtrlSqr { get; private set; }
 
     private int _fingerOnCtrlSqr = -1;
     public void Update()
     {
-        if (Input.touchSupported)
+        if (_useTouch)
         {
             foreach (var touch in Input.touches)
             {
@@ -27,7 +28,7 @@ public class InputManager
                                 _fingerOnCtrlSqr = touch.fingerId;
                                 Services.ControllerSquare.OnMouseOrTouchDown();
                             }
-
+        
                             if (hit.collider.gameObject.CompareTag("CancelButton"))
                             {
                                 if (Services.CancelButton.Respond)
@@ -52,6 +53,7 @@ public class InputManager
                 }
             }
         } 
+        
         else
         {
             if (Input.GetMouseButtonDown(0))
@@ -69,7 +71,10 @@ public class InputManager
                     if (hit.collider.gameObject.CompareTag("CancelButton"))
                     {
                         if (Services.CancelButton.Respond)
+                        {
+                            mouseStayOnCtrlSqr = false;
                             Services.ControllerSquare.ResetPlayerForce();
+                        }
                     }
                 }
             }
@@ -83,12 +88,15 @@ public class InputManager
                     mouseStayOnCtrlSqr = false;
                     Services.ControllerSquare.OnMouseOrTouchUp();
                 }
-        }
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            if (Services.CancelButton.Respond)
-                Services.ControllerSquare.ResetPlayerForce();
+            
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                if (Services.CancelButton.Respond)
+                {
+                    mouseStayOnCtrlSqr = false;
+                    Services.ControllerSquare.ResetPlayerForce();
+                }
+            }
         }
     }
 

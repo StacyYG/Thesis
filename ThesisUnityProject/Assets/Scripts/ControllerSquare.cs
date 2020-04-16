@@ -94,6 +94,7 @@ public class ControllerSquare
         _currentLine.points3[0] = _netForceLine.points3[0] = _previousNetForceLine.points3[0] = Vector2.zero;
         _currentLine.Draw();
         _netForceLine.Draw();
+        _previousNetForceLine.Draw();
     }
     public void DrawBoundCircle(int segments = 30)
     {
