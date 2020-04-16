@@ -1077,6 +1077,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   levelCfg1: {fileID: 11400000, guid: 0005f08c16a4f2549adfef9fd14b874f, type: 2}
+  gameCfg: {fileID: 11400000, guid: b6ce029ceae33b547953b8795b1210dd, type: 2}
 --- !u!114 &2084675411
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1605,5 +1606,6 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 5
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7894216739082252589, guid: 97ddfdebdd73bcd43a5ca7f6213a7d79, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 97ddfdebdd73bcd43a5ca7f6213a7d79, type: 3}

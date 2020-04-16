@@ -12,8 +12,6 @@ public class TargetSquare : MonoBehaviour
     private Dictionary<Collider2D, NormalForce> _normalForces;
     private Dictionary<Collider2D, Friction> _frictions;
     private Gravity _gravity;
-    public Color hurtColor;
-    public Color liveColor;
     public float recoverTime;
     private bool _isHurt;
     private float _hurtTimer;
@@ -42,30 +40,28 @@ public class TargetSquare : MonoBehaviour
         Services.EventManager.Unregister<LoseLife>(OnLoseLife);
     }
 
-    private void FixedUpdate()
+    public void OnFixedUpdate()
     {
         _playerForce.Update();
         _rb.AddForce(_playerForce.Vector);
-        Services.CameraController.Update();
     }
 
-    private void Update()
+    public void OnUpdate()
     {
         if (_isHurt)
         {
             _hurtTimer += Time.deltaTime;
-            _sr.color = Color.Lerp(hurtColor, liveColor, _hurtTimer / recoverTime);
+            _sr.color = Color.Lerp(Services.GameCfg.hurtColor, Services.GameCfg.liveColor, _hurtTimer / recoverTime);
             if (_hurtTimer >= recoverTime) _isHurt = false;
         }
     }
 
-    private void LateUpdate()
+    public void OnLateUpdate()
     {
         _playerForce.Draw();
         if (Mathf.Abs(_rb.gravityScale) > Mathf.Epsilon)
-        {
             _gravity.Draw();
-        }
+        
     }
 
     private void OnCollisionEnter2D(Collision2D other)
@@ -148,7 +144,6 @@ public class TargetSquare : MonoBehaviour
     {
         _rb.velocity = Vector2.zero;
         _isHurt = true;
-        _sr.color = hurtColor;
         _hurtTimer = 0f;
     }
 }

@@ -20,7 +20,7 @@ public class ControlMonitor : MonoBehaviour
     public int ClickTimes { get; private set; }
     private void OnMouseDown()
     {
-        if (!Services.ControllerSquare.respond) return;
+        if (!Services.ControllerSquare.Respond) return;
         
         ClickTimes++;
         if (ClickTimes == 1)

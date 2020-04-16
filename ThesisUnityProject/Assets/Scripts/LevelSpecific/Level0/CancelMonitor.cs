@@ -14,7 +14,7 @@ public class CancelMonitor : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!Services.CancelButton.respond) return;
+        if (!Services.CancelButton.Respond) return;
         
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -25,7 +25,7 @@ public class CancelMonitor : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (!Services.CancelButton.respond) return;
+        if (!Services.CancelButton.Respond) return;
         
         Services.EventManager.Fire(new FirstCancel());
         Destroy(this);

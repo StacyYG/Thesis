@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 6033808625161919472}
   - component: {fileID: 6033808625161919479}
   - component: {fileID: 6033808625161919473}
-  - component: {fileID: 6033808625161919475}
   m_Layer: 0
   m_Name: controllerSquare
   m_TagString: ControllerSquare
@@ -109,22 +108,3 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &6033808625161919475
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6033808625161919478}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d01f7a4237947be4db9bd5ca0c2fffb3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lineWidth: 35
-  frontTexture: {fileID: 2800000, guid: 56ca900415e4d8141a295a91444e9621, type: 3}
-  dashedLineTexture: {fileID: 2800000, guid: 73797c0fc945bc34ea84e438b589206f, type: 3}
-  fullLineTexture: {fileID: 2800000, guid: ff85bd36fc564be4c9ee460d1897ae87, type: 3}
-  currentForceColor: {r: 1, g: 1, b: 1, a: 1}
-  previousNetForceColor: {r: 0.745283, g: 0.745283, b: 0.745283, a: 1}
-  currentNetForceColor: {r: 1, g: 0.1462264, b: 0.29803923, a: 1}

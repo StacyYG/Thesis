@@ -119,4 +119,16 @@ public static class Services
         }
         set => _gate = value;
     }
+
+    private static GameCfg _gameCfg;
+
+    public static GameCfg GameCfg
+    {
+        get
+        { 
+            Debug.Assert(_gameCfg != null);
+            return _gameCfg;
+        }
+        set => _gameCfg = value;
+    }
 }

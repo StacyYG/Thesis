@@ -11,6 +11,7 @@ public class LevelManager0 : MonoBehaviour
     private Instructions0 _instructions0;
     private Rigidbody2D _targetRB;
     private GameObject _controlSqrObj, _targetSqrObj, _cancelButtonObj, _shadeObj, _gateObj, _flagObj;
+    public GameCfg gameCfg;
 
     private bool _hasShowTargetSqr,
         _hasShowCtrlSqr,
@@ -37,21 +38,24 @@ public class LevelManager0 : MonoBehaviour
     public void Awake()
     {
         Init();
+        Services.ControllerSquare.Awake();
+        Services.CancelButton.Start();
     }
 
     private void Init()
     {
         Services.MainCamera = Camera.main;
         Services.Input = new InputManager();
+        Services.GameCfg = gameCfg;
         _controlSqrObj = GameObject.FindGameObjectWithTag("ControllerSquare");
-        Services.ControllerSquare = _controlSqrObj.GetComponent<ControllerSquare>();
-        Services.ControllerSquare.respond = false;
+        Services.ControllerSquare = new ControllerSquare(_controlSqrObj.transform);
+        Services.ControllerSquare.Respond = false;
         _targetSqrObj = GameObject.FindGameObjectWithTag("TargetSquare");
         Services.TargetSquare = _targetSqrObj.GetComponent<TargetSquare>();
         _targetRB = _targetSqrObj.GetComponent<Rigidbody2D>();
         _cancelButtonObj = GameObject.FindGameObjectWithTag("CancelButton");
-        Services.CancelButton = _cancelButtonObj.GetComponent<CancelButton>();
-        Services.CancelButton.respond = false;
+        Services.CancelButton = new CancelButton(_cancelButtonObj);
+        Services.CancelButton.Respond = false;
         Services.CameraController = new CameraController(Services.MainCamera, false, Services.TargetSquare.transform);
         Services.EventManager = new EventManager();
         _shadeObj = GameObject.FindGameObjectWithTag("Shade");
@@ -75,12 +79,15 @@ public class LevelManager0 : MonoBehaviour
     private void FixedUpdate()
     {
         Services.Input.Update();
+        Services.TargetSquare.OnFixedUpdate();
+        Services.CameraController.Update();
 
     }
     
     // Update is called once per frame
     void Update()
     {
+        Services.TargetSquare.OnUpdate();
         CheckTarget();
         if (_isInitialInstruction)
         {
@@ -106,7 +113,7 @@ public class LevelManager0 : MonoBehaviour
 
             else if (duration > levelCfg0.allowControlTime && !_hasAllowControl)
             {
-                Services.ControllerSquare.respond = true;
+                Services.ControllerSquare.Respond = true;
                 Services.EventManager.Register<FirstForce>(OnFirstForce);
                 Services.EventManager.Register<SecondForce>(OnSecondForce);
                 _hasAllowControl = true;
@@ -147,7 +154,7 @@ public class LevelManager0 : MonoBehaviour
 
             else if (duration > levelCfg0.allowCancelTime && !_hasAllowCancel)
             {
-                Services.CancelButton.respond = true;
+                Services.CancelButton.Respond = true;
                 Services.EventManager.Register<FirstCancel>(OnFirstCancel);
                 _hasAllowCancel = true;
             }
@@ -174,6 +181,11 @@ public class LevelManager0 : MonoBehaviour
         }
     }
     
+    private void LateUpdate()
+    {
+        Services.ControllerSquare.LateUpdate();
+        Services.TargetSquare.OnLateUpdate();
+    }
     private void OnFirstForce(AGPEvent e)
     {
         _isInitialInstruction = false;

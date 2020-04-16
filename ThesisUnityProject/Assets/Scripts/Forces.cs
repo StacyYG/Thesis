@@ -5,10 +5,9 @@ using Vectrosity;
 
 public abstract class Forces
 {
-    protected VectorLine _line;
-    private const float LineWidth = 35f;
-    protected Transform _transform;
-    protected Rigidbody2D _rb;
+    protected VectorLine Line;
+    private readonly Transform _targetTransform;
+    protected readonly Rigidbody2D Rb;
     private Vector2 _vector;
 
     public Vector2 Vector
@@ -19,28 +18,28 @@ public abstract class Forces
 
     protected Forces(GameObject gameObject)
     {
-        _transform = gameObject.transform;
-        _rb = gameObject.GetComponent<Rigidbody2D>();
-        _line = new VectorLine("", new List<Vector3> {Vector2.zero, Vector2.zero}, LineWidth);
+        _targetTransform = gameObject.transform;
+        Rb = gameObject.GetComponent<Rigidbody2D>();
+        Line = new VectorLine("", new List<Vector3> {Vector2.zero, Vector2.zero}, Services.GameCfg.lineWidth);
         Services.TotalLineNumber++;
-        _line.drawTransform = _transform;
+        Line.drawTransform = _targetTransform;
     }
 
     public void Destroy()
     {
-        VectorLine.Destroy(ref _line);
+        VectorLine.Destroy(ref Line);
     }
 
     public void SetVector(Vector2 forceVector)
     {
         _vector = forceVector;
-        Vector2 pureForceVector = _transform.InverseTransformVector(forceVector);
-        _line.points3[0] = pureForceVector;
+        Vector2 pureForceVector = _targetTransform.InverseTransformVector(forceVector);
+        Line.points3[0] = pureForceVector;
     }
 
     public void Draw()
     {
-        _line.Draw();
+        Line.Draw();
     }
 
     public abstract void Update();
@@ -50,10 +49,10 @@ public class Gravity : Forces
 {
     public Gravity(GameObject gameObject) : base(gameObject)
     {
-        _line.name = "Gravity";
-        _line.endCap = "fullArrow";
-        _line.color = Color.gray;
-        var vector = new Vector2(0f, _rb.gravityScale * Physics2D.gravity.y * _rb.mass);
+        Line.name = "Gravity";
+        Line.endCap = "fullArrow";
+        Line.color = Color.gray;
+        var vector = new Vector2(0f, Rb.gravityScale * Physics2D.gravity.y * Rb.mass);
         SetVector(vector);
     }
     public override void Update() {}
@@ -64,10 +63,10 @@ public class PlayerForce : Forces
     private ControllerSquare _controllerSquare;
     public PlayerForce(GameObject gameObject) : base(gameObject)
     {
-        _line.name = "PlayerForce";
-        _line.endCap = "fullArrow";
+        Line.name = "PlayerForce";
+        Line.endCap = "fullArrow";
         _controllerSquare = Services.ControllerSquare;
-        _line.color = _controllerSquare.currentNetForceColor;
+        Line.color = Services.GameCfg.currentNetForceColor;
     }
     public override void Update()
     {
@@ -80,9 +79,9 @@ public class NormalForce : Forces
 {
     public NormalForce(GameObject gameObject, Collision2D other, int index) : base(gameObject)
     {
-        _line.endCap = "fullArrow";
-        _line.name = "N" + index;
-        _line.color = other.gameObject.GetComponent<SpriteRenderer>().color;
+        Line.endCap = "fullArrow";
+        Line.name = "N" + index;
+        Line.color = other.gameObject.GetComponent<SpriteRenderer>().color;
     }
     
     public override void Update() {}
@@ -101,13 +100,13 @@ public class NormalForce : Forces
         var lerpSize = Mathf.Lerp(_prevNormalForceSize, size, 0.3f);
         _prevNormalForceSize = lerpSize;
         SetVector(lerpSize * direction);
-        _line.Draw();
+        Line.Draw();
     }
 
     public void Reset()
     {
         SetVector(Vector2.zero);
-        _line.Draw();
+        Line.Draw();
         _prevNormalForceSize = 0f;
     }
 }
@@ -116,9 +115,9 @@ public class Friction : Forces
 {
     public Friction(GameObject gameObject, Collision2D other, int index) : base(gameObject)
     {
-        _line.endCap = "fullArrow";
-        _line.name = "f" + index;
-        _line.color = other.gameObject.GetComponent<SpriteRenderer>().color;
+        Line.endCap = "fullArrow";
+        Line.name = "f" + index;
+        Line.color = other.gameObject.GetComponent<SpriteRenderer>().color;
     }
     public override void Update() {}
 
@@ -137,12 +136,12 @@ public class Friction : Forces
         var lerpSize = Mathf.Lerp(_prevFrictionSize, size, 0.3f);
         _prevFrictionSize = lerpSize;
         SetVector(lerpSize * direction);
-        _line.Draw();
+        Line.Draw();
     }
     public void Reset()
     {
         SetVector(Vector2.zero);
-        _line.Draw();
+        Line.Draw();
         _prevFrictionSize = 0f;
     }
 }

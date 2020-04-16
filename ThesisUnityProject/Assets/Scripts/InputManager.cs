@@ -6,8 +6,6 @@ public class InputManager
 {
     public bool mouseStayOnCtrlSqr { get; private set; }
 
-    public Vector2 MousePositionWorldUnits { get; private set; }
-
     private int _fingerOnCtrlSqr = -1;
     public void Update()
     {
@@ -32,7 +30,7 @@ public class InputManager
 
                             if (hit.collider.gameObject.CompareTag("CancelButton"))
                             {
-                                if (Services.CancelButton.respond)
+                                if (Services.CancelButton.Respond)
                                     Services.ControllerSquare.ResetPlayerForce();
                             }
                         }
@@ -47,8 +45,8 @@ public class InputManager
                     case TouchPhase.Canceled:
                         if (touch.fingerId == _fingerOnCtrlSqr)
                         {
-                            _fingerOnCtrlSqr = -1;
                             Services.ControllerSquare.OnMouseOrTouchUp();
+                            _fingerOnCtrlSqr = -1;
                         }
                         break;
                 }
@@ -70,7 +68,7 @@ public class InputManager
 
                     if (hit.collider.gameObject.CompareTag("CancelButton"))
                     {
-                        if (Services.CancelButton.respond)
+                        if (Services.CancelButton.Respond)
                             Services.ControllerSquare.ResetPlayerForce();
                     }
                 }
@@ -89,7 +87,7 @@ public class InputManager
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (Services.CancelButton.respond)
+            if (Services.CancelButton.Respond)
                 Services.ControllerSquare.ResetPlayerForce();
         }
     }
