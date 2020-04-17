@@ -13,6 +13,10 @@ TagManager:
   - BarrierObject
   - HazardObject
   - GateConstant
+  - NewLife
+  - LivesBar
+  - SpeedBar
+  - DirectionPointer
   layers:
   - Default
   - TransparentFX

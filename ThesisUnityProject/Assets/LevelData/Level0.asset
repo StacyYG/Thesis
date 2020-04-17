@@ -13,21 +13,15 @@ MonoBehaviour:
   m_Name: Level0
   m_EditorClassIdentifier: 
   v0: {x: 2, y: 0}
-  showTargetSqrTime: 2
-  showCtrlSqrTime: 8
-  allowControlTime: 12
+  showTargetSqrTime: 0
+  showCtrlSqrTime: 3
+  allowControlTime: 3
   initialInstructions:
-  - startTime: 1
-    content: How does a box move when no forces are acting on it?
-  - startTime: 4
-    content: And how do forces affect that?
-  - startTime: 6
-    content: Let's explore it!
-  - startTime: 8
+  - startTime: 3
     content: This is your <b>Control Box</b>,
-  - startTime: 10
+  - startTime: 5
     content: it transfers any force it receives to the target box.
-  - startTime: 15
+  - startTime: 10
     content: To add a force, you need to click the <b>Control Box</b> and drag.
   whenFirstForce: Yes! you just added a force.
   secondForceRemindTime: 5
@@ -36,25 +30,20 @@ MonoBehaviour:
     them with their sum--<color=red>Net Force</color>
   secondForceInstructionDuration: 5
   showCancelButtonTime: 4
-  allowCancelTime: 7
+  allowCancelTime: 4
   lastInstructions:
-  - startTime: 3
-    content: One last thing,
   - startTime: 4
-    content: this is your <b>Cancel Button</b>,
-  - startTime: 6
-    content: it removes all the forces you added. <size=4>You can also use Space
-      bar if on PC.</size>
+    content: This is your <b>Cancel Button</b>, it removes all the forces you added.
+      <size=4>You can also use Space bar if on PC.</size>
   whenFirstCancel: Just like that!
   showGoalTime: 2
-  goalExplanation: Now go get the flag! That shining gate can only be passed with
-    a <b>constant velocity</b>. Good Luck!
+  goalExplanation: Now go get the flag.
   startDetectTime: 3
   errorHints:
-  - It has to be a <b>constant velocity</b>!
+  - The gate can only be passed through with a <b>constant velocity</b>.
   - 'So the box should move with a steady speed in a straight line. '
-  - Forces change the box's moving direction or speed, did you see that?
-  - In a word, remove the forces before your box enters the area.
-  whenSuccess: YAYYY, good job!
+  - Force changes the box's moving direction or speed, right?
+  - So remove the forces before your box enters the area.
+  whenSuccess: Good job.
   successParticles: {fileID: 2709907116110291074, guid: 6c69dd43126cbb4479d38f1226e08b72,
     type: 3}

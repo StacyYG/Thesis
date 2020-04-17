@@ -131,4 +131,28 @@ public static class Services
         }
         set => _gameCfg = value;
     }
+
+    private static LivesBar _livesBar;
+
+    public static LivesBar LivesBar
+    {
+        get
+        {
+            Debug.Assert(_livesBar != null);
+            return _livesBar;
+        }
+        set => _livesBar = value;
+    }
+
+    private static VelocityBar _velocityBar;
+
+    public static VelocityBar VelocityBar
+    {
+        get
+        {
+            Debug.Assert(_velocityBar != null);
+            return _velocityBar;
+        }
+        set => _velocityBar = value;
+    }
 }

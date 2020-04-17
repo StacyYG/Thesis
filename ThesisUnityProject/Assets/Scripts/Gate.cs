@@ -85,4 +85,3 @@ public class Gate : MonoBehaviour
 }
 
 public class Success : AGPEvent{}
-public class LoseLife : AGPEvent{}

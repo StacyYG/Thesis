@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Level1
   m_EditorClassIdentifier: 
   explainTriangle: Oh, red triangle hurts you.
-  explainConstantGate: This <b>Constant-Velocity-Gate</b> hurts when your velocity
+  explainConstantGate: <b>Constant-Velocity-Gate</b> hurts you when your velocity
     changes.
-  explainLives: By the way, these are your lives, and you just lost one.
-  comfort: Don't be sad, here is another one.
+  explainLives: By the way, these are your lives and you just lost one.
+  comfort: Don't be sad, there are plenty of lives

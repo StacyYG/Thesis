@@ -22,3 +22,5 @@ MonoBehaviour:
   previousNetForceColor: {r: 0.8018868, g: 0.8018868, b: 0.8018868, a: 1}
   currentNetForceColor: {r: 1, g: 0.2971698, b: 0.2971698, a: 1}
   lineWidth: 35
+  startLifeNum: 3
+  lifeBox: {fileID: 6986524613125411021, guid: b951e7ae33942db45a7717e05ffcb7c7, type: 3}

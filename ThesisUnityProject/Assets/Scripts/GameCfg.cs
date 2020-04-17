@@ -19,4 +19,8 @@ public class GameCfg : ScriptableObject
     public Color previousNetForceColor;
     public Color currentNetForceColor;
     public float lineWidth;
+    [Header("Life Settings")] 
+    public int startLifeNum;
+    [Header("Prefabs")] 
+    public GameObject lifeBox;
 }

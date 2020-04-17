@@ -88,6 +88,12 @@ public class TargetSquare : MonoBehaviour
         {
             if(_isHurt) return;
             Services.EventManager.Fire(new LoseLife());
+            Destroy(other.gameObject);
+        }
+
+        if (other.gameObject.CompareTag("NewLife"))
+        {
+            Services.EventManager.Fire(new GainLife(other.gameObject));
         }
         
     }

@@ -34,13 +34,16 @@ public class LevelManager1 : MonoBehaviour
         Services.CancelButton = new CancelButton(_cancelButtonObj);
         Services.CameraController = new CameraController(Services.MainCamera, true, Services.TargetSquare.transform);
         Services.EventManager = new EventManager();
+        Services.LivesBar = new LivesBar(GameObject.FindGameObjectWithTag("LivesBar").transform);
+        Services.VelocityBar = new VelocityBar(GameObject.FindGameObjectWithTag("SpeedBar").transform,
+            GameObject.FindGameObjectWithTag("DirectionPointer").transform, _targetRB);
         _tmp = GetComponent<TextMeshPro>();
     }
     
     // Start is called before the first frame update
     void Start()
     {
-        
+        Services.LivesBar.Init();
     }
     
 
@@ -56,6 +59,8 @@ public class LevelManager1 : MonoBehaviour
     void Update()
     {
         Services.TargetSquare.OnUpdate();
+        Services.LivesBar.Update();
+        Services.VelocityBar.UpdateSize();
     }
 
     private void LateUpdate()
