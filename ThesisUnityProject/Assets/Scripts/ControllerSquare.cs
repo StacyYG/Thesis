@@ -12,17 +12,18 @@ public class ControllerSquare
     public bool Respond = true;
     public Vector2 PlayerForce => _netForce;
     private readonly Transform _transform;
+    public BoundCircle boundCircle;
 
     public ControllerSquare(Transform transform)
     {
         _transform = transform;
+        boundCircle = new BoundCircle(MaxForceSize, 30, transform);
     }
     public void Awake()
     {
         VectorLine.SetEndCap("dashedArrow", EndCap.Front, -0.5f, Services.GameCfg.dashedLineTexture, Services.GameCfg.frontTexture);
         VectorLine.SetEndCap("fullArrow", EndCap.Front, -0.5f, Services.GameCfg.fullLineTexture, Services.GameCfg.frontTexture);
         SetUpVectorLines();
-        DrawBoundCircle();
     }
 
     // Start is called before the first frame update
@@ -95,17 +96,5 @@ public class ControllerSquare
         _currentLine.Draw();
         _netForceLine.Draw();
         _previousNetForceLine.Draw();
-    }
-    public void DrawBoundCircle(int segments = 30)
-    {
-        if (_circleLine != null)
-        {
-            VectorLine.Destroy(ref _circleLine);
-            Services.TotalLineNumber--;
-        }
-        _circleLine = new VectorLine("circle", new List<Vector3>(segments), 8f, LineType.Points);
-        Services.TotalLineNumber++;
-        _circleLine.MakeCircle(_transform.position, MaxForceSize, segments);
-        _circleLine.Draw();
     }
 }

@@ -17,7 +17,6 @@ public class LevelManager1 : MonoBehaviour
     {
         Init();
         Services.ControllerSquare.Awake();
-        Services.CancelButton.Start();
     }
 
     private void Init()
@@ -60,7 +59,7 @@ public class LevelManager1 : MonoBehaviour
     {
         Services.TargetSquare.OnUpdate();
         Services.LivesBar.Update();
-        Services.VelocityBar.UpdateSize();
+        Services.VelocityBar.Update();
     }
 
     private void LateUpdate()

@@ -90,12 +90,6 @@ public class TargetSquare : MonoBehaviour
             Services.EventManager.Fire(new LoseLife());
             Destroy(other.gameObject);
         }
-
-        if (other.gameObject.CompareTag("NewLife"))
-        {
-            Services.EventManager.Fire(new GainLife(other.gameObject));
-        }
-        
     }
 
     private void OnCollisionStay2D(Collision2D other)

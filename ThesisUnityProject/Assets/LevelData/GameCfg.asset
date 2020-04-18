@@ -24,3 +24,4 @@ MonoBehaviour:
   lineWidth: 35
   startLifeNum: 3
   lifeBox: {fileID: 6986524613125411021, guid: b951e7ae33942db45a7717e05ffcb7c7, type: 3}
+  rawLife: {fileID: 6986524613125411021, guid: 78e3efcdd506b984a935bc081153c599, type: 3}

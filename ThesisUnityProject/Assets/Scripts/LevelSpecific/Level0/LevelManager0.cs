@@ -21,17 +21,25 @@ public class LevelManager0 : MonoBehaviour
         _hasShowCancelButton,
         _hasSecondForce,
         _hasHideShade,
-        _isLastInstructions,
+        _isCancelInstructions,
         _hasAllowCancel,
+        _isChasePhase,
         _isGoalPhase,
         _hasShowGoal,
-        _hasStartDetect;
-    private bool _isInitialInstruction = true;
-    private float _timeSinceFirstForce,
-        _firstForceMoment,
-        _secondForceMoment,
-        _lastInstructionStartMoment,
-        _firstCancelMoment;
+        _hasStartDetect,
+        _cancelButtonGrowing,
+        _controlButtonGrowing;
+    private bool
+        _isInitialInstruction = true;
+
+    private float _firstForceTimer,
+        _secondForceTimer,
+        _cancelInstructionTimer,
+        _goalTimer,
+        _chaseTimer,
+        _cancelButtonGrowTimer,
+        _controlButtonGrowTimer;
+
     private int _lastIndex = -1;
     private int _failTimes;
     
@@ -39,7 +47,6 @@ public class LevelManager0 : MonoBehaviour
     {
         Init();
         Services.ControllerSquare.Awake();
-        Services.CancelButton.Start();
     }
 
     private void Init()
@@ -65,6 +72,8 @@ public class LevelManager0 : MonoBehaviour
         _gateObj.SetActive(false);
         _flagObj = GameObject.FindGameObjectWithTag("Goal");
         _flagObj.SetActive(false);
+        Services.VelocityBar = new VelocityBar(GameObject.FindGameObjectWithTag("SpeedBar").transform,
+            GameObject.FindGameObjectWithTag("DirectionPointer").transform, _targetRB);
         _tmp = GetComponent<TextMeshPro>();
         _instructions0 = Instructions0.Load(levelCfg0);
     }
@@ -72,7 +81,6 @@ public class LevelManager0 : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
     }
     
 
@@ -88,6 +96,7 @@ public class LevelManager0 : MonoBehaviour
     void Update()
     {
         Services.TargetSquare.OnUpdate();
+        Services.VelocityBar.Update();
         CheckTarget();
         if (_isInitialInstruction)
         {
@@ -98,7 +107,13 @@ public class LevelManager0 : MonoBehaviour
                 _tmp.text = _instructions0.InitialInstructions[i].content;
                 _lastIndex = i;
             }
-            
+
+            if (_controlButtonGrowing)
+            {
+                _controlButtonGrowTimer += Time.deltaTime;
+                if (Services.ControllerSquare.boundCircle.GrownUp(_controlButtonGrowTimer)) 
+                    _controlButtonGrowing = false;
+            }
             if (duration > levelCfg0.showTargetSqrTime && !_hasShowTargetSqr)
             {
                 ShowTargetSqr();
@@ -120,50 +135,68 @@ public class LevelManager0 : MonoBehaviour
             }
         }
         
-        else if (_hasFirstForce && !_hasSecondForce && Time.timeSinceLevelLoad - _firstForceMoment > levelCfg0.secondForceRemindTime && !_hasRemind)
+        else if (_hasFirstForce && !_hasSecondForce && !_hasRemind)
         {
-            _tmp.text = levelCfg0.secondForceReminder;
-            _hasRemind = true;
+            _firstForceTimer += Time.deltaTime;
+            if (_firstForceTimer > levelCfg0.secondForceRemindTime)
+            {
+                _tmp.text = levelCfg0.secondForceReminder;
+                _hasRemind = true;
+            }
         }
 
-        else if (_hasSecondForce && Time.timeSinceLevelLoad - _secondForceMoment > levelCfg0.secondForceInstructionDuration && !_hasHideShade)
+        else if (_hasSecondForce && !_hasHideShade)
         {
-            _lastInstructionStartMoment = Time.timeSinceLevelLoad;
-            Destroy(_shadeObj);
-            _tmp.text = "";
-            _lastIndex = -1;
-            _isLastInstructions = true;
-            _hasHideShade = true;
+            _secondForceTimer += Time.deltaTime;
+            if (_secondForceTimer > levelCfg0.secondForceInstructionDuration)
+            {
+                Destroy(_shadeObj);
+                _tmp.text = "";
+                _lastIndex = -1;
+                _isCancelInstructions = true;
+                _hasHideShade = true;
+            }
         }
 
-        else if (_isLastInstructions)
+        else if (_isCancelInstructions)
         {
-            var duration = Time.timeSinceLevelLoad - _lastInstructionStartMoment;
-            var i = InstructionIndex(_instructions0.LastInstructions, duration, _lastIndex);
+            _cancelInstructionTimer += Time.deltaTime;
+            var i = InstructionIndex(_instructions0.LastInstructions, _cancelInstructionTimer, _lastIndex);
             if (i > _lastIndex)
             {
                 _tmp.text = _instructions0.LastInstructions[i].content;
                 _lastIndex = i;
             }
 
-            if (duration > levelCfg0.showCancelButtonTime && !_hasShowCancelButton)
+            if (_cancelButtonGrowing)
+            {
+                _cancelButtonGrowTimer += Time.deltaTime;
+                if (Services.CancelButton.boundCircle.GrownUp(_cancelButtonGrowTimer))
+                    _cancelButtonGrowing = false;
+            }
+            if (_cancelInstructionTimer > levelCfg0.showCancelButtonTime && !_hasShowCancelButton)
             {
                 ShowCancelButton();
                 _hasShowCancelButton = true;
             }
-
-            else if (duration > levelCfg0.allowCancelTime && !_hasAllowCancel)
+            
+            else if (_cancelInstructionTimer > levelCfg0.allowCancelTime && !_hasAllowCancel)
             {
                 Services.CancelButton.Respond = true;
                 Services.EventManager.Register<FirstCancel>(OnFirstCancel);
                 _hasAllowCancel = true;
             }
         }
+        
+        else if (_isChasePhase)
+        {
+            _chaseTimer += Time.deltaTime;
+        }
 
         else if (_isGoalPhase)
         {
-            var duration = Time.timeSinceLevelLoad - _firstCancelMoment;
-            if (duration > levelCfg0.showGoalTime && !_hasShowGoal)
+            _goalTimer += Time.deltaTime;
+            if (_goalTimer > levelCfg0.showGoalTime && !_hasShowGoal)
             {
                 ShowGoal();
                 _hasShowGoal = true;
@@ -171,7 +204,7 @@ public class LevelManager0 : MonoBehaviour
                 _targetRB.velocity = Vector2.zero;
             }
 
-            else if (duration > levelCfg0.startDetectTime && !_hasStartDetect)
+            else if (_goalTimer > levelCfg0.startDetectTime && !_hasStartDetect)
             {
                 Services.Gate.isDetect = true;
                 Services.EventManager.Register<Success>(OnSuccess);
@@ -190,7 +223,6 @@ public class LevelManager0 : MonoBehaviour
     {
         _isInitialInstruction = false;
         _hasFirstForce = true;
-        _firstForceMoment = Time.timeSinceLevelLoad;
         _tmp.text = levelCfg0.whenFirstForce;
         Services.EventManager.Unregister<FirstForce>(OnFirstForce);
     }
@@ -199,17 +231,15 @@ public class LevelManager0 : MonoBehaviour
     {
         _shadeObj.SetActive(true);
         _hasSecondForce = true;
-        _secondForceMoment = Time.timeSinceLevelLoad;
         _tmp.text = levelCfg0.whenSecondForce;
         Services.EventManager.Unregister<SecondForce>(OnSecondForce);
     }
 
     private void OnFirstCancel(AGPEvent e)
     {
-        _isLastInstructions = false;
+        _isCancelInstructions = false;
         _tmp.text = levelCfg0.whenFirstCancel;
-        _firstCancelMoment = Time.timeSinceLevelLoad;
-        _isGoalPhase = true;
+        _isChasePhase = true;
         Services.EventManager.Unregister<FirstCancel>(OnFirstCancel);
     }
     
@@ -234,13 +264,13 @@ public class LevelManager0 : MonoBehaviour
     private void ShowCtrlSqr()
     {
         _controlSqrObj.transform.localPosition = new Vector3(6f, -2.5f, 10f);
-        Services.ControllerSquare.DrawBoundCircle();
+        _controlButtonGrowing = true;
     }
 
     private void ShowCancelButton()
     {
         _cancelButtonObj.transform.localPosition = new Vector3(-6f, -2.5f, 10f);
-        Services.CancelButton.DrawBoundCircle();
+        _cancelButtonGrowing = true;
     }
     
     private void ShowGoal()

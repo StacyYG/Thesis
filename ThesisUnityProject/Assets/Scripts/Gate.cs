@@ -59,6 +59,10 @@ public class Gate : MonoBehaviour
             {
                 _constantVelocity = false;
                 Services.EventManager.Fire(new LoseLife());
+                if(_targetRB.velocity.magnitude != _lastVelocity.magnitude)
+                    Services.VelocityBar.SpeedSprRdr.color = Color.red;
+                if(_targetRB.velocity.normalized != _lastVelocity.normalized)
+                    Services.VelocityBar.DirectionSprRdr.color = Color.red;
                 ShutGate();
             }
         }
@@ -67,6 +71,8 @@ public class Gate : MonoBehaviour
     private void OnCollisionExit2D(Collision2D other)
     {
         _isTouching = false;
+        Services.VelocityBar.SpeedSprRdr.color = Color.white;
+        Services.VelocityBar.DirectionSprRdr.color = Color.white;
     }
 
     private void ShutGate()

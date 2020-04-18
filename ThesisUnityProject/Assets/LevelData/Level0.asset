@@ -24,21 +24,21 @@ MonoBehaviour:
   - startTime: 10
     content: To add a force, you need to click the <b>Control Box</b> and drag.
   whenFirstForce: Yes! you just added a force.
-  secondForceRemindTime: 5
-  secondForceReminder: Now add another force
+  secondForceRemindTime: 7
+  secondForceReminder: Try to add another force.
   whenSecondForce: When more than one forces are acting on the object, we replace
     them with their sum--<color=red>Net Force</color>
   secondForceInstructionDuration: 5
-  showCancelButtonTime: 4
-  allowCancelTime: 4
+  showCancelButtonTime: 5
+  allowCancelTime: 5
   lastInstructions:
-  - startTime: 4
+  - startTime: 5
     content: This is your <b>Cancel Button</b>, it removes all the forces you added.
       <size=4>You can also use Space bar if on PC.</size>
   whenFirstCancel: Just like that!
-  showGoalTime: 2
+  showGoalTime: 5
   goalExplanation: Now go get the flag.
-  startDetectTime: 3
+  startDetectTime: 5
   errorHints:
   - The gate can only be passed through with a <b>constant velocity</b>.
   - 'So the box should move with a steady speed in a straight line. '

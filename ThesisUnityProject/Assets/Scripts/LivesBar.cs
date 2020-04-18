@@ -13,6 +13,7 @@ public class LivesBar
     private const float Speed = 20f;
     private bool _newLifeMoving;
     private Transform _newLife;
+    private SpriteRenderer _newLifeSprRdr;
     private Vector3 _nextLifePos;
     private readonly Transform _transform;
 
@@ -49,8 +50,7 @@ public class LivesBar
             if (_newLife.localPosition == _nextLifePos)
             {
                 _lifeBoxes.Add(_newLife.gameObject);
-                var sr = _newLife.gameObject.GetComponent<SpriteRenderer>();
-                sr.color = Services.GameCfg.liveColor;
+                _newLifeSprRdr.color = Services.GameCfg.liveColor;
                 _newLifeMoving = false;
             }
         }
@@ -70,13 +70,13 @@ public class LivesBar
 
     private void OnGainLife(AGPEvent e)
     {
+        if(_lifeBoxes.Count == 0) return;
         var gainLife = (GainLife) e;
         _newLife = gainLife.NewLifeObj.transform;
+        _newLifeSprRdr = gainLife.LifeSpriteRenderer;
         _newLife.parent = _transform;
         _newLifeMoving = true;
         _nextLifePos = _lifeBoxes.Last().transform.localPosition + new Vector3(GapSize, 0f, 0f);
-        var c = gainLife.NewLifeObj.GetComponent<BoxCollider2D>();
-            GameObject.Destroy(c);
     }
     
     private void OnDestroy()
@@ -91,9 +91,11 @@ public class LoseLife : AGPEvent{}
 public class GainLife : AGPEvent
 {
     public readonly GameObject NewLifeObj;
-    public GainLife(GameObject gameObject)
+    public readonly SpriteRenderer LifeSpriteRenderer;
+    public GainLife(GameObject gameObject, SpriteRenderer spriteRenderer)
     {
         NewLifeObj = gameObject;
+        LifeSpriteRenderer = spriteRenderer;
     }
 }
 
@@ -102,18 +104,24 @@ public class VelocityBar
     private Transform _speedBar;
     private Transform _directionBar;
     private Rigidbody2D _targetRb;
+    public SpriteRenderer SpeedSprRdr;
+    public SpriteRenderer DirectionSprRdr;
 
     public VelocityBar(Transform speedBar, Transform directionBar, Rigidbody2D target)
     {
         _speedBar = speedBar;
         _directionBar = directionBar;
         _targetRb = target;
+        SpeedSprRdr = speedBar.gameObject.GetComponent<SpriteRenderer>();
+        DirectionSprRdr = directionBar.gameObject.GetComponent<SpriteRenderer>();
     }
-    public void UpdateSize()
+    public void Update()
     {
-        _speedBar.localScale = new Vector3(_targetRb.velocity.magnitude, 1f, 1f);
+        _speedBar.localScale = new Vector3(_targetRb.velocity.magnitude, 0.5f, 1f);
         _directionBar.transform.up = _targetRb.velocity.normalized;
     }
 }
+
+
 
 
