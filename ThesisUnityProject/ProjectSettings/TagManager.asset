@@ -19,6 +19,7 @@ TagManager:
   - DirectionPointer
   - SpeedWarning
   - Highlight
+  - ChaseItem
   layers:
   - Default
   - TransparentFX

@@ -11,39 +11,25 @@ public class LevelManager0 : MonoBehaviour
     private TextMeshPro _tmp;
     private Instructions0 _instructions0;
     private Rigidbody2D _targetRB;
-    private GameObject _controlSqrObj, _targetSqrObj, _cancelButtonObj, _shadeObj, _gateObj, _flagObj, _highlightObj;
+    private GameObject _controlSqrObj, _targetSqrObj, _shadeObj, _flagObj, _chaseItem;
     public GameCfg gameCfg;
 
     private bool _hasShowTargetSqr,
         _hasShowCtrlSqr,
-        _hasAllowControl,
         _hasFirstForce,
         _hasRemind,
-        _hasShowCancelButton,
         _hasSecondForce,
         _hasHideShade,
-        _isCancelInstructions,
-        _hasAllowCancel,
-        _isChasePhase,
-        _isGoalPhase,
-        _hasShowGoal,
-        _hasStartDetect,
-        _cancelButtonGrowing,
         _controlButtonGrowing;
     private bool
         _isInitialInstruction = true;
 
     private float _firstForceTimer,
         _secondForceTimer,
-        _cancelInstructionTimer,
-        _goalTimer,
-        _chaseTimer,
-        _cancelButtonGrowTimer,
         _controlButtonGrowTimer;
 
     private int _lastIndex = -1;
-    private int _failTimes;
-    
+
     public void Awake()
     {
         Init();
@@ -60,22 +46,17 @@ public class LevelManager0 : MonoBehaviour
         _targetSqrObj = GameObject.FindGameObjectWithTag("TargetSquare");
         Services.TargetSquare = _targetSqrObj.GetComponent<TargetSquare>();
         _targetRB = _targetSqrObj.GetComponent<Rigidbody2D>();
-        _cancelButtonObj = GameObject.FindGameObjectWithTag("CancelButton");
-        Services.CancelButton = new CancelButton(_cancelButtonObj);
         Services.CameraController = new CameraController(Services.MainCamera, false, Services.TargetSquare.transform);
         Services.EventManager = new EventManager();
         _shadeObj = GameObject.FindGameObjectWithTag("Shade");
         _shadeObj.SetActive(false);
-        _gateObj = GameObject.FindGameObjectWithTag("GateConstant");
-        Services.Gate = _gateObj.GetComponent<Gate>();
-        _gateObj.SetActive(false);
         _flagObj = GameObject.FindGameObjectWithTag("Goal");
         _flagObj.SetActive(false);
         Services.VelocityBar = new VelocityBar(GameObject.FindGameObjectWithTag("SpeedBar").transform,
             GameObject.FindGameObjectWithTag("DirectionPointer").transform, _targetRB,
             GameObject.FindGameObjectWithTag("SpeedWarning"));
-        _highlightObj = GameObject.FindGameObjectWithTag("Highlight");
-        _highlightObj.SetActive(false);
+        _chaseItem = GameObject.FindGameObjectWithTag("ChaseItem");
+        _chaseItem.SetActive(false);
         _tmp = GetComponent<TextMeshPro>();
         _instructions0 = Instructions0.Load(cfg0);
     }
@@ -149,32 +130,9 @@ public class LevelManager0 : MonoBehaviour
                 Destroy(_shadeObj);
                 _tmp.text = "";
                 _lastIndex = -1;
-                _isCancelInstructions = true;
                 _hasHideShade = true;
-            }
-        }
-
-        else if (_isCancelInstructions)
-        {
-            _cancelInstructionTimer += Time.deltaTime;
-            var i = InstructionIndex(_instructions0.LastInstructions, _cancelInstructionTimer, _lastIndex);
-            if (i > _lastIndex)
-            {
-                _tmp.text = _instructions0.LastInstructions[i].content;
-                _lastIndex = i;
-            }
-
-            if (_cancelButtonGrowing)
-            {
-                _cancelButtonGrowTimer += Time.deltaTime;
-                if (Services.CancelButton.boundCircle.GrownUp(_cancelButtonGrowTimer))
-                    _cancelButtonGrowing = false;
-            }
-            if (_cancelInstructionTimer > cfg0.showCancelButtonTime && !_hasShowCancelButton)
-            {
-                ShowCancelButton();
-                Services.EventManager.Register<FirstCancel>(OnFirstCancel);
-                _hasShowCancelButton = true;
+                _chaseItem.SetActive(true);
+                Services.EventManager.Register<ShowGate>(OnShowGate);
             }
         }
     }
@@ -199,30 +157,13 @@ public class LevelManager0 : MonoBehaviour
         _tmp.text = cfg0.whenSecondForce;
         Services.EventManager.Unregister<SecondForce>(OnSecondForce);
     }
-
-    private void OnFirstCancel(AGPEvent e)
-    {
-        _isCancelInstructions = false;
-        _tmp.text = cfg0.whenFirstCancel;
-        StartCoroutine(ClearText(cfg0.duration));
-        Services.EventManager.Unregister<FirstCancel>(OnFirstCancel);
-        Services.EventManager.Register<ShowGate>(OnShowGate);
-        Instantiate(cfg0.chaseItem);
-    }
-
-    private IEnumerator ClearText(float waitTime)
-    {
-        yield return new WaitForSeconds(waitTime);
-        _tmp.text = "";
-        
-    }
+    
     private void OnShowGate(AGPEvent e)
     {
         ShowGoal();
         _tmp.text = cfg0.goalExplanation;
         _targetRB.velocity = Vector2.zero;
         Services.EventManager.Register<Success>(OnSuccess);
-        Services.EventManager.Register<LoseLife>(OnLoseLife);
         Services.EventManager.Unregister<ShowGate>(OnShowGate);
     }
     private int InstructionIndex(List<InstructionItem> instructionItems, float time, int i)
@@ -249,27 +190,16 @@ public class LevelManager0 : MonoBehaviour
         _controlButtonGrowing = true;
     }
 
-    private void ShowCancelButton()
-    {
-        _cancelButtonObj.transform.localPosition = new Vector3(-6f, -2.5f, 10f);
-        _cancelButtonGrowing = true;
-    }
-    
     private void ShowGoal()
     {
-        _flagObj.transform.position = _gateObj.transform.position =
-            _targetSqrObj.transform.position + cfg0.chaseItemPositions.Last();
-        _gateObj.SetActive(true);
+        _flagObj.transform.position = _chaseItem.transform.position;
         _flagObj.SetActive(true);
     }
     
     private bool _checked;
     private void CheckTarget()
     {
-        if (_checked)
-        {
-            return;
-        }
+        if (_checked) return;
         
         if (Services.TargetSquare.transform.position.x > 0)
         {
@@ -286,7 +216,6 @@ public class LevelManager0 : MonoBehaviour
         var p = Instantiate(gameCfg.successParticles, _targetSqrObj.transform.position, Quaternion.identity);
         StartCoroutine(WaitAndDestroy(p));
         Services.EventManager.Unregister<Success>(OnSuccess);
-        Services.EventManager.Unregister<LoseLife>(OnLoseLife);
     }
 
     private IEnumerator WaitAndDestroy(GameObject toDestroy)
@@ -294,23 +223,7 @@ public class LevelManager0 : MonoBehaviour
         yield return new WaitForSeconds(1);
         Destroy(toDestroy);
     }
-
-    private void OnLoseLife(AGPEvent e)
-    {
-        var totalHintNum = cfg0.errorHints.Count;
-        if (_failTimes >= totalHintNum)
-        {
-            _tmp.text = cfg0.errorHints[totalHintNum - 1];
-            return;
-        }
-        _tmp.text = cfg0.errorHints[_failTimes];
-        if (_failTimes == 1)
-            _highlightObj.SetActive(true);
-        
-        else
-            _highlightObj.SetActive(false);
-        _failTimes++;
-    }
+    
 }
 
 

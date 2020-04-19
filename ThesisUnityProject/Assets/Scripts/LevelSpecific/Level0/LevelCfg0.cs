@@ -17,18 +17,10 @@ public class LevelCfg0 : ScriptableObject
     public string secondForceReminder;
     public string whenSecondForce;
     public float secondForceInstructionDuration;
-    [Header("Cancel Button Instructions")] 
-    public float showCancelButtonTime;
-    public List<InstructionItem> cancelInstructions;
-    [Header("Responses-Second half")] 
-    public string whenFirstCancel;
-    public float duration;
     [Header("Chase")]
     public List<Vector3> chaseItemPositions;
-
     public GameObject chaseItem;
     [Header("Goal")]
     public string goalExplanation;
-    public List<string> errorHints;
     public string whenSuccess;
 }

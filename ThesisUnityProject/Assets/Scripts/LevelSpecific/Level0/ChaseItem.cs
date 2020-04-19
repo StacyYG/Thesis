@@ -7,7 +7,7 @@ public class ChaseItem : MonoBehaviour
 {
     private SpriteRenderer _lifeSpriteRenderer;
     private BoxCollider2D _collider;
-    public LevelCfg0 cfg0;
+    public List<Vector3> positions;
     private int _currentPosIndex;
     private const float MaxSpeed = 20f;
     private bool _isMoving;
@@ -21,7 +21,7 @@ public class ChaseItem : MonoBehaviour
         _collider = GetComponent<BoxCollider2D>();
         _myRb = GetComponent<Rigidbody2D>();
         _targetRb = Services.TargetSquare.GetComponent<Rigidbody2D>();
-        transform.position = Services.TargetSquare.transform.position + cfg0.chaseItemPositions[_currentPosIndex];
+        transform.position = Services.TargetSquare.transform.position + positions[_currentPosIndex];
         _myRb.velocity = 1.2f * _targetRb.velocity;
         
     }
@@ -35,7 +35,7 @@ public class ChaseItem : MonoBehaviour
             transform.position = Vector3.MoveTowards(transform.position, _targetPos, MaxSpeed * Time.deltaTime);
             if (transform.position == _targetPos)
             {
-                if (_currentPosIndex == cfg0.chaseItemPositions.Count - 1)
+                if (_currentPosIndex == positions.Count - 1)
                 {
                     Services.EventManager.Fire(new ShowGate());
                     Destroy(gameObject);
@@ -56,7 +56,7 @@ public class ChaseItem : MonoBehaviour
         {
             _collider.enabled = false;
             _currentPosIndex++;
-            _targetPos = Services.TargetSquare.transform.position + cfg0.chaseItemPositions[_currentPosIndex];
+            _targetPos = Services.TargetSquare.transform.position + positions[_currentPosIndex];
             _isMoving = true;
             _myRb.velocity = Vector2.zero;
             _targetRb.velocity = Vector2.zero;

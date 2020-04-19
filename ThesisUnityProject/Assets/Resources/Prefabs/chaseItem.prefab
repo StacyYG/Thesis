@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 796609698512346357}
   m_Layer: 0
   m_Name: chaseItem
-  m_TagString: Untagged
+  m_TagString: ChaseItem
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -122,7 +122,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f08140805aa8ac24487a982e62a47ece, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cfg0: {fileID: 11400000, guid: d13ebffc977ca0c4e90947bc9c01f52d, type: 2}
+  positions: []
 --- !u!50 &796609698512346357
 Rigidbody2D:
   serializedVersion: 4

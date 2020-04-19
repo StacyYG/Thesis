@@ -4,26 +4,18 @@ using UnityEngine;
 
 public class Instructions0
 {
-    private static LevelCfg0 _levelData;
+    private static LevelCfg0 _data0;
     public List<InstructionItem> InitialInstructions;
-    public List<InstructionItem> LastInstructions;
 
     public static Instructions0 Load(LevelCfg0 data)
     {
         var toReturn = new Instructions0();
-        _levelData = data;
+        _data0 = data;
         toReturn.InitialInstructions = new List<InstructionItem>();
-        toReturn.LastInstructions = new List<InstructionItem>();
-        foreach (var instruction in _levelData.initialInstructions)
+        foreach (var instruction in _data0.initialInstructions)
         {
             toReturn.InitialInstructions.Add(instruction);
         }
-
-        foreach (var instruction in _levelData.cancelInstructions)
-        {
-            toReturn.LastInstructions.Add(instruction);
-        }
-        
         return toReturn;
     }
 }
