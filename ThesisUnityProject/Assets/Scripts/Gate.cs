@@ -7,7 +7,7 @@ public class Gate : MonoBehaviour
 {
     private Rigidbody2D _targetRB;
     private bool _constantVelocity, _isShut, _isTouching;
-    public bool isDetect;
+    public bool isDetect = true;
     private Vector2 _lastVelocity;
     public Material restingMaterial, hazardMaterial;
     private ParticleSystemRenderer[] _particleRdrs;
@@ -60,9 +60,9 @@ public class Gate : MonoBehaviour
                 _constantVelocity = false;
                 Services.EventManager.Fire(new LoseLife());
                 if(_targetRB.velocity.magnitude != _lastVelocity.magnitude)
-                    Services.VelocityBar.SpeedSprRdr.color = Color.red;
+                    Services.VelocityBar.speedSprRdr.color = Color.red;
                 if(_targetRB.velocity.normalized != _lastVelocity.normalized)
-                    Services.VelocityBar.DirectionSprRdr.color = Color.red;
+                    Services.VelocityBar.directionSprRdr.color = Color.red;
                 ShutGate();
             }
         }
@@ -71,8 +71,8 @@ public class Gate : MonoBehaviour
     private void OnCollisionExit2D(Collision2D other)
     {
         _isTouching = false;
-        Services.VelocityBar.SpeedSprRdr.color = Color.white;
-        Services.VelocityBar.DirectionSprRdr.color = Color.white;
+        Services.VelocityBar.speedSprRdr.color = Color.white;
+        Services.VelocityBar.directionSprRdr.color = Color.white;
     }
 
     private void ShutGate()

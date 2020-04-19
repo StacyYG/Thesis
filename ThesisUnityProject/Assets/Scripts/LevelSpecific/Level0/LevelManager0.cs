@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using TMPro;
 
 public class LevelManager0 : MonoBehaviour
 {
-    public LevelCfg0 levelCfg0;
+    public LevelCfg0 cfg0;
     private TextMeshPro _tmp;
     private Instructions0 _instructions0;
     private Rigidbody2D _targetRB;
-    private GameObject _controlSqrObj, _targetSqrObj, _cancelButtonObj, _shadeObj, _gateObj, _flagObj;
+    private GameObject _controlSqrObj, _targetSqrObj, _cancelButtonObj, _shadeObj, _gateObj, _flagObj, _highlightObj;
     public GameCfg gameCfg;
 
     private bool _hasShowTargetSqr,
@@ -46,23 +47,21 @@ public class LevelManager0 : MonoBehaviour
     public void Awake()
     {
         Init();
-        Services.ControllerSquare.Awake();
     }
 
     private void Init()
     {
+        Services.GameCfg = gameCfg;
+        Arrow.SetUp();
         Services.MainCamera = Camera.main;
         Services.Input = new InputManager();
-        Services.GameCfg = gameCfg;
         _controlSqrObj = GameObject.FindGameObjectWithTag("ControllerSquare");
         Services.ControllerSquare = new ControllerSquare(_controlSqrObj.transform);
-        Services.ControllerSquare.Respond = false;
         _targetSqrObj = GameObject.FindGameObjectWithTag("TargetSquare");
         Services.TargetSquare = _targetSqrObj.GetComponent<TargetSquare>();
         _targetRB = _targetSqrObj.GetComponent<Rigidbody2D>();
         _cancelButtonObj = GameObject.FindGameObjectWithTag("CancelButton");
         Services.CancelButton = new CancelButton(_cancelButtonObj);
-        Services.CancelButton.Respond = false;
         Services.CameraController = new CameraController(Services.MainCamera, false, Services.TargetSquare.transform);
         Services.EventManager = new EventManager();
         _shadeObj = GameObject.FindGameObjectWithTag("Shade");
@@ -73,9 +72,12 @@ public class LevelManager0 : MonoBehaviour
         _flagObj = GameObject.FindGameObjectWithTag("Goal");
         _flagObj.SetActive(false);
         Services.VelocityBar = new VelocityBar(GameObject.FindGameObjectWithTag("SpeedBar").transform,
-            GameObject.FindGameObjectWithTag("DirectionPointer").transform, _targetRB);
+            GameObject.FindGameObjectWithTag("DirectionPointer").transform, _targetRB,
+            GameObject.FindGameObjectWithTag("SpeedWarning"));
+        _highlightObj = GameObject.FindGameObjectWithTag("Highlight");
+        _highlightObj.SetActive(false);
         _tmp = GetComponent<TextMeshPro>();
-        _instructions0 = Instructions0.Load(levelCfg0);
+        _instructions0 = Instructions0.Load(cfg0);
     }
     
     // Start is called before the first frame update
@@ -114,33 +116,27 @@ public class LevelManager0 : MonoBehaviour
                 if (Services.ControllerSquare.boundCircle.GrownUp(_controlButtonGrowTimer)) 
                     _controlButtonGrowing = false;
             }
-            if (duration > levelCfg0.showTargetSqrTime && !_hasShowTargetSqr)
+            if (duration > cfg0.showTargetSqrTime && !_hasShowTargetSqr)
             {
                 ShowTargetSqr();
                 _hasShowTargetSqr = true;
             }
 
-            else if (duration > levelCfg0.showCtrlSqrTime && !_hasShowCtrlSqr)
+            else if (duration > cfg0.showCtrlSqrTime && !_hasShowCtrlSqr)
             {
                 ShowCtrlSqr();
-                _hasShowCtrlSqr = true;
-            }
-
-            else if (duration > levelCfg0.allowControlTime && !_hasAllowControl)
-            {
-                Services.ControllerSquare.Respond = true;
                 Services.EventManager.Register<FirstForce>(OnFirstForce);
                 Services.EventManager.Register<SecondForce>(OnSecondForce);
-                _hasAllowControl = true;
+                _hasShowCtrlSqr = true;
             }
         }
         
         else if (_hasFirstForce && !_hasSecondForce && !_hasRemind)
         {
             _firstForceTimer += Time.deltaTime;
-            if (_firstForceTimer > levelCfg0.secondForceRemindTime)
+            if (_firstForceTimer > cfg0.secondForceRemindTime)
             {
-                _tmp.text = levelCfg0.secondForceReminder;
+                _tmp.text = cfg0.secondForceReminder;
                 _hasRemind = true;
             }
         }
@@ -148,7 +144,7 @@ public class LevelManager0 : MonoBehaviour
         else if (_hasSecondForce && !_hasHideShade)
         {
             _secondForceTimer += Time.deltaTime;
-            if (_secondForceTimer > levelCfg0.secondForceInstructionDuration)
+            if (_secondForceTimer > cfg0.secondForceInstructionDuration)
             {
                 Destroy(_shadeObj);
                 _tmp.text = "";
@@ -174,42 +170,11 @@ public class LevelManager0 : MonoBehaviour
                 if (Services.CancelButton.boundCircle.GrownUp(_cancelButtonGrowTimer))
                     _cancelButtonGrowing = false;
             }
-            if (_cancelInstructionTimer > levelCfg0.showCancelButtonTime && !_hasShowCancelButton)
+            if (_cancelInstructionTimer > cfg0.showCancelButtonTime && !_hasShowCancelButton)
             {
                 ShowCancelButton();
-                _hasShowCancelButton = true;
-            }
-            
-            else if (_cancelInstructionTimer > levelCfg0.allowCancelTime && !_hasAllowCancel)
-            {
-                Services.CancelButton.Respond = true;
                 Services.EventManager.Register<FirstCancel>(OnFirstCancel);
-                _hasAllowCancel = true;
-            }
-        }
-        
-        else if (_isChasePhase)
-        {
-            _chaseTimer += Time.deltaTime;
-        }
-
-        else if (_isGoalPhase)
-        {
-            _goalTimer += Time.deltaTime;
-            if (_goalTimer > levelCfg0.showGoalTime && !_hasShowGoal)
-            {
-                ShowGoal();
-                _hasShowGoal = true;
-                _tmp.text = levelCfg0.goalExplanation;
-                _targetRB.velocity = Vector2.zero;
-            }
-
-            else if (_goalTimer > levelCfg0.startDetectTime && !_hasStartDetect)
-            {
-                Services.Gate.isDetect = true;
-                Services.EventManager.Register<Success>(OnSuccess);
-                Services.EventManager.Register<LoseLife>(OnLoseLife);
-                _hasStartDetect = true;
+                _hasShowCancelButton = true;
             }
         }
     }
@@ -223,7 +188,7 @@ public class LevelManager0 : MonoBehaviour
     {
         _isInitialInstruction = false;
         _hasFirstForce = true;
-        _tmp.text = levelCfg0.whenFirstForce;
+        _tmp.text = cfg0.whenFirstForce;
         Services.EventManager.Unregister<FirstForce>(OnFirstForce);
     }
     
@@ -231,18 +196,35 @@ public class LevelManager0 : MonoBehaviour
     {
         _shadeObj.SetActive(true);
         _hasSecondForce = true;
-        _tmp.text = levelCfg0.whenSecondForce;
+        _tmp.text = cfg0.whenSecondForce;
         Services.EventManager.Unregister<SecondForce>(OnSecondForce);
     }
 
     private void OnFirstCancel(AGPEvent e)
     {
         _isCancelInstructions = false;
-        _tmp.text = levelCfg0.whenFirstCancel;
-        _isChasePhase = true;
+        _tmp.text = cfg0.whenFirstCancel;
+        StartCoroutine(ClearText(cfg0.duration));
         Services.EventManager.Unregister<FirstCancel>(OnFirstCancel);
+        Services.EventManager.Register<ShowGate>(OnShowGate);
+        Instantiate(cfg0.chaseItem);
     }
-    
+
+    private IEnumerator ClearText(float waitTime)
+    {
+        yield return new WaitForSeconds(waitTime);
+        _tmp.text = "";
+        
+    }
+    private void OnShowGate(AGPEvent e)
+    {
+        ShowGoal();
+        _tmp.text = cfg0.goalExplanation;
+        _targetRB.velocity = Vector2.zero;
+        Services.EventManager.Register<Success>(OnSuccess);
+        Services.EventManager.Register<LoseLife>(OnLoseLife);
+        Services.EventManager.Unregister<ShowGate>(OnShowGate);
+    }
     private int InstructionIndex(List<InstructionItem> instructionItems, float time, int i)
     {
         if (i >= instructionItems.Count - 1)
@@ -258,7 +240,7 @@ public class LevelManager0 : MonoBehaviour
 
     private void ShowTargetSqr()
     {
-        _targetRB.velocity = levelCfg0.v0;
+        _targetRB.velocity = cfg0.v0;
     }
 
     private void ShowCtrlSqr()
@@ -275,8 +257,8 @@ public class LevelManager0 : MonoBehaviour
     
     private void ShowGoal()
     {
-        _gateObj.transform.position = _targetSqrObj.transform.position + new Vector3(6f, 0f, 0f);
-        _flagObj.transform.position = _gateObj.transform.position;
+        _flagObj.transform.position = _gateObj.transform.position =
+            _targetSqrObj.transform.position + cfg0.chaseItemPositions.Last();
         _gateObj.SetActive(true);
         _flagObj.SetActive(true);
     }
@@ -298,10 +280,10 @@ public class LevelManager0 : MonoBehaviour
 
     private void OnSuccess(AGPEvent e)
     {
-        _tmp.text = levelCfg0.whenSuccess;
+        _tmp.text = cfg0.whenSuccess;
         _flagObj.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
         _flagObj.transform.parent = _targetSqrObj.transform;
-        var p = Instantiate(levelCfg0.successParticles, _targetSqrObj.transform.position, Quaternion.identity);
+        var p = Instantiate(gameCfg.successParticles, _targetSqrObj.transform.position, Quaternion.identity);
         StartCoroutine(WaitAndDestroy(p));
         Services.EventManager.Unregister<Success>(OnSuccess);
         Services.EventManager.Unregister<LoseLife>(OnLoseLife);
@@ -315,13 +297,18 @@ public class LevelManager0 : MonoBehaviour
 
     private void OnLoseLife(AGPEvent e)
     {
-        var totalHintNum = levelCfg0.errorHints.Count;
+        var totalHintNum = cfg0.errorHints.Count;
         if (_failTimes >= totalHintNum)
         {
-            _tmp.text = levelCfg0.errorHints[totalHintNum - 1];
+            _tmp.text = cfg0.errorHints[totalHintNum - 1];
             return;
         }
-        _tmp.text = levelCfg0.errorHints[_failTimes];
+        _tmp.text = cfg0.errorHints[_failTimes];
+        if (_failTimes == 1)
+            _highlightObj.SetActive(true);
+        
+        else
+            _highlightObj.SetActive(false);
         _failTimes++;
     }
 }

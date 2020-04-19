@@ -19,7 +19,7 @@ public class Instructions0
             toReturn.InitialInstructions.Add(instruction);
         }
 
-        foreach (var instruction in _levelData.lastInstructions)
+        foreach (var instruction in _levelData.cancelInstructions)
         {
             toReturn.LastInstructions.Add(instruction);
         }

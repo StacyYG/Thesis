@@ -9,13 +9,11 @@ public class CancelButton
     private float _boundCircleRadius;
     private VectorLine _circleLine;
     public bool Respond = true;
-    private readonly GameObject _gameObject;
     private const int Segments = 15;
     public BoundCircle boundCircle;
 
     public CancelButton(GameObject gameObject)
     {
-        _gameObject = gameObject;
         _boundCircleRadius = gameObject.GetComponent<CircleCollider2D>().radius;
         boundCircle = new BoundCircle(_boundCircleRadius, Segments, gameObject.transform);
     }
@@ -40,23 +38,10 @@ public class BoundCircle
     }
     public bool GrownUp(float growTime)
     {
-        Debug.Assert(_circle != null);
         if (growTime > _growDuration) return true;
         _circle.MakeCircle(_anchor.position, growTime / _growDuration * _radius, _segments);
         _circle.Draw();
         return false;
     }
-
-    public void Destroy()
-    {
-        if (_circle == null) return;
-        VectorLine.Destroy(ref _circle);
-        Services.TotalLineNumber--;
-    }
-
-    public void Update()
-    {
-        Debug.Assert(_circle != null);
-        _circle.Draw();
-    }
+    
 }

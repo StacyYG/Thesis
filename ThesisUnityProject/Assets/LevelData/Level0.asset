@@ -15,7 +15,6 @@ MonoBehaviour:
   v0: {x: 2, y: 0}
   showTargetSqrTime: 0
   showCtrlSqrTime: 3
-  allowControlTime: 3
   initialInstructions:
   - startTime: 3
     content: This is your <b>Control Box</b>,
@@ -30,20 +29,25 @@ MonoBehaviour:
     them with their sum--<color=red>Net Force</color>
   secondForceInstructionDuration: 5
   showCancelButtonTime: 5
-  allowCancelTime: 5
-  lastInstructions:
+  cancelInstructions:
   - startTime: 5
     content: This is your <b>Cancel Button</b>, it removes all the forces you added.
       <size=4>You can also use Space bar if on PC.</size>
-  whenFirstCancel: Just like that!
+  whenFirstCancel: Well done. Wait, what is that--?
+  duration: 2
+  chaseItemPositions:
+  - {x: 4, y: 0, z: 0}
+  - {x: -4, y: -2, z: 0}
+  - {x: 3, y: 4, z: 0}
+  - {x: 6, y: 0, z: 0}
+  chaseItem: {fileID: 6986524613125411021, guid: a090a41c34f59fe499f5a06677bdd9bf,
+    type: 3}
   showGoalTime: 5
-  goalExplanation: Now go get the flag.
+  goalExplanation: Nice, go get the flag.
   startDetectTime: 5
   errorHints:
   - The gate can only be passed through with a <b>constant velocity</b>.
-  - 'So the box should move with a steady speed in a straight line. '
-  - Force changes the box's moving direction or speed, right?
-  - So remove the forces before your box enters the area.
-  whenSuccess: Good job.
-  successParticles: {fileID: 2709907116110291074, guid: 6c69dd43126cbb4479d38f1226e08b72,
-    type: 3}
+  - So your <b>speed</b> and <b>direction</b> should keep the same.
+  - Force changes your speed or direction, right?
+  - So remove the force before your box enters the area.
+  whenSuccess: Good job!

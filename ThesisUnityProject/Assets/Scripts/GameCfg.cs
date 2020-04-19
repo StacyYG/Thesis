@@ -23,6 +23,6 @@ public class GameCfg : ScriptableObject
     public int startLifeNum;
     [Header("Prefabs")] 
     public GameObject lifeBox;
-
     public GameObject rawLife;
+    public GameObject successParticles;
 }

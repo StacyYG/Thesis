@@ -101,24 +101,33 @@ public class GainLife : AGPEvent
 
 public class VelocityBar
 {
-    private Transform _speedBar;
-    private Transform _directionBar;
-    private Rigidbody2D _targetRb;
-    public SpriteRenderer SpeedSprRdr;
-    public SpriteRenderer DirectionSprRdr;
+    private readonly Transform _speedBar;
+    private readonly Transform _directionBar;
+    private readonly Rigidbody2D _targetRb;
+    public readonly SpriteRenderer speedSprRdr;
+    public readonly SpriteRenderer directionSprRdr;
+    private const float MaxSpeed = 12f;
+    private readonly GameObject _speedWarning;
 
-    public VelocityBar(Transform speedBar, Transform directionBar, Rigidbody2D target)
+    public VelocityBar(Transform speedBar, Transform directionBar, Rigidbody2D target, GameObject speedWarning)
     {
         _speedBar = speedBar;
         _directionBar = directionBar;
         _targetRb = target;
-        SpeedSprRdr = speedBar.gameObject.GetComponent<SpriteRenderer>();
-        DirectionSprRdr = directionBar.gameObject.GetComponent<SpriteRenderer>();
+        speedSprRdr = speedBar.GetComponent<SpriteRenderer>();
+        directionSprRdr = directionBar.GetComponent<SpriteRenderer>();
+        _speedWarning = speedWarning;
     }
     public void Update()
     {
-        _speedBar.localScale = new Vector3(_targetRb.velocity.magnitude, 0.5f, 1f);
-        _directionBar.transform.up = _targetRb.velocity.normalized;
+        var velocity = _targetRb.velocity;
+        _speedBar.localScale = new Vector3(velocity.magnitude, 0.5f, 1f);
+        _directionBar.transform.up = velocity.normalized;
+        if (velocity.magnitude > MaxSpeed)
+            _speedWarning.SetActive(true);
+        else
+            _speedWarning.SetActive(false);
+
     }
 }
 

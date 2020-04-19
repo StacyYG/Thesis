@@ -35,7 +35,8 @@ public class LevelManager1 : MonoBehaviour
         Services.EventManager = new EventManager();
         Services.LivesBar = new LivesBar(GameObject.FindGameObjectWithTag("LivesBar").transform);
         Services.VelocityBar = new VelocityBar(GameObject.FindGameObjectWithTag("SpeedBar").transform,
-            GameObject.FindGameObjectWithTag("DirectionPointer").transform, _targetRB);
+            GameObject.FindGameObjectWithTag("DirectionPointer").transform, _targetRB,
+            GameObject.FindGameObjectWithTag("SpeedWarning"));
         _tmp = GetComponent<TextMeshPro>();
     }
     

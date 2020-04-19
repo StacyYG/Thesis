@@ -4795,7 +4795,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7686fd220d03ac840b309fdde31015f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isDetect: 0
+  isDetect: 1
   restingMaterial: {fileID: 2100000, guid: 8a165d120200e0f4a8512077ea7ed5ff, type: 2}
   hazardMaterial: {fileID: 2100000, guid: 7350290ee26aa3d4e97f9ed4c1676917, type: 2}
   recoverTime: 1

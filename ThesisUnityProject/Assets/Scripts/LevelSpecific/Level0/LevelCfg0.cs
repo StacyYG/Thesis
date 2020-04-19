@@ -10,7 +10,6 @@ public class LevelCfg0 : ScriptableObject
     [Header("Initial Instructions")]
     public float showTargetSqrTime;
     public float showCtrlSqrTime;
-    public float allowControlTime;
     public List<InstructionItem> initialInstructions;
     [Header("Responses-First half")]
     public string whenFirstForce;
@@ -18,19 +17,18 @@ public class LevelCfg0 : ScriptableObject
     public string secondForceReminder;
     public string whenSecondForce;
     public float secondForceInstructionDuration;
-    [Header("Last Instructions")] 
+    [Header("Cancel Button Instructions")] 
     public float showCancelButtonTime;
-    public float allowCancelTime;
-    public List<InstructionItem> lastInstructions;
+    public List<InstructionItem> cancelInstructions;
     [Header("Responses-Second half")] 
     public string whenFirstCancel;
-    [Header("Goal")] 
-    public float showGoalTime;
+    public float duration;
+    [Header("Chase")]
+    public List<Vector3> chaseItemPositions;
+
+    public GameObject chaseItem;
+    [Header("Goal")]
     public string goalExplanation;
-    public float startDetectTime;
     public List<string> errorHints;
     public string whenSuccess;
-    
-    [Header("Prefabs")] 
-    public GameObject successParticles;
 }

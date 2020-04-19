@@ -5,34 +5,39 @@ using UnityEngine;
 
 public class ControlMonitor : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    private float _detectThreshold = 0.1f;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    private bool _firstForceFired;
 
-    public int ClickTimes { get; private set; }
-    private void OnMouseDown()
+    private bool _secondForceFired;
+
+    private int _clickTimes;
+
+    private void OnMouseDrag()
     {
         if (!Services.ControllerSquare.Respond) return;
-        
-        ClickTimes++;
-        if (ClickTimes == 1)
+        if (Services.ControllerSquare.PlayerForce.magnitude > _detectThreshold)
         {
-            Services.EventManager.Fire(new FirstForce());
-        }
+            if (_clickTimes == 0 && !_firstForceFired)
+            {
+                Services.EventManager.Fire(new FirstForce());
+                _firstForceFired = true;
+            }
 
-        if (ClickTimes == 2)
-        {
-            Services.EventManager.Fire(new SecondForce());
-            Destroy(this);
+            if (_clickTimes == 1 && !_secondForceFired)
+            {
+                Services.EventManager.Fire(new SecondForce());
+                _secondForceFired = true;
+                Destroy(this);
+            }
         }
+    }
+
+    private void OnMouseUp()
+    {
+        if (!Services.ControllerSquare.Respond) return;
+        if(_firstForceFired) 
+            _clickTimes++;
     }
 }
 

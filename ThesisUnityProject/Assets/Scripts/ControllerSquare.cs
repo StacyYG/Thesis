@@ -18,12 +18,10 @@ public class ControllerSquare
     {
         _transform = transform;
         boundCircle = new BoundCircle(MaxForceSize, 30, transform);
+        SetUpVectorLines();
     }
     public void Awake()
     {
-        VectorLine.SetEndCap("dashedArrow", EndCap.Front, -0.5f, Services.GameCfg.dashedLineTexture, Services.GameCfg.frontTexture);
-        VectorLine.SetEndCap("fullArrow", EndCap.Front, -0.5f, Services.GameCfg.fullLineTexture, Services.GameCfg.frontTexture);
-        SetUpVectorLines();
     }
 
     // Start is called before the first frame update
@@ -96,5 +94,14 @@ public class ControllerSquare
         _currentLine.Draw();
         _netForceLine.Draw();
         _previousNetForceLine.Draw();
+    }
+}
+
+public static class Arrow
+{
+    public static void SetUp()
+    {
+        VectorLine.SetEndCap("dashedArrow", EndCap.Front, -0.5f, Services.GameCfg.dashedLineTexture, Services.GameCfg.frontTexture);
+        VectorLine.SetEndCap("fullArrow", EndCap.Front, -0.5f, Services.GameCfg.fullLineTexture, Services.GameCfg.frontTexture);
     }
 }
