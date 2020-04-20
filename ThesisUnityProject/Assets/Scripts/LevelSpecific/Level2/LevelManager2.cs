@@ -50,23 +50,25 @@ public class LevelManager2 : MonoBehaviour
     private void FixedUpdate()
     {
         Services.Input.Update();
-        Services.TargetSquare.OnFixedUpdate();
+        _targetRB.AddForce(Services.ControllerSquare.PlayerForce);
+        foreach (var force in Services.Forces)
+            force.Update();
         Services.CameraController.Update();
-
     }
     
     // Update is called once per frame
     void Update()
     {
-        Services.TargetSquare.OnUpdate();
         Services.LivesBar.Update();
         Services.VelocityBar.Update();
     }
 
     private void LateUpdate()
     {
+        foreach (var force in Services.Forces)
+            force.Draw();
+        
         Services.ControllerSquare.LateUpdate();
-        Services.TargetSquare.OnLateUpdate();
     }
 }
 

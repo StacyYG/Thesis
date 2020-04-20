@@ -43,6 +43,7 @@ public class LevelManager0 : MonoBehaviour
         Services.Input = new InputManager();
         _controlSqrObj = GameObject.FindGameObjectWithTag("ControllerSquare");
         Services.ControllerSquare = new ControllerSquare(_controlSqrObj.transform);
+        _controlSqrObj.SetActive(false);
         _targetSqrObj = GameObject.FindGameObjectWithTag("TargetSquare");
         Services.TargetSquare = _targetSqrObj.GetComponent<TargetSquare>();
         _targetRB = _targetSqrObj.GetComponent<Rigidbody2D>();
@@ -70,15 +71,15 @@ public class LevelManager0 : MonoBehaviour
     private void FixedUpdate()
     {
         Services.Input.Update();
-        Services.TargetSquare.OnFixedUpdate();
+        _targetRB.AddForce(Services.ControllerSquare.PlayerForce);
+        foreach (var force in Services.Forces)
+            force.Update();
         Services.CameraController.Update();
-
     }
     
     // Update is called once per frame
     void Update()
     {
-        Services.TargetSquare.OnUpdate();
         Services.VelocityBar.Update();
         CheckTarget();
         if (_isInitialInstruction)
@@ -105,7 +106,8 @@ public class LevelManager0 : MonoBehaviour
 
             else if (duration > cfg0.showCtrlSqrTime && !_hasShowCtrlSqr)
             {
-                ShowCtrlSqr();
+                _controlSqrObj.SetActive(true);
+                _controlButtonGrowing = true;
                 Services.EventManager.Register<FirstForce>(OnFirstForce);
                 Services.EventManager.Register<SecondForce>(OnSecondForce);
                 _hasShowCtrlSqr = true;
@@ -139,8 +141,10 @@ public class LevelManager0 : MonoBehaviour
     
     private void LateUpdate()
     {
+        foreach (var force in Services.Forces)
+            force.Draw();
+        
         Services.ControllerSquare.LateUpdate();
-        Services.TargetSquare.OnLateUpdate();
     }
     private void OnFirstForce(AGPEvent e)
     {
@@ -182,12 +186,6 @@ public class LevelManager0 : MonoBehaviour
     private void ShowTargetSqr()
     {
         _targetRB.velocity = cfg0.v0;
-    }
-
-    private void ShowCtrlSqr()
-    {
-        _controlSqrObj.transform.localPosition = new Vector3(6f, -2.5f, 10f);
-        _controlButtonGrowing = true;
     }
 
     private void ShowGoal()

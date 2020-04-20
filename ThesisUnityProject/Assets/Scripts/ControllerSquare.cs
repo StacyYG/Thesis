@@ -67,6 +67,7 @@ public class ControllerSquare
     {
         _currentLine.Draw();
         _netForceLine.Draw();
+        _previousNetForceLine.Draw();
     }
 
     // figure out a better way to replace this when on mobile
@@ -75,7 +76,6 @@ public class ControllerSquare
         if (!Respond) return;
         _currentLine.active = true;
         _previousNetForceLine.active = true;
-        _previousNetForceLine.Draw();
     }
 
     public void OnMouseOrTouchUp()
@@ -91,9 +91,6 @@ public class ControllerSquare
     {
         _sum = _netForce = _currentForce = Vector2.zero;
         _currentLine.points3[0] = _netForceLine.points3[0] = _previousNetForceLine.points3[0] = Vector2.zero;
-        _currentLine.Draw();
-        _netForceLine.Draw();
-        _previousNetForceLine.Draw();
     }
 }
 

@@ -155,4 +155,16 @@ public static class Services
         }
         set => _velocityBar = value;
     }
+
+    private static List<Force> _forces = new List<Force>();
+
+    public static List<Force> Forces
+    {
+        get
+        {
+            Debug.Assert(_forces != null);
+            return _forces;
+        }
+        set => _forces = value;
+    }
 }

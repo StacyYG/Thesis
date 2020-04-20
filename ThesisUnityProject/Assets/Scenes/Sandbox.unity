@@ -706,6 +706,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55151aa54562a3c47b20d4ea59225fef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameCfg: {fileID: 11400000, guid: b6ce029ceae33b547953b8795b1210dd, type: 2}
 --- !u!4 &1651835188
 Transform:
   m_ObjectHideFlags: 0
@@ -731,6 +732,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: targetSquare
+      objectReference: {fileID: 0}
+    - target: {fileID: 254217622167208253, guid: b032703b81f64df4faf13bd09e2649f9,
+        type: 3}
+      propertyPath: m_GravityScale
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 254217622167208254, guid: b032703b81f64df4faf13bd09e2649f9,
         type: 3}
@@ -855,6 +861,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: controllerSquare
+      objectReference: {fileID: 0}
+    - target: {fileID: 6033808625161919478, guid: 3a0d420468ed69e4e903084e206bb0dc,
+        type: 3}
+      propertyPath: m_Layer
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3a0d420468ed69e4e903084e206bb0dc, type: 3}

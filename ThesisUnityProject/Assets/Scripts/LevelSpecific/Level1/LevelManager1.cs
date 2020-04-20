@@ -11,7 +11,7 @@ public class LevelManager1 : MonoBehaviour
     private TextMeshPro _tmp;
     private Instructions0 _instructions0;
     private Rigidbody2D _targetRB;
-    private GameObject _controlSqrObj, _targetSqrObj, _cancelButtonObj, _shadeObj, _gateObj, _flagObj, _highlightObj;
+    private GameObject _controlSqrObj, _targetSqrObj, _cancelButtonObj, _gateObj, _flagObj, _highlightObj;
     public GameCfg gameCfg;
 
     private bool
@@ -19,7 +19,7 @@ public class LevelManager1 : MonoBehaviour
         _hasRemind,
         _hasShowCancelButton,
         _hasCancelInstruction,
-        _isCancelInstructions,
+        _isCancelInstructions = true,
         _hasAllowCancel,
         _isChasePhase,
         _isGoalPhase,
@@ -59,15 +59,14 @@ public class LevelManager1 : MonoBehaviour
         _targetRB = _targetSqrObj.GetComponent<Rigidbody2D>();
         _cancelButtonObj = GameObject.FindGameObjectWithTag("CancelButton");
         Services.CancelButton = new CancelButton(_cancelButtonObj);
-        Services.CameraController = new CameraController(Services.MainCamera, false, Services.TargetSquare.transform);
+        _cancelButtonObj.SetActive(false);
+        Services.CameraController = new CameraController(Services.MainCamera, true, Services.TargetSquare.transform);
         Services.EventManager = new EventManager();
-        _shadeObj = GameObject.FindGameObjectWithTag("Shade");
-        _shadeObj.SetActive(false);
-        _gateObj = GameObject.FindGameObjectWithTag("GateConstant");
-        Services.Gate = _gateObj.GetComponent<Gate>();
-        _gateObj.SetActive(false);
-        _flagObj = GameObject.FindGameObjectWithTag("Goal");
-        _flagObj.SetActive(false);
+        // _gateObj = GameObject.FindGameObjectWithTag("GateConstant");
+        // Services.Gate = _gateObj.GetComponent<Gate>();
+        // _gateObj.SetActive(false);
+        // _flagObj = GameObject.FindGameObjectWithTag("Goal");
+        // _flagObj.SetActive(false);
         Services.VelocityBar = new VelocityBar(GameObject.FindGameObjectWithTag("SpeedBar").transform,
             GameObject.FindGameObjectWithTag("DirectionPointer").transform, _targetRB,
             GameObject.FindGameObjectWithTag("SpeedWarning"));
@@ -80,23 +79,23 @@ public class LevelManager1 : MonoBehaviour
     void Start()
     {
         _targetRB.velocity = cfg1.v0;
-        ShowCtrlSqr();
-        Instantiate(cfg1.chaseItem);
+        _controlButtonGrowing = true;
+        //Instantiate(cfg1.chaseItem);
     }
     
 
     private void FixedUpdate()
     {
         Services.Input.Update();
-        Services.TargetSquare.OnFixedUpdate();
+        _targetRB.AddForce(Services.ControllerSquare.PlayerForce);
+        foreach (var force in Services.Forces)
+            force.Update();
         Services.CameraController.Update();
-
     }
     
     // Update is called once per frame
     void Update()
     {
-        Services.TargetSquare.OnUpdate();
         Services.VelocityBar.Update();
         CheckTarget();
         if (_controlButtonGrowing)
@@ -112,7 +111,7 @@ public class LevelManager1 : MonoBehaviour
             if (_cancelInstructionTimer > cfg1.waitTime && !_hasCancelInstruction)
             {
                 _tmp.text = cfg1.cancelInstruction;
-                _cancelButtonObj.transform.localPosition = new Vector3(-6f, -2.5f, 10f);
+                _cancelButtonObj.SetActive(true);
                 _cancelButtonGrowing = true;
                 Services.EventManager.Register<FirstCancel>(OnFirstCancel);
                 _hasCancelInstruction = true;
@@ -129,8 +128,10 @@ public class LevelManager1 : MonoBehaviour
     
     private void LateUpdate()
     {
+        foreach (var force in Services.Forces)
+            force.Draw();
+        
         Services.ControllerSquare.LateUpdate();
-        Services.TargetSquare.OnLateUpdate();
     }
 
     private void OnFirstCancel(AGPEvent e)
@@ -169,12 +170,6 @@ public class LevelManager1 : MonoBehaviour
         return InstructionIndex(instructionItems, time, i + 1);
     }
     
-
-    private void ShowCtrlSqr()
-    {
-        _controlSqrObj.transform.localPosition = new Vector3(6f, -2.5f, 10f);
-        _controlButtonGrowing = true;
-    }
 
     // private void ShowGoal()
     // {
