@@ -50,6 +50,18 @@ public class LevelManager0 : LevelManager
     // Start is called before the first frame update
     public override void Start()
     {
+        var tasks = new List<Task>();
+        for (int i = 0; i < _instructions0.InitialInstructions.Count; i++)
+        {
+            tasks.Add(new WaitAndPrint(_tmp, _instructions0.InitialInstructions[i].startTime,
+                _instructions0.InitialInstructions[i].content));
+        }
+
+        for (int i = 0; i < tasks.Count - 1; i++)
+        {
+            tasks[i].Then(tasks[i + 1]);
+        }
+        taskManager.Do(tasks[0]);
     }
     
     
@@ -58,55 +70,57 @@ public class LevelManager0 : LevelManager
     {
         Services.VelocityBar.Update();
         CheckTarget();
-        if (_isInitialInstruction)
-        {
-            var duration = Time.timeSinceLevelLoad;
-            var i = InstructionIndex(_instructions0.InitialInstructions, duration, _lastIndex);
-            if (i > _lastIndex)
-            {
-                _tmp.text = _instructions0.InitialInstructions[i].content;
-                _lastIndex = i;
-            }
-            
-            if (duration > cfg0.showTargetSqrTime && !_hasShowTargetSqr)
-            {
-                ShowTargetSqr();
-                _hasShowTargetSqr = true;
-            }
-
-            else if (duration > cfg0.showCtrlSqrTime && !_hasShowCtrlSqr)
-            {
-                ctrlSqr.SetActive(true);
-                taskManager.Do(Services.ControllerSquare.boundCircle.GrowUp);
-                Services.EventManager.Register<FirstForce>(OnFirstForce);
-                Services.EventManager.Register<SecondForce>(OnSecondForce);
-                _hasShowCtrlSqr = true;
-            }
-        }
+        taskManager.Update();
         
-        else if (_hasFirstForce && !_hasSecondForce && !_hasRemind)
-        {
-            _firstForceTimer += Time.deltaTime;
-            if (_firstForceTimer > cfg0.secondForceRemindTime)
-            {
-                _tmp.text = cfg0.secondForceReminder;
-                _hasRemind = true;
-            }
-        }
-
-        else if (_hasSecondForce && !_hasHideShade)
-        {
-            _secondForceTimer += Time.deltaTime;
-            if (_secondForceTimer > cfg0.secondForceInstructionDuration)
-            {
-                Destroy(_shadeObj);
-                _tmp.text = "";
-                _lastIndex = -1;
-                _hasHideShade = true;
-                _chaseItem.SetActive(true);
-                Services.EventManager.Register<ShowGate>(OnShowGate);
-            }
-        }
+        // if (_isInitialInstruction)
+        // {
+        //     var duration = Time.timeSinceLevelLoad;
+        //     var i = InstructionIndex(_instructions0.InitialInstructions, duration, _lastIndex);
+        //     if (i > _lastIndex)
+        //     {
+        //         _tmp.text = _instructions0.InitialInstructions[i].content;
+        //         _lastIndex = i;
+        //     }
+        //     
+        //     if (duration > cfg0.showTargetSqrTime && !_hasShowTargetSqr)
+        //     {
+        //         ShowTargetSqr();
+        //         _hasShowTargetSqr = true;
+        //     }
+        //
+        //     else if (duration > cfg0.showCtrlSqrTime && !_hasShowCtrlSqr)
+        //     {
+        //         ctrlSqr.SetActive(true);
+        //         taskManager.Do(Services.ControllerSquare.boundCircle.GrowUp);
+        //         Services.EventManager.Register<FirstForce>(OnFirstForce);
+        //         Services.EventManager.Register<SecondForce>(OnSecondForce);
+        //         _hasShowCtrlSqr = true;
+        //     }
+        // }
+        //
+        // else if (_hasFirstForce && !_hasSecondForce && !_hasRemind)
+        // {
+        //     _firstForceTimer += Time.deltaTime;
+        //     if (_firstForceTimer > cfg0.secondForceRemindTime)
+        //     {
+        //         _tmp.text = cfg0.secondForceReminder;
+        //         _hasRemind = true;
+        //     }
+        // }
+        //
+        // else if (_hasSecondForce && !_hasHideShade)
+        // {
+        //     _secondForceTimer += Time.deltaTime;
+        //     if (_secondForceTimer > cfg0.secondForceInstructionDuration)
+        //     {
+        //         Destroy(_shadeObj);
+        //         _tmp.text = "";
+        //         _lastIndex = -1;
+        //         _hasHideShade = true;
+        //         _chaseItem.SetActive(true);
+        //         Services.EventManager.Register<ShowGate>(OnShowGate);
+        //     }
+        // }
     }
     
     private void OnFirstForce(AGPEvent e)
@@ -189,13 +203,30 @@ public class LevelManager0 : LevelManager
 
 public class WaitAndPrint : Task
 {
-    private WaitTask _wait;
-    private ActionTask _print;
-    public WaitAndPrint(TextMeshPro tmp, int waitTime, string toPrint)
+    private TextMeshPro _tmp;
+    private float _waitTime;
+    private string _toPrint;
+    private float _elapsedTime;
+    public WaitAndPrint(TextMeshPro tmp, float waitTime, string toPrint)
     {
-        _wait = new WaitTask(waitTime);
-        _print = new ActionTask(() => { tmp.text = toPrint;});
-        _wait.Then(_print);
+        _tmp = tmp;
+        _waitTime = waitTime;
+        _toPrint = toPrint;
+    }
+
+    protected override void Initialize()
+    {
+        _elapsedTime = 0f;
+    }
+
+    internal override void Update()
+    {
+        _elapsedTime += Time.deltaTime;
+        if (_elapsedTime > _waitTime)
+        {
+            _tmp.text = _toPrint;
+            SetStatus(TaskStatus.Success);
+        }
     }
 }
 
