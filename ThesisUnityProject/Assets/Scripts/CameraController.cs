@@ -8,24 +8,25 @@ public class CameraController
 	private readonly Transform _targetSquare;
 	private readonly Vector2 _innerMargin = new Vector2(1f, 1f);
 	private readonly Vector2 _outerMargin = new Vector2(2f, 2.2f);
-	private readonly Vector2 _smoothing = new Vector2(1f, 1f);
 	private Vector3 _min;
 	private Vector3 _max;
-	public bool IsFollowing = true;
-	public readonly float CameraBoundHalfY;
-	public readonly float CameraBoundHalfX;
+	public bool isFollowing;
+	public readonly float cameraBoundHalfY;
+	public readonly float cameraBoundHalfX;
 	private readonly Transform _transform;
 	public CameraController(Camera camera, bool isFollow, Transform targetSquare)
 	{
 		_transform = camera.transform;
-		IsFollowing = isFollow;
+		isFollowing = isFollow;
 		_targetSquare = targetSquare;
-		CameraBoundHalfY = camera.orthographicSize;
-		CameraBoundHalfX = CameraBoundHalfY * ((float)Screen.width / Screen.height);
-		CameraBoundHalfX -= _outerMargin.x;
-		CameraBoundHalfY -= _outerMargin.y;
+		cameraBoundHalfY = camera.orthographicSize;
+		cameraBoundHalfX = cameraBoundHalfY * ((float)Screen.width / Screen.height);
+		cameraBoundHalfX -= _outerMargin.x;
+		cameraBoundHalfY -= _outerMargin.y;
 	}
 
+	public CameraController(bool isFollow) =>
+		new CameraController(Services.MainCamera, isFollow, Services.TargetSquare.transform);
 
 
 	public void Update()
@@ -33,18 +34,18 @@ public class CameraController
 		var currentPos = _transform.position;
 		var x = currentPos.x;
 		var y = currentPos.y;
-		if (IsFollowing) 
+		if (isFollowing) 
 		{
-			if (Mathf.Abs(x - _targetSquare.position.x)> CameraBoundHalfX)
+			if (Mathf.Abs(x - _targetSquare.position.x)> cameraBoundHalfX)
 			{
-				if (x - _targetSquare.position.x > 0) x = _targetSquare.position.x + CameraBoundHalfX;
-				else x = _targetSquare.position.x - CameraBoundHalfX;
+				if (x - _targetSquare.position.x > 0) x = _targetSquare.position.x + cameraBoundHalfX;
+				else x = _targetSquare.position.x - cameraBoundHalfX;
 			}
 
-			if (Mathf.Abs(y - _targetSquare.position.y)> CameraBoundHalfY)
+			if (Mathf.Abs(y - _targetSquare.position.y)> cameraBoundHalfY)
 			{
-				if (y - _targetSquare.position.y > 0) y = _targetSquare.position.y + CameraBoundHalfY;
-				else y = _targetSquare.position.y - CameraBoundHalfY;
+				if (y - _targetSquare.position.y > 0) y = _targetSquare.position.y + cameraBoundHalfY;
+				else y = _targetSquare.position.y - cameraBoundHalfY;
 			}
 
 			var targetPos = _targetSquare.position;

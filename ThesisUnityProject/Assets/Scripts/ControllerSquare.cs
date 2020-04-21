@@ -14,12 +14,13 @@ public class ControllerSquare
     private readonly Transform _transform;
     public BoundCircle boundCircle;
 
-    public ControllerSquare(Transform transform)
+    public ControllerSquare(GameObject gameObject)
     {
-        _transform = transform;
-        boundCircle = new BoundCircle(MaxForceSize, 30, transform);
+        _transform = gameObject.transform;
+        boundCircle = new BoundCircle(MaxForceSize, 30, gameObject.transform);
         SetUpVectorLines();
     }
+    
     public void Awake()
     {
     }

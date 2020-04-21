@@ -59,8 +59,8 @@ public class ParticleSystemManager : MonoBehaviour
 
     private void SetPositions()
     {
-        var screenSizeX = _cameraController.CameraBoundHalfX * 2f;
-        var screenSizeY = _cameraController.CameraBoundHalfY * 2f;
+        var screenSizeX = _cameraController.cameraBoundHalfX * 2f;
+        var screenSizeY = _cameraController.cameraBoundHalfY * 2f;
         _particleSystems[1].position = new Vector2(-screenSizeX, screenSizeY);
         _particleSystems[2].position = new Vector2(-0f, screenSizeY);
         _particleSystems[3].position = new Vector2(screenSizeX, screenSizeY);

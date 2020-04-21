@@ -109,24 +109,27 @@ public class VelocityBar
     private const float MaxSpeed = 12f;
     private readonly GameObject _speedWarning;
 
-    public VelocityBar(Transform speedBar, Transform directionBar, Rigidbody2D target, GameObject speedWarning)
+    public VelocityBar(GameObject speedBarObj, GameObject directionBarObj, Rigidbody2D targetRb, GameObject speedWarningObj)
     {
-        _speedBar = speedBar;
-        _directionBar = directionBar;
-        _targetRb = target;
-        speedSprRdr = speedBar.GetComponent<SpriteRenderer>();
-        directionSprRdr = directionBar.GetComponent<SpriteRenderer>();
-        _speedWarning = speedWarning;
+        _speedBar = speedBarObj.transform;
+        _directionBar = directionBarObj.transform;
+        _targetRb = targetRb;
+        speedSprRdr = speedBarObj.GetComponent<SpriteRenderer>();
+        directionSprRdr = directionBarObj.GetComponent<SpriteRenderer>();
+        _speedWarning = speedWarningObj;
     }
     public void Update()
     {
         var velocity = _targetRb.velocity;
         _speedBar.localScale = new Vector3(velocity.magnitude, 0.5f, 1f);
         _directionBar.transform.up = velocity.normalized;
-        if (velocity.magnitude > MaxSpeed)
-            _speedWarning.SetActive(true);
-        else
-            _speedWarning.SetActive(false);
+        if (!ReferenceEquals(_speedWarning, null))
+        {
+            if (velocity.magnitude > MaxSpeed)
+                _speedWarning.SetActive(true);
+            else
+                _speedWarning.SetActive(false);
+        }
 
     }
 }

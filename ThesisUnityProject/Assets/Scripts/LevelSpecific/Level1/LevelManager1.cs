@@ -5,14 +5,12 @@ using System.Linq;
 using UnityEngine;
 using TMPro;
 
-public class LevelManager1 : MonoBehaviour
+public class LevelManager1 : LevelManager
 {
     public LevelCfg1 cfg1;
     private TextMeshPro _tmp;
     private Instructions0 _instructions0;
-    private Rigidbody2D _targetRB;
-    private GameObject _controlSqrObj, _targetSqrObj, _cancelButtonObj, _gateObj, _flagObj, _highlightObj;
-    public GameCfg gameCfg;
+    private GameObject _controlSqrObj, _cancelButtonObj, _gateObj, _flagObj, _highlightObj;
 
     private bool
         _hasShowCtrlSqr,
@@ -41,69 +39,40 @@ public class LevelManager1 : MonoBehaviour
     private int _lastIndex = -1;
     private int _failTimes;
     
-    public void Awake()
+    public override void Awake()
     {
+        base.Awake();
         Init();
     }
 
     private void Init()
     {
-        Services.GameCfg = gameCfg;
-        Arrow.SetUp();
-        Services.MainCamera = Camera.main;
-        Services.Input = new InputManager();
-        _controlSqrObj = GameObject.FindGameObjectWithTag("ControllerSquare");
-        Services.ControllerSquare = new ControllerSquare(_controlSqrObj.transform);
-        _targetSqrObj = GameObject.FindGameObjectWithTag("TargetSquare");
-        Services.TargetSquare = _targetSqrObj.GetComponent<TargetSquare>();
-        _targetRB = _targetSqrObj.GetComponent<Rigidbody2D>();
         _cancelButtonObj = GameObject.FindGameObjectWithTag("CancelButton");
-        Services.CancelButton = new CancelButton(_cancelButtonObj);
         _cancelButtonObj.SetActive(false);
-        Services.CameraController = new CameraController(Services.MainCamera, true, Services.TargetSquare.transform);
-        Services.EventManager = new EventManager();
         // _gateObj = GameObject.FindGameObjectWithTag("GateConstant");
         // Services.Gate = _gateObj.GetComponent<Gate>();
         // _gateObj.SetActive(false);
         // _flagObj = GameObject.FindGameObjectWithTag("Goal");
         // _flagObj.SetActive(false);
-        Services.VelocityBar = new VelocityBar(GameObject.FindGameObjectWithTag("SpeedBar").transform,
-            GameObject.FindGameObjectWithTag("DirectionPointer").transform, _targetRB,
-            GameObject.FindGameObjectWithTag("SpeedWarning"));
         _highlightObj = GameObject.FindGameObjectWithTag("Highlight");
         _highlightObj.SetActive(false);
         _tmp = GetComponent<TextMeshPro>();
     }
     
     // Start is called before the first frame update
-    void Start()
+    public override void Start()
     {
-        _targetRB.velocity = cfg1.v0;
+        base.Start();
+        targetRb.velocity = cfg1.v0;
         _controlButtonGrowing = true;
         //Instantiate(cfg1.chaseItem);
     }
     
-
-    private void FixedUpdate()
-    {
-        Services.Input.Update();
-        _targetRB.AddForce(Services.ControllerSquare.PlayerForce);
-        foreach (var force in Services.Forces)
-            force.Update();
-        Services.CameraController.Update();
-    }
     
     // Update is called once per frame
-    void Update()
+    public override void Update()
     {
-        Services.VelocityBar.Update();
         CheckTarget();
-        if (_controlButtonGrowing)
-        {
-            _controlButtonGrowTimer += Time.deltaTime;
-            if (Services.ControllerSquare.boundCircle.GrownUp(_controlButtonGrowTimer)) 
-                _controlButtonGrowing = false;
-        }
 
         if (_isCancelInstructions)
         {
@@ -115,13 +84,6 @@ public class LevelManager1 : MonoBehaviour
                 _cancelButtonGrowing = true;
                 Services.EventManager.Register<FirstCancel>(OnFirstCancel);
                 _hasCancelInstruction = true;
-            }
-
-            if (_cancelButtonGrowing)
-            {
-                _cancelButtonGrowTimer += Time.deltaTime;
-                if (Services.CancelButton.boundCircle.GrownUp(_cancelButtonGrowTimer))
-                    _cancelButtonGrowing = false;
             }
         }
     }
@@ -189,7 +151,7 @@ public class LevelManager1 : MonoBehaviour
         
         if (Services.TargetSquare.transform.position.x > 0)
         {
-            Services.CameraController.IsFollowing = true;
+            Services.CameraController.isFollowing = true;
             _checked = true;
         }
     }

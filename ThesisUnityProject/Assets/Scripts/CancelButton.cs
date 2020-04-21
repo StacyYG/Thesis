@@ -23,25 +23,19 @@ public class CancelButton
 public class BoundCircle
 {
     private VectorLine _circle;
-    private int _segments;
-    private Transform _anchor;
-    private float _radius;
-    private float _growDuration;
-    public BoundCircle(float radius, int segments, Transform anchor, float growDuration = 1f)
+    public DelegateTask GrowUp;
+    private float _elapsedTime;
+    public BoundCircle(float radius, int segments, Transform anchor, float duration = 1f)
     {
-        _radius = radius;
-        _segments = segments;
-        _anchor = anchor;
         _circle = new VectorLine("circle", new List<Vector3>(segments), 8f, LineType.Points);
-        _growDuration = growDuration;
         Services.TotalLineNumber++;
+        GrowUp = new DelegateTask(() => {}, () =>
+        {
+            _elapsedTime += Time.deltaTime;
+            _circle.MakeCircle(anchor.position, _elapsedTime / duration * radius, segments);
+            _circle.Draw();
+            Debug.Log(_elapsedTime / duration);
+            return _elapsedTime >= duration;
+        });
     }
-    public bool GrownUp(float growTime)
-    {
-        if (growTime > _growDuration) return true;
-        _circle.MakeCircle(_anchor.position, growTime / _growDuration * _radius, _segments);
-        _circle.Draw();
-        return false;
-    }
-    
 }

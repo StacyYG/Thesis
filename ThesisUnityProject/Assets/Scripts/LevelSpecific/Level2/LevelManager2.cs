@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class LevelManager2 : MonoBehaviour
+public class LevelManager2 : LevelManager
 {
     public LevelCfg1 levelCfg1;
     private TextMeshPro _tmp;
@@ -13,63 +13,33 @@ public class LevelManager2 : MonoBehaviour
     private int _lastIndex;
     public GameCfg gameCfg;
     
-    public void Awake()
+    public override void Awake()
     {
+        base.Awake();
         Init();
-        Services.ControllerSquare.Awake();
     }
 
     private void Init()
     {
-        Services.MainCamera = Camera.main;
-        Services.Input = new InputManager();
-        Services.GameCfg = gameCfg;
-        _controlSqrObj = GameObject.FindGameObjectWithTag("ControllerSquare");
-        Services.ControllerSquare = new ControllerSquare(_controlSqrObj.transform);
-        _targetSqrObj = GameObject.FindGameObjectWithTag("TargetSquare");
-        Services.TargetSquare = _targetSqrObj.GetComponent<TargetSquare>();
-        _targetRB = _targetSqrObj.GetComponent<Rigidbody2D>();
-        _cancelButtonObj = GameObject.FindGameObjectWithTag("CancelButton");
-        Services.CancelButton = new CancelButton(_cancelButtonObj);
-        Services.CameraController = new CameraController(Services.MainCamera, true, Services.TargetSquare.transform);
-        Services.EventManager = new EventManager();
         Services.LivesBar = new LivesBar(GameObject.FindGameObjectWithTag("LivesBar").transform);
-        Services.VelocityBar = new VelocityBar(GameObject.FindGameObjectWithTag("SpeedBar").transform,
-            GameObject.FindGameObjectWithTag("DirectionPointer").transform, _targetRB,
-            GameObject.FindGameObjectWithTag("SpeedWarning"));
         _tmp = GetComponent<TextMeshPro>();
     }
     
     // Start is called before the first frame update
-    void Start()
+    public override void Start()
     {
+        base.Start();
         Services.LivesBar.Init();
     }
     
-
-    private void FixedUpdate()
-    {
-        Services.Input.Update();
-        _targetRB.AddForce(Services.ControllerSquare.PlayerForce);
-        foreach (var force in Services.Forces)
-            force.Update();
-        Services.CameraController.Update();
-    }
     
     // Update is called once per frame
-    void Update()
+    public override void Update()
     {
+        base.Update();
         Services.LivesBar.Update();
-        Services.VelocityBar.Update();
     }
-
-    private void LateUpdate()
-    {
-        foreach (var force in Services.Forces)
-            force.Draw();
-        
-        Services.ControllerSquare.LateUpdate();
-    }
+    
 }
 
 

@@ -5,14 +5,12 @@ using System.Linq;
 using UnityEngine;
 using TMPro;
 
-public class LevelManager0 : MonoBehaviour
+public class LevelManager0 : LevelManager
 {
     public LevelCfg0 cfg0;
     private TextMeshPro _tmp;
     private Instructions0 _instructions0;
-    private Rigidbody2D _targetRB;
-    private GameObject _controlSqrObj, _targetSqrObj, _shadeObj, _flagObj, _chaseItem;
-    public GameCfg gameCfg;
+    private GameObject _controlSqr, _shadeObj, _flagObj, _chaseItem;
 
     private bool _hasShowTargetSqr,
         _hasShowCtrlSqr,
@@ -30,32 +28,20 @@ public class LevelManager0 : MonoBehaviour
 
     private int _lastIndex = -1;
 
-    public void Awake()
+    public override void Awake()
     {
+        base.Awake();
         Init();
     }
 
     private void Init()
     {
-        Services.GameCfg = gameCfg;
-        Arrow.SetUp();
-        Services.MainCamera = Camera.main;
-        Services.Input = new InputManager();
-        _controlSqrObj = GameObject.FindGameObjectWithTag("ControllerSquare");
-        Services.ControllerSquare = new ControllerSquare(_controlSqrObj.transform);
-        _controlSqrObj.SetActive(false);
-        _targetSqrObj = GameObject.FindGameObjectWithTag("TargetSquare");
-        Services.TargetSquare = _targetSqrObj.GetComponent<TargetSquare>();
-        _targetRB = _targetSqrObj.GetComponent<Rigidbody2D>();
-        Services.CameraController = new CameraController(Services.MainCamera, false, Services.TargetSquare.transform);
-        Services.EventManager = new EventManager();
+        _controlSqr = GameObject.FindGameObjectWithTag("ControllerSquare");
+        _controlSqr.SetActive(false);
         _shadeObj = GameObject.FindGameObjectWithTag("Shade");
         _shadeObj.SetActive(false);
         _flagObj = GameObject.FindGameObjectWithTag("Goal");
         _flagObj.SetActive(false);
-        Services.VelocityBar = new VelocityBar(GameObject.FindGameObjectWithTag("SpeedBar").transform,
-            GameObject.FindGameObjectWithTag("DirectionPointer").transform, _targetRB,
-            GameObject.FindGameObjectWithTag("SpeedWarning"));
         _chaseItem = GameObject.FindGameObjectWithTag("ChaseItem");
         _chaseItem.SetActive(false);
         _tmp = GetComponent<TextMeshPro>();
@@ -63,22 +49,13 @@ public class LevelManager0 : MonoBehaviour
     }
     
     // Start is called before the first frame update
-    void Start()
+    public override void Start()
     {
     }
     
-
-    private void FixedUpdate()
-    {
-        Services.Input.Update();
-        _targetRB.AddForce(Services.ControllerSquare.PlayerForce);
-        foreach (var force in Services.Forces)
-            force.Update();
-        Services.CameraController.Update();
-    }
     
     // Update is called once per frame
-    void Update()
+    public override void Update()
     {
         Services.VelocityBar.Update();
         CheckTarget();
@@ -91,13 +68,7 @@ public class LevelManager0 : MonoBehaviour
                 _tmp.text = _instructions0.InitialInstructions[i].content;
                 _lastIndex = i;
             }
-
-            if (_controlButtonGrowing)
-            {
-                _controlButtonGrowTimer += Time.deltaTime;
-                if (Services.ControllerSquare.boundCircle.GrownUp(_controlButtonGrowTimer)) 
-                    _controlButtonGrowing = false;
-            }
+            
             if (duration > cfg0.showTargetSqrTime && !_hasShowTargetSqr)
             {
                 ShowTargetSqr();
@@ -106,7 +77,7 @@ public class LevelManager0 : MonoBehaviour
 
             else if (duration > cfg0.showCtrlSqrTime && !_hasShowCtrlSqr)
             {
-                _controlSqrObj.SetActive(true);
+                _controlSqr.SetActive(true);
                 _controlButtonGrowing = true;
                 Services.EventManager.Register<FirstForce>(OnFirstForce);
                 Services.EventManager.Register<SecondForce>(OnSecondForce);
@@ -139,13 +110,6 @@ public class LevelManager0 : MonoBehaviour
         }
     }
     
-    private void LateUpdate()
-    {
-        foreach (var force in Services.Forces)
-            force.Draw();
-        
-        Services.ControllerSquare.LateUpdate();
-    }
     private void OnFirstForce(AGPEvent e)
     {
         _isInitialInstruction = false;
@@ -166,7 +130,7 @@ public class LevelManager0 : MonoBehaviour
     {
         ShowGoal();
         _tmp.text = cfg0.goalExplanation;
-        _targetRB.velocity = Vector2.zero;
+        targetRb.velocity = Vector2.zero;
         Services.EventManager.Register<Success>(OnSuccess);
         Services.EventManager.Unregister<ShowGate>(OnShowGate);
     }
@@ -185,7 +149,7 @@ public class LevelManager0 : MonoBehaviour
 
     private void ShowTargetSqr()
     {
-        _targetRB.velocity = cfg0.v0;
+        targetRb.velocity = cfg0.v0;
     }
 
     private void ShowGoal()
@@ -201,7 +165,7 @@ public class LevelManager0 : MonoBehaviour
         
         if (Services.TargetSquare.transform.position.x > 0)
         {
-            Services.CameraController.IsFollowing = true;
+            Services.CameraController.isFollowing = true;
             _checked = true;
         }
     }
@@ -210,8 +174,8 @@ public class LevelManager0 : MonoBehaviour
     {
         _tmp.text = cfg0.whenSuccess;
         _flagObj.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-        _flagObj.transform.parent = _targetSqrObj.transform;
-        var p = Instantiate(gameCfg.successParticles, _targetSqrObj.transform.position, Quaternion.identity);
+        _flagObj.transform.parent = targetSqr.transform;
+        var p = Instantiate(gameCfg.successParticles, targetSqr.transform.position, Quaternion.identity);
         StartCoroutine(WaitAndDestroy(p));
         Services.EventManager.Unregister<Success>(OnSuccess);
     }
