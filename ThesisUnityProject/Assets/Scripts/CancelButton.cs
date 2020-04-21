@@ -34,7 +34,6 @@ public class BoundCircle
             _elapsedTime += Time.deltaTime;
             _circle.MakeCircle(anchor.position, _elapsedTime / duration * radius, segments);
             _circle.Draw();
-            Debug.Log(_elapsedTime / duration);
             return _elapsedTime >= duration;
         });
     }

@@ -6,10 +6,8 @@ using UnityEngine;
 public class LevelManager : MonoBehaviour
 {
     protected Rigidbody2D targetRb;
-    protected GameObject targetSqr;
+    protected GameObject targetSqr, ctrlSqr, cxlButton;
     public GameCfg gameCfg;
-    protected bool controlButtonGrowing = true;
-    protected float controlButtonGrowTimer;
     protected TaskManager taskManager;
     
     public virtual void Awake()
@@ -19,43 +17,56 @@ public class LevelManager : MonoBehaviour
         Services.MainCamera = Camera.main;
         Services.Input = new InputManager();
         taskManager = new TaskManager();
-        Services.ControllerSquare =
-            new ControllerSquare(GameObject.FindGameObjectWithTag("ControllerSquare"));
-        Services.CancelButton = new CancelButton(GameObject.FindGameObjectWithTag("CancelButton"));
+        
+        ctrlSqr = GameObject.FindGameObjectWithTag("ControllerSquare");
+        if (ctrlSqr)
+            Services.ControllerSquare = new ControllerSquare(ctrlSqr);
+
+        cxlButton = GameObject.FindGameObjectWithTag("CancelButton");
+        if(cxlButton) 
+            Services.CancelButton = new CancelButton(cxlButton);
+        
         targetSqr = GameObject.FindGameObjectWithTag("TargetSquare");
-        Services.TargetSquare = targetSqr.GetComponent<TargetSquare>();
-        targetRb = targetSqr.GetComponent<Rigidbody2D>();
-        Services.CameraController = new CameraController(Services.MainCamera, true, Services.TargetSquare.transform);
+        if (targetSqr)
+        {
+            Services.TargetSquare = targetSqr.GetComponent<TargetSquare>();
+            targetRb = targetSqr.GetComponent<Rigidbody2D>();
+            Services.CameraController = new CameraController(Services.MainCamera, true, targetSqr.transform);
+            Services.VelocityBar = new VelocityBar(targetRb);
+        }
+        
         Services.EventManager = new EventManager();
-        Services.VelocityBar = new VelocityBar(GameObject.FindGameObjectWithTag("SpeedBar"),
-            GameObject.FindGameObjectWithTag("DirectionPointer"), targetRb,
-            GameObject.FindGameObjectWithTag("SpeedWarning"));
     }
 
     public virtual void Start()
     {
-        taskManager.Do(Services.ControllerSquare.boundCircle.GrowUp);
-        taskManager.Do(Services.CancelButton.boundCircle.GrowUp);
+        if(ctrlSqr) 
+            taskManager.Do(Services.ControllerSquare.boundCircle.GrowUp);
+        if(cxlButton) 
+            taskManager.Do(Services.CancelButton.boundCircle.GrowUp);
     }
 
     public virtual void FixedUpdate()
     {
         Services.Input.Update();
-        targetRb.AddForce(Services.ControllerSquare.PlayerForce);
+        if(ctrlSqr.activeSelf && Services.ControllerSquare.Respond) 
+            targetRb.AddForce(Services.ControllerSquare.PlayerForce);
         foreach (var force in Services.Forces)
             force.Update();
-        Services.CameraController.Update();
+        if(Services.CameraController.isFollowing) 
+            Services.CameraController.Update();
     }
 
     public virtual void Update()
     {
         Services.VelocityBar.Update();
-
+        taskManager.Update();
     }
 
     public virtual void LateUpdate()
     {
-        Services.ControllerSquare.LateUpdate();
+        if(ctrlSqr.activeSelf && Services.ControllerSquare.Respond) 
+            Services.ControllerSquare.LateUpdate();
         foreach (var force in Services.Forces)
             force.Draw();
     }

@@ -768,6 +768,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: pointer
       objectReference: {fileID: 0}
+    - target: {fileID: 2616384193996725698, guid: c55eb941a44d59847963433c5d9e20c0,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2616384193996725701, guid: c55eb941a44d59847963433c5d9e20c0,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -941,6 +946,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: CancleButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 7894216739082252594, guid: 97ddfdebdd73bcd43a5ca7f6213a7d79,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97ddfdebdd73bcd43a5ca7f6213a7d79, type: 3}

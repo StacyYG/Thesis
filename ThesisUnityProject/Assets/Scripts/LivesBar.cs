@@ -109,21 +109,36 @@ public class VelocityBar
     private const float MaxSpeed = 12f;
     private readonly GameObject _speedWarning;
 
-    public VelocityBar(GameObject speedBarObj, GameObject directionBarObj, Rigidbody2D targetRb, GameObject speedWarningObj)
+    public VelocityBar(Rigidbody2D targetRb)
     {
-        _speedBar = speedBarObj.transform;
-        _directionBar = directionBarObj.transform;
+        var findSpeedBar = GameObject.FindGameObjectWithTag("SpeedBar");
+        if (findSpeedBar)
+        {
+            _speedBar = findSpeedBar.transform;
+            speedSprRdr = findSpeedBar.GetComponent<SpriteRenderer>();
+        }
+        
+        var findDirectionBar = GameObject.FindGameObjectWithTag("DirectionPointer");
+        if (findDirectionBar)
+        {
+            _directionBar = findDirectionBar.transform;
+            directionSprRdr = findDirectionBar.GetComponent<SpriteRenderer>();
+        }
+
+        var findSpeedWarning = GameObject.FindGameObjectWithTag("SpeedWarning");
+        if(findSpeedWarning)
+            _speedWarning = findSpeedWarning;
+        
         _targetRb = targetRb;
-        speedSprRdr = speedBarObj.GetComponent<SpriteRenderer>();
-        directionSprRdr = directionBarObj.GetComponent<SpriteRenderer>();
-        _speedWarning = speedWarningObj;
     }
     public void Update()
     {
         var velocity = _targetRb.velocity;
-        _speedBar.localScale = new Vector3(velocity.magnitude, 0.5f, 1f);
-        _directionBar.transform.up = velocity.normalized;
-        if (!ReferenceEquals(_speedWarning, null))
+        if(_speedBar) 
+            _speedBar.localScale = new Vector3(velocity.magnitude, 0.5f, 1f);
+        if(_directionBar) 
+            _directionBar.transform.up = velocity.normalized;
+        if (_speedWarning)
         {
             if (velocity.magnitude > MaxSpeed)
                 _speedWarning.SetActive(true);

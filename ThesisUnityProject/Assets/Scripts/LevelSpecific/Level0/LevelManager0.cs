@@ -10,7 +10,7 @@ public class LevelManager0 : LevelManager
     public LevelCfg0 cfg0;
     private TextMeshPro _tmp;
     private Instructions0 _instructions0;
-    private GameObject _controlSqr, _shadeObj, _flagObj, _chaseItem;
+    private GameObject _shadeObj, _flagObj, _chaseItem;
 
     private bool _hasShowTargetSqr,
         _hasShowCtrlSqr,
@@ -36,8 +36,7 @@ public class LevelManager0 : LevelManager
 
     private void Init()
     {
-        _controlSqr = GameObject.FindGameObjectWithTag("ControllerSquare");
-        _controlSqr.SetActive(false);
+        ctrlSqr.SetActive(false);
         _shadeObj = GameObject.FindGameObjectWithTag("Shade");
         _shadeObj.SetActive(false);
         _flagObj = GameObject.FindGameObjectWithTag("Goal");
@@ -77,8 +76,8 @@ public class LevelManager0 : LevelManager
 
             else if (duration > cfg0.showCtrlSqrTime && !_hasShowCtrlSqr)
             {
-                _controlSqr.SetActive(true);
-                _controlButtonGrowing = true;
+                ctrlSqr.SetActive(true);
+                taskManager.Do(Services.ControllerSquare.boundCircle.GrowUp);
                 Services.EventManager.Register<FirstForce>(OnFirstForce);
                 Services.EventManager.Register<SecondForce>(OnSecondForce);
                 _hasShowCtrlSqr = true;
