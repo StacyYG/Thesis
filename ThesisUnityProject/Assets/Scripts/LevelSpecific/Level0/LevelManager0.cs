@@ -187,4 +187,16 @@ public class LevelManager0 : LevelManager
     
 }
 
+public class WaitAndPrint : Task
+{
+    private WaitTask _wait;
+    private ActionTask _print;
+    public WaitAndPrint(TextMeshPro tmp, int waitTime, string toPrint)
+    {
+        _wait = new WaitTask(waitTime);
+        _print = new ActionTask(() => { tmp.text = toPrint;});
+        _wait.Then(_print);
+    }
+}
+
 

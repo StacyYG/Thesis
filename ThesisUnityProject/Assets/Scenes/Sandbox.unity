@@ -848,7 +848,7 @@ GameObject:
   - component: {fileID: 1651835187}
   m_Layer: 0
   m_Name: gameController
-  m_TagString: GameController
+  m_TagString: LevelManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
