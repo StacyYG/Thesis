@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
@@ -11,22 +8,6 @@ public class LevelManager0 : LevelManager
     private TextMeshPro _tmp;
     private Instructions0 _instructions0;
     private GameObject _shadeObj, _flagObj, _chaseItem;
-
-    private bool _hasShowTargetSqr,
-        _hasShowCtrlSqr,
-        _hasFirstForce,
-        _hasRemind,
-        _hasSecondForce,
-        _hasHideShade,
-        _controlButtonGrowing;
-    private bool
-        _isInitialInstruction = true;
-
-    private float _firstForceTimer,
-        _secondForceTimer,
-        _controlButtonGrowTimer;
-
-    private int _lastIndex = -1;
     private List<Task> _initialInstructions;
     private Task _secondForceReminder;
 
@@ -40,6 +21,8 @@ public class LevelManager0 : LevelManager
     {
         Services.CameraController.isFollowing = false;
         ctrlSqr.SetActive(false);
+        cxlButton.SetActive(false);
+        Services.CancelButton.Respond = false;
         _shadeObj = GameObject.FindGameObjectWithTag("Shade");
         _shadeObj.SetActive(false);
         _flagObj = GameObject.FindGameObjectWithTag("Goal");
@@ -55,7 +38,9 @@ public class LevelManager0 : LevelManager
     {
         Services.EventManager.Register<FirstForce>(OnFirstForce);
         Services.EventManager.Register<SecondForce>(OnSecondForce);
+        Services.EventManager.Register<ShowGoal>(OnShowGoal);
         _initialInstructions = new List<Task>();
+        
         for (int i = 0; i < _instructions0.InitialInstructions.Count; i++)
         {
             _initialInstructions.Add(new WaitAndPrint(_tmp, _instructions0.InitialInstructions[i].startTime,
@@ -97,69 +82,21 @@ public class LevelManager0 : LevelManager
         });
         taskManager.Do(showCtrlSqr);
         
+        var checkTarget = new DelegateTask(() => {}, () =>
+        {
+            if (Services.TargetSquare.transform.position.x > 0)
+            {
+                Services.CameraController.isFollowing = true;
+                return true;
+            }
+
+            return false;
+        });
+        taskManager.Do(checkTarget);
     }
-    
-    
-    // Update is called once per frame
-    public override void Update()
-    {
-        CheckTarget();
-        taskManager.Update();
-        
-        // if (_isInitialInstruction)
-        // {
-        //     var duration = Time.timeSinceLevelLoad;
-        //     var i = InstructionIndex(_instructions0.InitialInstructions, duration, _lastIndex);
-        //     if (i > _lastIndex)
-        //     {
-        //         _tmp.text = _instructions0.InitialInstructions[i].content;
-        //         _lastIndex = i;
-        //     }
-        //     
-        //     if (duration > cfg0.showTargetSqrTime && !_hasShowTargetSqr)
-        //     {
-        //         ShowTargetSqr();
-        //         _hasShowTargetSqr = true;
-        //     }
-        //
-        //     else if (duration > cfg0.showCtrlSqrTime && !_hasShowCtrlSqr)
-        //     {
-        //         ctrlSqr.SetActive(true);
-        //         taskManager.Do(Services.ControllerSquare.boundCircle.GrowUp);
-        //         Services.EventManager.Register<FirstForce>(OnFirstForce);
-        //         Services.EventManager.Register<SecondForce>(OnSecondForce);
-        //         _hasShowCtrlSqr = true;
-        //     }
-        // }
-        //
-        // else if (_hasFirstForce && !_hasSecondForce && !_hasRemind)
-        // {
-        //     _firstForceTimer += Time.deltaTime;
-        //     if (_firstForceTimer > cfg0.secondForceRemindTime)
-        //     {
-        //         _tmp.text = cfg0.secondForceReminder;
-        //         _hasRemind = true;
-        //     }
-        // }
-        //
-        // else if (_hasSecondForce && !_hasHideShade)
-        // {
-        //     _secondForceTimer += Time.deltaTime;
-        //     if (_secondForceTimer > cfg0.secondForceInstructionDuration)
-        //     {
-        //         Destroy(_shadeObj);
-        //         _tmp.text = "";
-        //         _lastIndex = -1;
-        //         _hasHideShade = true;
-        //         _chaseItem.SetActive(true);
-        //         Services.EventManager.Register<ShowGate>(OnShowGate);
-        //     }
-        // }
-    }
-    
+
     private void OnFirstForce(AGPEvent e)
     {
-        _hasFirstForce = true;
         Services.EventManager.Unregister<FirstForce>(OnFirstForce);
         foreach (var task in _initialInstructions)
             task.SetStatus(Task.TaskStatus.Success);
@@ -188,6 +125,7 @@ public class LevelManager0 : LevelManager
             {
                 Destroy(_shadeObj);
                 _tmp.text = "";
+                _chaseItem.SetActive(true);
                 return true;
             }
 
@@ -196,61 +134,27 @@ public class LevelManager0 : LevelManager
         taskManager.Do(whenSecondForce);
     }
     
-    private void OnShowGate(AGPEvent e)
-    {
-        ShowGoal();
-        _tmp.text = cfg0.goalExplanation;
-        targetRb.velocity = Vector2.zero;
-        Services.EventManager.Register<Success>(OnSuccess);
-        Services.EventManager.Unregister<ShowGate>(OnShowGate);
-    }
-    private int InstructionIndex(List<InstructionItem> instructionItems, float time, int i)
-    {
-        if (i >= instructionItems.Count - 1)
-        {
-            return instructionItems.Count - 1;
-        }
-        if (time < instructionItems[i + 1].startTime)
-        {
-            return i;
-        }
-        return InstructionIndex(instructionItems, time, i + 1);
-    }
-
-    private void ShowGoal()
+    private void OnShowGoal(AGPEvent e)
     {
         _flagObj.transform.position = _chaseItem.transform.position;
         _flagObj.SetActive(true);
-    }
-    
-    private bool _checked;
-    private void CheckTarget()
-    {
-        if (_checked) return;
-        
-        if (Services.TargetSquare.transform.position.x > 0)
-        {
-            Services.CameraController.isFollowing = true;
-            _checked = true;
-        }
+        _tmp.text = cfg0.goalExplanation;
+        Services.EventManager.Register<Success>(OnSuccess);
+        Services.EventManager.Unregister<ShowGoal>(OnShowGoal);
     }
 
     private void OnSuccess(AGPEvent e)
     {
+        Services.EventManager.Unregister<Success>(OnSuccess);
         _tmp.text = cfg0.whenSuccess;
         _flagObj.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
         _flagObj.transform.parent = targetSqr.transform;
         var p = Instantiate(gameCfg.successParticles, targetSqr.transform.position, Quaternion.identity);
-        StartCoroutine(WaitAndDestroy(p));
-        Services.EventManager.Unregister<Success>(OnSuccess);
+        var wait = new WaitTask(1f);
+        var clearParticles = new ActionTask(() => Destroy(p));
+        wait.Then(clearParticles);
+        taskManager.Do(wait);
     }
-
-    private IEnumerator WaitAndDestroy(GameObject toDestroy)
-    {
-        yield return new WaitForSeconds(1);
-        Destroy(toDestroy);
-    }
-    
 }
 
 public class WaitAndPrint : Task

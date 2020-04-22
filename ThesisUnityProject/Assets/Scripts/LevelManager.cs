@@ -19,31 +19,28 @@ public class LevelManager : MonoBehaviour
         taskManager = new TaskManager();
         
         ctrlSqr = GameObject.FindGameObjectWithTag("ControllerSquare");
-        if (ctrlSqr)
-            Services.ControllerSquare = new ControllerSquare(ctrlSqr);
+        Services.ControllerSquare = new ControllerSquare(ctrlSqr);
 
         cxlButton = GameObject.FindGameObjectWithTag("CancelButton");
-        if(cxlButton) 
-            Services.CancelButton = new CancelButton(cxlButton);
+        Services.CancelButton = new CancelButton(cxlButton);
         
         targetSqr = GameObject.FindGameObjectWithTag("TargetSquare");
-        if (targetSqr)
-        {
-            Services.TargetSquare = targetSqr.GetComponent<TargetSquare>();
-            targetRb = targetSqr.GetComponent<Rigidbody2D>();
-            Services.CameraController = new CameraController(Services.MainCamera, true, targetSqr.transform);
-            Services.VelocityBar = new VelocityBar(targetRb);
-        }
-        
+        Services.TargetSquare = targetSqr.GetComponent<TargetSquare>();
+        targetRb = targetSqr.GetComponent<Rigidbody2D>();
+        Services.CameraController = new CameraController(Services.MainCamera, true, targetSqr.transform);
+        Services.VelocityBar = new VelocityBar(targetRb);
+
         Services.EventManager = new EventManager();
+
+        var speedWarning = GameObject.FindGameObjectWithTag("SpeedWarning");
+        speedWarning.SetActive(false);
+        
     }
 
     public virtual void Start()
     {
-        if(ctrlSqr) 
-            taskManager.Do(Services.ControllerSquare.boundCircle.GrowUp);
-        if(cxlButton) 
-            taskManager.Do(Services.CancelButton.boundCircle.GrowUp);
+        taskManager.Do(Services.ControllerSquare.boundCircle.GrowUp);
+        taskManager.Do(Services.CancelButton.boundCircle.GrowUp);
     }
 
     public virtual void FixedUpdate()

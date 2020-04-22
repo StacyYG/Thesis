@@ -37,7 +37,7 @@ public class ChaseItem : MonoBehaviour
             {
                 if (_currentPosIndex == positions.Count - 1)
                 {
-                    Services.EventManager.Fire(new ShowGate());
+                    Services.EventManager.Fire(new ShowGoal());
                     Destroy(gameObject);
                 }
                 else
@@ -65,4 +65,4 @@ public class ChaseItem : MonoBehaviour
     }
 }
 
-public class ShowGate : AGPEvent{}
+public class ShowGoal : AGPEvent{}
