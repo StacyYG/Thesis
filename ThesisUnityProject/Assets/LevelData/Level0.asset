@@ -13,13 +13,15 @@ MonoBehaviour:
   m_Name: Level0
   m_EditorClassIdentifier: 
   v0: {x: 2, y: 0}
-  showTargetSqrTime: 0
+  showTargetSqrTime: 1
   showCtrlSqrTime: 3
   initialInstructions:
+  - startTime: 0
+    content: How do forces affect motion?
   - startTime: 3
     content: This <b>Control Box</b> transfers any force it receives to the target
       box.
-  - startTime: 8
+  - startTime: 5
     content: To add a force, you need to click the <b>Control Box</b> and drag.
   whenFirstForce: Yes! you just added a force.
   secondForceRemindTime: 7

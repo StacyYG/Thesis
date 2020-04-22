@@ -27,6 +27,8 @@ public class LevelManager0 : LevelManager
         _controlButtonGrowTimer;
 
     private int _lastIndex = -1;
+    private List<Task> _initialInstructions;
+    private Task _secondForceReminder;
 
     public override void Awake()
     {
@@ -36,6 +38,7 @@ public class LevelManager0 : LevelManager
 
     private void Init()
     {
+        Services.CameraController.isFollowing = false;
         ctrlSqr.SetActive(false);
         _shadeObj = GameObject.FindGameObjectWithTag("Shade");
         _shadeObj.SetActive(false);
@@ -50,25 +53,56 @@ public class LevelManager0 : LevelManager
     // Start is called before the first frame update
     public override void Start()
     {
-        var tasks = new List<Task>();
+        Services.EventManager.Register<FirstForce>(OnFirstForce);
+        Services.EventManager.Register<SecondForce>(OnSecondForce);
+        _initialInstructions = new List<Task>();
         for (int i = 0; i < _instructions0.InitialInstructions.Count; i++)
         {
-            tasks.Add(new WaitAndPrint(_tmp, _instructions0.InitialInstructions[i].startTime,
+            _initialInstructions.Add(new WaitAndPrint(_tmp, _instructions0.InitialInstructions[i].startTime,
                 _instructions0.InitialInstructions[i].content));
         }
 
-        for (int i = 0; i < tasks.Count - 1; i++)
+        for (int i = 0; i < _initialInstructions.Count - 1; i++)
         {
-            tasks[i].Then(tasks[i + 1]);
+            _initialInstructions[i].Then(_initialInstructions[i + 1]);
         }
-        taskManager.Do(tasks[0]);
+        taskManager.Do(_initialInstructions[0]);
+        
+        var tgtSqrTime = 0f;
+        var showTgtSqr = new DelegateTask(() => tgtSqrTime = 0f, () =>
+        {
+            tgtSqrTime += Time.deltaTime;
+            if (tgtSqrTime > cfg0.showTargetSqrTime)
+            {
+                targetRb.velocity = cfg0.v0;
+                return true;
+            }
+
+            return false;
+        });
+        taskManager.Do(showTgtSqr);
+
+        var ctrlSqrTime = 0f;
+        var showCtrlSqr = new DelegateTask(() => ctrlSqrTime = 0f, () =>
+        {
+            ctrlSqrTime += Time.deltaTime;
+            if (ctrlSqrTime > cfg0.showCtrlSqrTime)
+            {
+                ctrlSqr.SetActive(true);
+                taskManager.Do(Services.ControllerSquare.boundCircle.GrowUp);
+                return true;
+            }
+
+            return false;
+        });
+        taskManager.Do(showCtrlSqr);
+        
     }
     
     
     // Update is called once per frame
     public override void Update()
     {
-        Services.VelocityBar.Update();
         CheckTarget();
         taskManager.Update();
         
@@ -125,18 +159,41 @@ public class LevelManager0 : LevelManager
     
     private void OnFirstForce(AGPEvent e)
     {
-        _isInitialInstruction = false;
         _hasFirstForce = true;
-        _tmp.text = cfg0.whenFirstForce;
         Services.EventManager.Unregister<FirstForce>(OnFirstForce);
+        foreach (var task in _initialInstructions)
+            task.SetStatus(Task.TaskStatus.Success);
+        
+        var whenFirstForce = new PrintAndWait(_tmp, 2f, cfg0.whenFirstForce);
+        taskManager.Do(whenFirstForce);
+
+        _secondForceReminder = new WaitAndPrint(_tmp, cfg0.secondForceRemindTime, cfg0.secondForceReminder);
+        taskManager.Do(_secondForceReminder);
     }
     
     private void OnSecondForce(AGPEvent e)
     {
-        _shadeObj.SetActive(true);
-        _hasSecondForce = true;
-        _tmp.text = cfg0.whenSecondForce;
         Services.EventManager.Unregister<SecondForce>(OnSecondForce);
+        _secondForceReminder.SetStatus(Task.TaskStatus.Success);
+        var timeElapsed = 0f;
+        var whenSecondForce = new DelegateTask(() =>
+        {
+            _shadeObj.SetActive(true);
+            _tmp.text = cfg0.whenSecondForce;
+            timeElapsed = 0f;
+        }, () =>
+        {
+            timeElapsed += Time.deltaTime;
+            if (timeElapsed > cfg0.secondForceInstructionDuration)
+            {
+                Destroy(_shadeObj);
+                _tmp.text = "";
+                return true;
+            }
+
+            return false;
+        });
+        taskManager.Do(whenSecondForce);
     }
     
     private void OnShowGate(AGPEvent e)
@@ -158,11 +215,6 @@ public class LevelManager0 : LevelManager
             return i;
         }
         return InstructionIndex(instructionItems, time, i + 1);
-    }
-
-    private void ShowTargetSqr()
-    {
-        targetRb.velocity = cfg0.v0;
     }
 
     private void ShowGoal()
@@ -230,4 +282,33 @@ public class WaitAndPrint : Task
     }
 }
 
+public class PrintAndWait : Task
+{
+    private TextMeshPro _tmp;
+    private float _waitTime;
+    private string _toPrint;
+    private float _elapsedTime;
+    public PrintAndWait(TextMeshPro tmp, float duration, string toPrint)
+    {
+        _tmp = tmp;
+        _waitTime = duration;
+        _toPrint = toPrint;
+    }
+
+    protected override void Initialize()
+    {
+        _elapsedTime = 0f;
+        _tmp.text = _toPrint;
+    }
+
+    internal override void Update()
+    {
+        _elapsedTime += Time.deltaTime;
+        if (_elapsedTime > _waitTime)
+        {
+            _tmp.text = "";
+            SetStatus(TaskStatus.Success);
+        }
+    }
+}
 
