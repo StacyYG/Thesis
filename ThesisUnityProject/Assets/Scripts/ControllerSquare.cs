@@ -92,6 +92,9 @@ public class ControllerSquare
     {
         _sum = _netForce = _currentForce = Vector2.zero;
         _currentLine.points3[0] = _netForceLine.points3[0] = _previousNetForceLine.points3[0] = Vector2.zero;
+        _currentLine.Draw();
+        _netForceLine.Draw();
+        _previousNetForceLine.Draw();
     }
 }
 

@@ -37,4 +37,9 @@ public class BoundCircle
             return _elapsedTime >= duration;
         });
     }
+
+    public void Clear()
+    {
+        VectorLine.Destroy(ref _circle);
+    }
 }

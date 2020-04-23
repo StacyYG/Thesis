@@ -10,6 +10,7 @@ public class LevelManager0 : LevelManager
     private GameObject _shadeObj, _flagObj, _chaseItem;
     private List<Task> _initialInstructions;
     private Task _secondForceReminder;
+    private LevelManager _currentLevelManager;
 
     public override void Awake()
     {
@@ -123,7 +124,7 @@ public class LevelManager0 : LevelManager
             timeElapsed += Time.deltaTime;
             if (timeElapsed > cfg0.secondForceInstructionDuration)
             {
-                Destroy(_shadeObj);
+                _shadeObj.SetActive(false);
                 _tmp.text = "";
                 _chaseItem.SetActive(true);
                 return true;
@@ -147,6 +148,17 @@ public class LevelManager0 : LevelManager
     {
         Services.EventManager.Unregister<Success>(OnSuccess);
         _tmp.text = cfg0.whenSuccess;
+        var waitForNextLevel = new WaitTask(cfg0.nextLevelLoadTime);
+        var transition = new ActionTask(() =>
+        {
+            _shadeObj.SetActive(true);
+            _tmp.text = cfg0.nextLevelText;
+            Services.ControllerSquare.Respond = false;
+            Services.ControllerSquare.ResetPlayerForce();
+            ctrlSqr.SetActive(false);
+            Services.ControllerSquare.boundCircle.Clear();
+        });
+        waitForNextLevel.Then(transition);
         _flagObj.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
         _flagObj.transform.parent = targetSqr.transform;
         var p = Instantiate(gameCfg.successParticles, targetSqr.transform.position, Quaternion.identity);
@@ -154,6 +166,7 @@ public class LevelManager0 : LevelManager
         var clearParticles = new ActionTask(() => Destroy(p));
         wait.Then(clearParticles);
         taskManager.Do(wait);
+        taskManager.Do(waitForNextLevel);
     }
 }
 
@@ -215,4 +228,6 @@ public class PrintAndWait : Task
         }
     }
 }
+
+
 

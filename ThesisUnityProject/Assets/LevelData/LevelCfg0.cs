@@ -23,4 +23,6 @@ public class LevelCfg0 : ScriptableObject
     [Header("Goal")]
     public string goalExplanation;
     public string whenSuccess;
+    public float nextLevelLoadTime;
+    public string nextLevelText;
 }

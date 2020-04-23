@@ -428,7 +428,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -2116507395
   m_SortingLayer: 1
-  m_SortingOrder: 0
+  m_SortingOrder: 5
 --- !u!1 &134769819 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6033808625161919478, guid: 3a0d420468ed69e4e903084e206bb0dc,
@@ -516,7 +516,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -2116507395
   m_SortingLayer: 1
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: 2db956ce8c7ade144ad4d54d1a66d3c1, type: 3}
   m_Color: {r: 0, g: 0, b: 0, a: 0.78431374}
   m_FlipX: 0
@@ -784,7 +784,7 @@ PrefabInstance:
     - target: {fileID: 6033808625161919479, guid: 3a0d420468ed69e4e903084e206bb0dc,
         type: 3}
       propertyPath: m_SortingOrder
-      value: 1
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6033808625161919479, guid: 3a0d420468ed69e4e903084e206bb0dc,
         type: 3}
@@ -1475,7 +1475,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -2116507395
   m_SortingLayer: 1
-  m_SortingOrder: 0
+  m_SortingOrder: 5
 --- !u!224 &2084675415
 RectTransform:
   m_ObjectHideFlags: 0

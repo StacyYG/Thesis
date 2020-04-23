@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: Level0
   m_EditorClassIdentifier: 
   v0: {x: 2, y: 0}
-  showTargetSqrTime: 1
-  showCtrlSqrTime: 3
+  showTargetSqrTime: 0
+  showCtrlSqrTime: 5
   initialInstructions:
   - startTime: 0
     content: How do forces affect motion?
-  - startTime: 3
+  - startTime: 5
     content: This <b>Control Box</b> transfers any force it receives to the target
       box.
   - startTime: 5
@@ -38,3 +38,5 @@ MonoBehaviour:
     type: 3}
   goalExplanation: Nice, go get the flag.
   whenSuccess: Good job!
+  nextLevelLoadTime: 3
+  nextLevelText: Thanks for playing! More levels under construction.
