@@ -14,16 +14,22 @@ public class ChaseItem : MonoBehaviour
     private Vector3 _targetPos;
     private Rigidbody2D _myRb;
     private Rigidbody2D _targetRb;
-    private void Start()
+
+    public void Start()
     {
         _lifeSpriteRenderer = GetComponent<SpriteRenderer>();
         _lifeSpriteRenderer.color = Services.GameCfg.liveColor;
         _collider = GetComponent<BoxCollider2D>();
         _myRb = GetComponent<Rigidbody2D>();
         _targetRb = Services.TargetSquare.GetComponent<Rigidbody2D>();
+        ResetPosition();
+    }
+
+    public void ResetPosition()
+    {
+        _currentPosIndex = 0;
         transform.position = Services.TargetSquare.transform.position + positions[_currentPosIndex];
         _myRb.velocity = 1.2f * _targetRb.velocity;
-        
     }
 
     private void Update()
@@ -38,7 +44,7 @@ public class ChaseItem : MonoBehaviour
                 if (_currentPosIndex == positions.Count - 1)
                 {
                     Services.EventManager.Fire(new ShowGoal());
-                    Destroy(gameObject);
+                    gameObject.SetActive(false);
                 }
                 else
                 {

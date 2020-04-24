@@ -7,9 +7,9 @@ public class LevelManager0 : LevelManager
     public LevelCfg0 cfg0;
     private TextMeshPro _tmp;
     private Instructions0 _instructions0;
-    private GameObject _shadeObj, _flagObj, _chaseItem;
+    private GameObject _shadeObj, _flagObj, _chaseItemObj;
     private List<Task> _initialInstructions;
-    private Task _secondForceReminder;
+    private Task _secondForceReminder, _whenFirstForce, _checkDistance;
     private LevelManager _currentLevelManager;
 
     public override void Awake()
@@ -28,8 +28,8 @@ public class LevelManager0 : LevelManager
         _shadeObj.SetActive(false);
         _flagObj = GameObject.FindGameObjectWithTag("Goal");
         _flagObj.SetActive(false);
-        _chaseItem = GameObject.FindGameObjectWithTag("ChaseItem");
-        _chaseItem.SetActive(false);
+        _chaseItemObj = GameObject.FindGameObjectWithTag("ChaseItem");
+        _chaseItemObj.SetActive(false);
         _tmp = GetComponent<TextMeshPro>();
         _instructions0 = Instructions0.Load(cfg0);
     }
@@ -39,7 +39,6 @@ public class LevelManager0 : LevelManager
     {
         Services.EventManager.Register<FirstForce>(OnFirstForce);
         Services.EventManager.Register<SecondForce>(OnSecondForce);
-        Services.EventManager.Register<ShowGoal>(OnShowGoal);
         _initialInstructions = new List<Task>();
         
         for (int i = 0; i < _instructions0.InitialInstructions.Count; i++)
@@ -103,8 +102,8 @@ public class LevelManager0 : LevelManager
         foreach (var task in _initialInstructions)
             task.SetStatus(Task.TaskStatus.Success);
         
-        var whenFirstForce = new PrintAndWait(_tmp, 2f, cfg0.whenFirstForce);
-        taskManager.Do(whenFirstForce);
+        _whenFirstForce = new PrintAndWait(_tmp, 2f, cfg0.whenFirstForce);
+        taskManager.Do(_whenFirstForce);
 
         _secondForceReminder = new WaitAndPrint(_tmp, cfg0.secondForceRemindTime, cfg0.secondForceReminder);
         taskManager.Do(_secondForceReminder);
@@ -113,6 +112,7 @@ public class LevelManager0 : LevelManager
     private void OnSecondForce(AGPEvent e)
     {
         Services.EventManager.Unregister<SecondForce>(OnSecondForce);
+        _whenFirstForce.SetStatus(Task.TaskStatus.Success);
         _secondForceReminder.SetStatus(Task.TaskStatus.Success);
         var timeElapsed = 0f;
         var whenSecondForce = new DelegateTask(() =>
@@ -126,8 +126,8 @@ public class LevelManager0 : LevelManager
             if (timeElapsed > cfg0.secondForceInstructionDuration)
             {
                 _shadeObj.SetActive(false);
-                _tmp.text = "";
-                _chaseItem.SetActive(true);
+                _tmp.text = cfg0.chaseExplanation;
+                ShowChaseItem();
                 return true;
             }
 
@@ -135,18 +135,39 @@ public class LevelManager0 : LevelManager
         });
         taskManager.Do(whenSecondForce);
     }
-    
+
+    private void ShowChaseItem()
+    {
+        _chaseItemObj.SetActive(true);
+        Services.EventManager.Register<ShowGoal>(OnShowGoal);
+    }
+
     private void OnShowGoal(AGPEvent e)
     {
-        _flagObj.transform.position = _chaseItem.transform.position;
+        _flagObj.transform.position = _chaseItemObj.transform.position;
         _flagObj.SetActive(true);
         _tmp.text = cfg0.goalExplanation;
         Services.EventManager.Register<Success>(OnSuccess);
         Services.EventManager.Unregister<ShowGoal>(OnShowGoal);
+        _checkDistance = new DelegateTask(() => {}, () =>
+        {
+            if (Vector2.Distance(targetSqr.transform.position, _flagObj.transform.position) > cfg0.failThreshold)
+            {
+                _chaseItemObj.GetComponent<ChaseItem>().ResetPosition();
+                ShowChaseItem();
+                _flagObj.SetActive(false);
+                _tmp.text = cfg0.lost;
+                return true;
+            }
+
+            return false;
+        });
+        taskManager.Do(_checkDistance);
     }
 
     private void OnSuccess(AGPEvent e)
     {
+        _checkDistance.SetStatus(Task.TaskStatus.Success);
         Services.EventManager.Unregister<Success>(OnSuccess);
         _tmp.text = cfg0.whenSuccess;
         var waitForNextLevel = new WaitTask(cfg0.nextLevelLoadTime);

@@ -77,13 +77,13 @@ public static class Services
         set { _cameraController = value; }
     }
 
-    private static int _totalLineNumber;
-
-    public static int TotalLineNumber
-    {
-        get => _totalLineNumber;
-        set => _totalLineNumber = value;
-    }
+    // private static int _totalLineNumber;
+    //
+    // public static int TotalLineNumber
+    // {
+    //     get => _totalLineNumber;
+    //     set => _totalLineNumber = value;
+    // }
 
     private static EventManager _eventManager;
     public static EventManager EventManager

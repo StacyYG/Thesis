@@ -36,16 +36,16 @@ public class ControllerSquare
     {
         var realLineWidth = Services.GameCfg.lineWidth * Screen.height / 1080f;
         _netForceLine = new VectorLine("currentNetForce", new List<Vector3> {Vector2.zero, Vector2.zero}, realLineWidth);
-        Services.TotalLineNumber++;
+        //Services.TotalLineNumber++;
         _netForceLine.color = Services.GameCfg.currentNetForceColor;
 
         _previousNetForceLine =
             new VectorLine("previousNetForce", new List<Vector3> {Vector2.zero, Vector2.zero}, realLineWidth);
-        Services.TotalLineNumber++;
+        //Services.TotalLineNumber++;
         _previousNetForceLine.color = Services.GameCfg.previousNetForceColor;
 
         _currentLine = new VectorLine("forceBeingDrawn", new List<Vector3> {Vector2.zero, Vector2.zero}, realLineWidth);
-        Services.TotalLineNumber++;
+        //Services.TotalLineNumber++;
         _currentLine.color = Services.GameCfg.currentForceColor;
 
         _netForceLine.drawTransform =

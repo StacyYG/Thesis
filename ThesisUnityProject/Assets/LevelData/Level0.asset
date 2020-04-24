@@ -36,7 +36,10 @@ MonoBehaviour:
   - {x: 6, y: 0, z: 0}
   chaseItem: {fileID: 6986524613125411021, guid: a090a41c34f59fe499f5a06677bdd9bf,
     type: 3}
+  chaseExplanation: Catch that little thing--
   goalExplanation: Nice, go get the flag.
+  failThreshold: 25
+  lost: Oh, seems you lost the flag?
   whenSuccess: Good job!
   nextLevelLoadTime: 3
   nextLevelText: Thanks for playing! More levels under construction.

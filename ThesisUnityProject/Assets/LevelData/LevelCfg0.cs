@@ -20,8 +20,11 @@ public class LevelCfg0 : ScriptableObject
     [Header("Chase")]
     public List<Vector3> chaseItemPositions;
     public GameObject chaseItem;
+    public string chaseExplanation;
     [Header("Goal")]
     public string goalExplanation;
+    public float failThreshold;
+    public string lost;
     public string whenSuccess;
     public float nextLevelLoadTime;
     public string nextLevelText;

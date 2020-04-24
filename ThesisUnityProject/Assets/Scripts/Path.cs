@@ -15,11 +15,11 @@ public class Path : MonoBehaviour
     void Start()
     {
         _pathLine = new VectorLine("Path", new List<Vector3>(), dotSize * Screen.height / 1080f, LineType.Discrete);
-        Services.TotalLineNumber++;
+        //Services.TotalLineNumber++;
         _myColor = GetComponent<SpriteRenderer>().color;
         _pathLine.color = _myColor;
         _pathLine.endPointsUpdate = 2;
-        _pathLine.drawDepth = 0;
+        //_pathLine.drawDepth = 0;
         _pathLine.Draw3D();
         StartCoroutine(WaitAndSamplePointsNew());
     }
