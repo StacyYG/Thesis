@@ -8,11 +8,8 @@ public class LevelManager2 : LevelManager
 {
     public LevelCfg1 levelCfg1;
     private TextMeshPro _tmp;
-    private Rigidbody2D _targetRB;
-    private GameObject _controlSqrObj, _targetSqrObj, _cancelButtonObj;
     private int _lastIndex;
-    public GameCfg gameCfg;
-    
+
     public override void Awake()
     {
         base.Awake();

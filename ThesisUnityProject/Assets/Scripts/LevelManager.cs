@@ -36,9 +36,11 @@ public class LevelManager : MonoBehaviour
         speedWarning.SetActive(false);
         
     }
-
+    
     public virtual void Start()
     {
+        Services.ControllerSquare.Start();
+        Services.CancelButton.Start();
         taskManager.Do(Services.ControllerSquare.boundCircle.GrowUp);
         taskManager.Do(Services.CancelButton.boundCircle.GrowUp);
     }

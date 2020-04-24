@@ -15,7 +15,7 @@ public abstract class Force
     {
         _targetTransform = gameObject.transform;
         rb = gameObject.GetComponent<Rigidbody2D>();
-        line = new VectorLine("", new List<Vector3> {Vector2.zero, Vector2.zero}, Services.GameCfg.lineWidth);
+        line = new VectorLine("", new List<Vector3> {Vector2.zero, Vector2.zero}, Services.GameCfg.lineWidth * Screen.height / 1080f);
         Services.TotalLineNumber++;
         line.drawTransform = _targetTransform;
         Services.Forces.Add(this);

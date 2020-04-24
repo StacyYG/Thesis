@@ -11,11 +11,17 @@ public class CancelButton
     public bool Respond = true;
     private const int Segments = 15;
     public BoundCircle boundCircle;
+    private GameObject _gameObject;
 
     public CancelButton(GameObject gameObject)
     {
+        _gameObject = gameObject;
         _boundCircleRadius = gameObject.GetComponent<CircleCollider2D>().radius;
-        boundCircle = new BoundCircle(_boundCircleRadius, Segments, gameObject.transform);
+    }
+
+    public void Start()
+    {
+        boundCircle = new BoundCircle(_boundCircleRadius, Segments, _gameObject.transform);
     }
     
 }
@@ -27,7 +33,7 @@ public class BoundCircle
     private float _elapsedTime;
     public BoundCircle(float radius, int segments, Transform anchor, float duration = 1f)
     {
-        _circle = new VectorLine("circle", new List<Vector3>(segments), 8f, LineType.Points);
+        _circle = new VectorLine("circle", new List<Vector3>(segments), 8f * Screen.height / 1080f, LineType.Points);
         Services.TotalLineNumber++;
         GrowUp = new DelegateTask(() => {}, () =>
         {

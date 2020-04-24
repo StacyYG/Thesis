@@ -75,6 +75,7 @@ public class LevelManager0 : LevelManager
             if (ctrlSqrTime > cfg0.showCtrlSqrTime)
             {
                 ctrlSqr.SetActive(true);
+                Services.ControllerSquare.Start();
                 taskManager.Do(Services.ControllerSquare.boundCircle.GrowUp);
                 return true;
             }

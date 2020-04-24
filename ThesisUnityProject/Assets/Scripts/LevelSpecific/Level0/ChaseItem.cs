@@ -48,6 +48,15 @@ public class ChaseItem : MonoBehaviour
             }
         }
 
+        var pos = transform.position;
+        if (pos.x > Services.CameraController.viewMargin.right)
+            transform.position = new Vector3(Services.CameraController.viewMargin.left, pos.y, pos.z);
+        if (pos.x < Services.CameraController.viewMargin.left)
+            transform.position = new Vector3(Services.CameraController.viewMargin.right, pos.y, pos.z);
+        if (pos.y > Services.CameraController.viewMargin.up)
+            transform.position = new Vector3(pos.x, Services.CameraController.viewMargin.down, pos.z);
+        if (pos.y < Services.CameraController.viewMargin.down)
+            transform.position = new Vector3(pos.x, Services.CameraController.viewMargin.up, pos.z);
     }
 
     private void OnCollisionEnter2D(Collision2D other)

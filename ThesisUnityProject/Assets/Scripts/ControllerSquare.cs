@@ -13,12 +13,12 @@ public class ControllerSquare
     public Vector2 PlayerForce => _netForce;
     private readonly Transform _transform;
     public BoundCircle boundCircle;
+    private GameObject _gameObject;
 
     public ControllerSquare(GameObject gameObject)
     {
+        _gameObject = gameObject;
         _transform = gameObject.transform;
-        boundCircle = new BoundCircle(MaxForceSize, 30, gameObject.transform);
-        SetUpVectorLines();
     }
     
     public void Awake()
@@ -26,23 +26,25 @@ public class ControllerSquare
     }
 
     // Start is called before the first frame update
-    private void Start()
+    public void Start()
     {
-        
+        boundCircle = new BoundCircle(MaxForceSize, 30, _gameObject.transform);
+        SetUpVectorLines();
     }
 
     private void SetUpVectorLines()
     {
-        _netForceLine = new VectorLine("currentNetForce", new List<Vector3> {Vector2.zero, Vector2.zero}, Services.GameCfg.lineWidth);
+        var realLineWidth = Services.GameCfg.lineWidth * Screen.height / 1080f;
+        _netForceLine = new VectorLine("currentNetForce", new List<Vector3> {Vector2.zero, Vector2.zero}, realLineWidth);
         Services.TotalLineNumber++;
         _netForceLine.color = Services.GameCfg.currentNetForceColor;
 
         _previousNetForceLine =
-            new VectorLine("previousNetForce", new List<Vector3> {Vector2.zero, Vector2.zero}, Services.GameCfg.lineWidth);
+            new VectorLine("previousNetForce", new List<Vector3> {Vector2.zero, Vector2.zero}, realLineWidth);
         Services.TotalLineNumber++;
         _previousNetForceLine.color = Services.GameCfg.previousNetForceColor;
 
-        _currentLine = new VectorLine("forceBeingDrawn", new List<Vector3> {Vector2.zero, Vector2.zero}, Services.GameCfg.lineWidth);
+        _currentLine = new VectorLine("forceBeingDrawn", new List<Vector3> {Vector2.zero, Vector2.zero}, realLineWidth);
         Services.TotalLineNumber++;
         _currentLine.color = Services.GameCfg.currentForceColor;
 

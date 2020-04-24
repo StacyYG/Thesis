@@ -14,7 +14,7 @@ public class Path : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _pathLine = new VectorLine("Path", new List<Vector3>(), dotSize, LineType.Discrete);
+        _pathLine = new VectorLine("Path", new List<Vector3>(), dotSize * Screen.height / 1080f, LineType.Discrete);
         Services.TotalLineNumber++;
         _myColor = GetComponent<SpriteRenderer>().color;
         _pathLine.color = _myColor;
@@ -24,7 +24,7 @@ public class Path : MonoBehaviour
         StartCoroutine(WaitAndSamplePointsNew());
     }
 
-    private int _pointIndex = 0;
+    private int _pointIndex;
     private IEnumerator WaitAndSamplePointsNew()
     {
         yield return new WaitForSeconds(_waitTime);
