@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7894216739082252588}
   - component: {fileID: 7894216739082252595}
-  m_Layer: 5
+  m_Layer: 9
   m_Name: CancleButton
   m_TagString: CancelButton
   m_Icon: {fileID: 0}

@@ -5,10 +5,13 @@ using UnityEngine;
 
 public class Gate : MonoBehaviour
 {
-    private Rigidbody2D _targetRB;
+    private Rigidbody2D _targetRb;
+    private List<Rigidbody2D> _rbs;
+    private Dictionary<Rigidbody2D, float> _lastVelocity;
+    private List<TrackVelocity> _trackVelocities;
     private bool _constantVelocity, _isShut, _isTouching;
     public bool isDetect = true;
-    private Vector2 _lastVelocity;
+    private Vector2 _targetLastVelocity;
     public Material restingMaterial, hazardMaterial;
     private ParticleSystemRenderer[] _particleRdrs;
     public float recoverTime;
@@ -20,6 +23,7 @@ public class Gate : MonoBehaviour
     {
         _particleRdrs = GetComponentsInChildren<ParticleSystemRenderer>();
         _gateCollider = GetComponent<BoxCollider2D>();
+        _trackVelocities = new List<TrackVelocity>();
         foreach (var particleRdr in _particleRdrs)
         {
             particleRdr.material = restingMaterial;
@@ -32,7 +36,7 @@ public class Gate : MonoBehaviour
         if (_isShut)
         {
             _shutTimer += Time.deltaTime;
-            if (_shutTimer >= recoverTime && !_isTouching) OpenGate();
+            if (_shutTimer >= recoverTime) OpenGate();
         }
     }
 
@@ -40,30 +44,58 @@ public class Gate : MonoBehaviour
     {
         if (!isDetect) return;
         
-        if (other.gameObject.CompareTag("TargetSquare"))
-        {
-            _constantVelocity = true;
-            _targetRB = other.gameObject.GetComponent<Rigidbody2D>();
-            _lastVelocity = _targetRB.velocity;
-            _isTouching = true;
-        }
+        // if (other.gameObject.CompareTag("TargetSquare"))
+        // {
+        //     _constantVelocity = true;
+        //     _targetRb = other.gameObject.GetComponent<Rigidbody2D>();
+        //     _targetLastVelocity = _targetRb.velocity;
+        //     _isTouching = true;
+        // }
+        
+        var trackV = new TrackVelocity();
+        trackV.gameObject = other.gameObject;
+        trackV.rb = other.gameObject.GetComponent<Rigidbody2D>();
+        trackV.firstVelocity = trackV.rb.velocity;
+        trackV.collider = other;
+        _trackVelocities.Add(trackV);
+        Debug.Log("added, " + _trackVelocities.Count);
     }
 
     private void OnTriggerStay2D(Collider2D other)
     {
         if (!isDetect) return;
 
-        if (other.gameObject.CompareTag("TargetSquare"))
+        // if (other.gameObject.CompareTag("TargetSquare"))
+        // {
+        //     if (_targetRb.velocity != _targetLastVelocity && _constantVelocity)
+        //     {
+        //         _constantVelocity = false;
+        //         Services.EventManager.Fire(new LoseLife());
+        //         if(_targetRb.velocity.magnitude != _targetLastVelocity.magnitude)
+        //             Services.VelocityBar.speedSprRdr.color = Color.red;
+        //         if(_targetRb.velocity.normalized != _targetLastVelocity.normalized)
+        //             Services.VelocityBar.directionSprRdr.color = Color.red;
+        //         ShutGate();
+        //     }
+        // }
+
+        foreach (var trackV in _trackVelocities)
         {
-            if (_targetRB.velocity != _lastVelocity && _constantVelocity)
+            if (trackV.rb.velocity != trackV.firstVelocity)
             {
-                _constantVelocity = false;
-                Services.EventManager.Fire(new LoseLife());
-                if(_targetRB.velocity.magnitude != _lastVelocity.magnitude)
-                    Services.VelocityBar.speedSprRdr.color = Color.red;
-                if(_targetRB.velocity.normalized != _lastVelocity.normalized)
-                    Services.VelocityBar.directionSprRdr.color = Color.red;
                 ShutGate();
+                return;
+            }
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        for (int i = 0; i < _trackVelocities.Count; i++)
+        {
+            if (ReferenceEquals(_trackVelocities[i].collider, other))
+            {
+                _trackVelocities.Remove(_trackVelocities[i]);
             }
         }
     }
@@ -78,8 +110,16 @@ public class Gate : MonoBehaviour
     private void ShutGate()
     {
         _isShut = true;
+        _shutTimer = 0f;
         foreach (var particleRdr in _particleRdrs) particleRdr.material = hazardMaterial;
         _gateCollider.isTrigger = false;
+        for (int i = 0; i < _trackVelocities.Count; i++)
+        {
+            var gameObj = _trackVelocities[i].gameObject;
+            if(!gameObj.CompareTag("TargetSquare")) 
+                _trackVelocities[i].gameObject.SetActive(false);
+        }
+        _trackVelocities = new List<TrackVelocity>();
     }
     
     private void OpenGate()
@@ -91,3 +131,11 @@ public class Gate : MonoBehaviour
 }
 
 public class Success : AGPEvent{}
+
+public struct TrackVelocity
+{
+    public Rigidbody2D rb;
+    public Vector2 firstVelocity;
+    public Collider2D collider;
+    public GameObject gameObject;
+}

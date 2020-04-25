@@ -5,7 +5,7 @@ using UnityEngine;
 public class InputManager
 {
     private bool _useTouch = false;
-    public bool mouseStayOnCtrlSqr { get; private set; }
+    private bool _mouseStayOnCtrlSqr;
 
     private int _fingerOnCtrlSqr = -1;
     public void Update()
@@ -59,12 +59,12 @@ public class InputManager
             if (Input.GetMouseButtonDown(0))
             {
                 var hit = Physics2D.Raycast(Services.MainCamera.ScreenToWorldPoint(Input.mousePosition), Vector2.zero,
-                    Mathf.Infinity, ~5);
+                    Mathf.Infinity, ~9);
                 if (!ReferenceEquals(hit.collider, null))
                 {
                     if (hit.collider.gameObject.CompareTag("ControllerSquare"))
                     {
-                        mouseStayOnCtrlSqr = true;
+                        _mouseStayOnCtrlSqr = true;
                         Services.ControllerSquare.OnMouseOrTouchDown();
                     }
 
@@ -72,20 +72,20 @@ public class InputManager
                     {
                         if (Services.CancelButton.Respond)
                         {
-                            mouseStayOnCtrlSqr = false;
+                            _mouseStayOnCtrlSqr = false;
                             Services.ControllerSquare.ResetPlayerForce();
                         }
                     }
                 }
             }
             if (Input.GetMouseButton(0))
-                if (mouseStayOnCtrlSqr)
+                if (_mouseStayOnCtrlSqr)
                     Services.ControllerSquare.UpdateCurrentPlayerForce(_toWorldUnits(Input.mousePosition));
                 
             if (Input.GetMouseButtonUp(0))
-                if (mouseStayOnCtrlSqr)
+                if (_mouseStayOnCtrlSqr)
                 {
-                    mouseStayOnCtrlSqr = false;
+                    _mouseStayOnCtrlSqr = false;
                     Services.ControllerSquare.OnMouseOrTouchUp();
                 }
             
@@ -93,7 +93,7 @@ public class InputManager
             {
                 if (Services.CancelButton.Respond)
                 {
-                    mouseStayOnCtrlSqr = false;
+                    _mouseStayOnCtrlSqr = false;
                     Services.ControllerSquare.ResetPlayerForce();
                 }
             }
