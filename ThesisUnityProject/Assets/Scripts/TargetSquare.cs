@@ -133,7 +133,7 @@ public class TargetSquare : MonoBehaviour
 
     private void OnLoseLife(AGPEvent e)
     {
-        _rb.velocity = Vector2.zero;
+        //_rb.velocity = Vector2.zero;
         _isHurt = true;
         _hurtTimer = 0f;
     }

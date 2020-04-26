@@ -1143,6 +1143,11 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6510428199283679542, guid: da82e14b3f706e248b37eea69c578bce,
+        type: 3}
+      propertyPath: impulseMultiplier
+      value: 0.05
+      objectReference: {fileID: 0}
     - target: {fileID: 6510428200852934308, guid: da82e14b3f706e248b37eea69c578bce,
         type: 3}
       propertyPath: m_Material
