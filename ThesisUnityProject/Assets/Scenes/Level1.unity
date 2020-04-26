@@ -138,7 +138,7 @@ GameObject:
   - component: {fileID: 98720290}
   - component: {fileID: 98720291}
   - component: {fileID: 98720292}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: leftBound
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -768,7 +768,7 @@ GameObject:
   - component: {fileID: 837107174}
   - component: {fileID: 837107173}
   - component: {fileID: 837107175}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: upBound
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -981,7 +981,7 @@ GameObject:
   - component: {fileID: 1331965584}
   - component: {fileID: 1331965583}
   m_Layer: 0
-  m_Name: CometPool
+  m_Name: cometManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1001,6 +1001,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   comet: {fileID: 562851285663167959, guid: c2aef3707ef65ba4db140bb8fe23973e, type: 3}
   spawnDistance: {x: 4, y: 2}
+  initialPoolNumber: 50
+  averageSpeed: 1.75
+  speedDeviation: 0.25
 --- !u!4 &1331965584
 Transform:
   m_ObjectHideFlags: 0
@@ -1026,7 +1029,7 @@ GameObject:
   - component: {fileID: 1368935867}
   - component: {fileID: 1368935868}
   - component: {fileID: 1368935869}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: downBound
   m_TagString: Untagged
   m_Icon: {fileID: 0}

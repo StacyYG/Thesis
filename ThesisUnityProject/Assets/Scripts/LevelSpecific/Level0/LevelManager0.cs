@@ -177,6 +177,7 @@ public class LevelManager0 : LevelManager
             _tmp.text = cfg0.nextLevelText;
             Services.ControllerSquare.Respond = false;
             Services.ControllerSquare.ResetPlayerForce();
+            Services.ControllerSquare.LateUpdate();
             ctrlSqr.SetActive(false);
             Services.ControllerSquare.boundCircle.Clear();
         });

@@ -632,7 +632,7 @@ GameObject:
   - component: {fileID: 1088645789}
   - component: {fileID: 1088645788}
   - component: {fileID: 1088645790}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: flag
   m_TagString: Goal
   m_Icon: {fileID: 0}

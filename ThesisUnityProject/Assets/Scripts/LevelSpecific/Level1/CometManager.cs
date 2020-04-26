@@ -7,27 +7,40 @@ public class CometManager : MonoBehaviour
     public GameObject comet;
     public static ObjectPool objectPool;
     public Vector2 spawnDistance;
-    private float _width, _height;
+    public int initialPoolNumber;
+    private float _width, _height, _spawnInterval, _spawnTimer;
     private int _columnNum, _rowNum;
     private Vector2[,] _spawnPositions;
-    
+    public float averageSpeed, speedDeviation;
+
     // Start is called before the first frame update
     void Start()
     {
-        objectPool = new ObjectPool(this);
+        objectPool = new ObjectPool(this, initialPoolNumber);
         objectPool.Add(comet);
         _width = Services.CameraController.cameraBoundHalfX * 2f;
         _height = Services.CameraController.cameraBoundHalfY * 2f;
         _columnNum = (int) (_width / spawnDistance.x);
         _rowNum = (int) (_height / spawnDistance.y);
         _spawnPositions = new Vector2[_columnNum, _rowNum];
+        _spawnInterval = spawnDistance.x / averageSpeed;
         SetPosAndSpawn();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        _spawnTimer += Time.deltaTime;
+        if (_spawnTimer > _spawnInterval)
+        {
+            _spawnTimer = 0f;
+            for (int i = 0; i < _rowNum; i++)
+            {
+                var obj = objectPool.Spawn(_spawnPositions[0, i]);
+                obj.GetComponent<Rigidbody2D>().velocity =
+                    new Vector2(Random.Range(averageSpeed - speedDeviation, averageSpeed + speedDeviation), 0f);
+            }
+        }
     }
     
     private void SetPosAndSpawn()
@@ -42,7 +55,8 @@ public class CometManager : MonoBehaviour
                                             -Services.CameraController.cameraBoundHalfY + (j + 0.5f) * spawnDistance.y) +
                                         0.5f * Random.insideUnitCircle;
                 var spawnedObj = objectPool.Spawn(_spawnPositions[i, j]);
-                spawnedObj.GetComponent<Rigidbody2D>().velocity = new Vector2(Random.Range(1.5f, 2f), 0f);
+                spawnedObj.GetComponent<Rigidbody2D>().velocity =
+                    new Vector2(Random.Range(averageSpeed - speedDeviation, averageSpeed + speedDeviation), 0f);
             }
         }
         
@@ -51,24 +65,25 @@ public class CometManager : MonoBehaviour
 
 public class ObjectPool
 {
-    private Stack<GameObject> pool = new Stack<GameObject>();
-    private const int initialNum = 50;
+    private Stack<GameObject> _pool = new Stack<GameObject>();
+    private readonly int _initialNum;
     private GameObject _pooledObject;
-    private Transform _parentTransform;
+    private readonly Transform _parentTransform;
 
-    public ObjectPool(CometManager cometManager)
+    public ObjectPool(CometManager cometManager, int initialNumber = 50)
     {
         _parentTransform = cometManager.transform;
+        _initialNum = initialNumber;
     }
     public void Add(GameObject toPool)
     {
         _pooledObject = toPool;
-        for (int i = 0; i < initialNum; i++)
+        for (int i = 0; i < _initialNum; i++)
         {
             var oneCopy = Object.Instantiate(toPool, _parentTransform);
             var sr = oneCopy.GetComponent<SpriteRenderer>();
             sr.color = Random.ColorHSV(0.5f, 0.6f, 0.3f, 0.8f, 0.8f, 1f);
-            pool.Push(oneCopy);
+            _pool.Push(oneCopy);
             oneCopy.SetActive(false);
         }
     }
@@ -77,9 +92,9 @@ public class ObjectPool
     public GameObject Spawn(Vector3 position, Quaternion rotation)
     {
         GameObject toSpawn;
-        if (pool.Count > 0)
+        if (_pool.Count > 0)
         {
-            toSpawn = pool.Pop();
+            toSpawn = _pool.Pop();
             toSpawn.SetActive(true);
         }
         else
@@ -97,7 +112,7 @@ public class ObjectPool
 
     public void Despawn(GameObject toDespawn)
     {
-        pool.Push(toDespawn);
+        _pool.Push(toDespawn);
         toDespawn.SetActive(false);
     }
     
