@@ -23,6 +23,7 @@ public class Instructions0
 [System.Serializable]
 public struct InstructionItem
 {
-    public int startTime;
+    public float startTime;
     public string content;
+    public float duration;
 }

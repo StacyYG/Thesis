@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6510428200852934311}
   - component: {fileID: 6510428200852934310}
   - component: {fileID: 6510428199283679542}
-  m_Layer: 8
+  m_Layer: 17
   m_Name: Gate
   m_TagString: Goal
   m_Icon: {fileID: 0}
@@ -44,7 +44,7 @@ BoxCollider2D:
   m_GameObject: {fileID: 6510428200852934331}
   m_Enabled: 1
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 4dd35a59f1b06274b88edaf701fa5985, type: 2}
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0

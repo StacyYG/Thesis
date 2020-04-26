@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: -6518660520309942887}
   - component: {fileID: -2191090339212260183}
   - component: {fileID: 796609698512346357}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: chaseItem
   m_TagString: ChaseItem
   m_Icon: {fileID: 0}

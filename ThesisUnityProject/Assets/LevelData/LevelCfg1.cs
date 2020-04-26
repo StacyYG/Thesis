@@ -6,6 +6,7 @@ using UnityEngine.Serialization;
 [CreateAssetMenu(fileName = "Data", menuName = "ScriptableObjects/Level1", order = 2)]
 public class LevelCfg1 : ScriptableObject
 {
+    public List<InstructionItem> failInstructions;
     public Vector2 v0;
     [Header("Cancel Button Instructions")] 
     public float showCancelButtonTime;

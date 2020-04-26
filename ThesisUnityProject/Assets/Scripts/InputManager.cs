@@ -8,6 +8,7 @@ public class InputManager
     private bool _mouseStayOnCtrlSqr;
 
     private int _fingerOnCtrlSqr = -1;
+    private RaycastHit2D[] results = new RaycastHit2D[1];
     public void Update()
     {
         if (_useTouch)
@@ -20,7 +21,7 @@ public class InputManager
                 {
                     case TouchPhase.Began:
                         var hit = Physics2D.Raycast(Services.MainCamera.ScreenToWorldPoint(touch.position), Vector2.zero,
-                            Mathf.Infinity, ~5);
+                            Mathf.Infinity, ~9);
                         if (!ReferenceEquals(hit.collider, null))
                         {
                             if (hit.collider.gameObject.CompareTag("ControllerSquare"))
@@ -58,8 +59,9 @@ public class InputManager
         {
             if (Input.GetMouseButtonDown(0))
             {
-                var hit = Physics2D.Raycast(Services.MainCamera.ScreenToWorldPoint(Input.mousePosition), Vector2.zero,
-                    Mathf.Infinity, ~9);
+                var countHit = Physics2D.RaycastNonAlloc(Services.MainCamera.ScreenToWorldPoint(Input.mousePosition),
+                    Vector2.zero, results, Mathf.Infinity, LayerMask.GetMask("Raycast"));
+                var hit = results[0];
                 if (!ReferenceEquals(hit.collider, null))
                 {
                     if (hit.collider.gameObject.CompareTag("ControllerSquare"))

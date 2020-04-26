@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Gate : MonoBehaviour
@@ -17,6 +18,7 @@ public class Gate : MonoBehaviour
     public float recoverTime;
     private float _shutTimer;
     private BoxCollider2D _gateCollider;
+    private TrackVelocity _targetTrackV;
 
     // Start is called before the first frame update
     void Start()
@@ -28,6 +30,10 @@ public class Gate : MonoBehaviour
         {
             particleRdr.material = restingMaterial;
         }
+        _targetTrackV = new TrackVelocity();
+        _targetTrackV.gameObject = Services.TargetSquare.gameObject;
+        _targetTrackV.rb = _targetRb;
+        _targetTrackV.collider = _targetTrackV.gameObject.GetComponent<BoxCollider2D>();
     }
 
     // Update is called once per frame
@@ -46,21 +52,19 @@ public class Gate : MonoBehaviour
         
         // if (other.gameObject.CompareTag("TargetSquare"))
         // {
-        //     _constantVelocity = true;
-        //     _targetRb = other.gameObject.GetComponent<Rigidbody2D>();
-        //     _targetLastVelocity = _targetRb.velocity;
-        //     _isTouching = true;
+        //     _targetTrackV.enterVelocity = _targetRb.velocity;
         // }
         
         var trackV = new TrackVelocity();
         trackV.gameObject = other.gameObject;
         trackV.rb = other.gameObject.GetComponent<Rigidbody2D>();
-        trackV.firstVelocity = trackV.rb.velocity;
+        trackV.enterVelocity = trackV.rb.velocity;
         trackV.collider = other;
+        trackV.hasBeenPushed = false;
         _trackVelocities.Add(trackV);
-        Debug.Log("added, " + _trackVelocities.Count);
     }
 
+    int i = 0;
     private void OnTriggerStay2D(Collider2D other)
     {
         if (!isDetect) return;
@@ -78,15 +82,32 @@ public class Gate : MonoBehaviour
         //         ShutGate();
         //     }
         // }
+        
+        // foreach (var trackV in _trackVelocities)
+        // {
+        //     if (trackV.rb.velocity != trackV.enterVelocity && !trackV.hasBeenPushed)
+        //     {
+        //         trackV.rb.AddForce(new Vector2(-2f, 0f), ForceMode2D.Impulse);
+        //         trackV.hasBeenPushed = true;
+        //         ShutGate();
+        //         if (trackV.gameObject.CompareTag("TargetSquare"))
+        //         {
+        //             Services.EventManager.Fire(new LoseLife());
+        //             i++;
+        //             Debug.Log(i);
+        //         }
+        //         return;
+        //     }
+        // }
 
-        foreach (var trackV in _trackVelocities)
-        {
-            if (trackV.rb.velocity != trackV.firstVelocity)
-            {
-                ShutGate();
-                return;
-            }
-        }
+        // for (int i = 0; i < _trackVelocities.Count; i++)
+        // {
+        //     if (_trackVelocities[i].rb.velocity != _trackVelocities[i].enterVelocity && !_trackVelocities[i].hasBeenPushed)
+        //     {
+        //         _trackVelocities[i].rb.AddForce(new Vector2(-2f, 0f), ForceMode2D.Impulse);
+        //         _trackVelocities[i].hasBeenPushed = true;
+        //     }
+        // }
     }
 
     private void OnTriggerExit2D(Collider2D other)
@@ -111,13 +132,14 @@ public class Gate : MonoBehaviour
     {
         _isShut = true;
         _shutTimer = 0f;
-        foreach (var particleRdr in _particleRdrs) particleRdr.material = hazardMaterial;
+        foreach (var particleRdr in _particleRdrs) 
+            particleRdr.material = hazardMaterial;
         _gateCollider.isTrigger = false;
         for (int i = 0; i < _trackVelocities.Count; i++)
         {
             var gameObj = _trackVelocities[i].gameObject;
             if(!gameObj.CompareTag("TargetSquare")) 
-                _trackVelocities[i].gameObject.SetActive(false);
+                Destroy(gameObj);
         }
         _trackVelocities = new List<TrackVelocity>();
     }
@@ -135,7 +157,8 @@ public class Success : AGPEvent{}
 public struct TrackVelocity
 {
     public Rigidbody2D rb;
-    public Vector2 firstVelocity;
+    public Vector2 enterVelocity;
     public Collider2D collider;
     public GameObject gameObject;
+    public bool hasBeenPushed;
 }

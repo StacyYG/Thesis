@@ -12,6 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c60448ec9e78054288f56c53f36b505, type: 3}
   m_Name: Level1
   m_EditorClassIdentifier: 
+  failInstructions:
+  - startTime: 0
+    content: Those little squares can pass the gate--is it because of how they move?
+    duration: 3
+  - startTime: 0
+    content: Ah I see! To pass the gate, your <b>speed</b> and <b>direction</b> should
+      keep the same.
+    duration: 3
+  - startTime: 0
+    content: Force changes your speed and direction, so remove it.
+    duration: 3
   v0: {x: 0, y: 0}
   showCancelButtonTime: 5
   waitTime: 5
@@ -21,6 +32,7 @@ MonoBehaviour:
   - startTime: 5
     content: This <b>Cancel Button</b> removes all the forces you added. <size=4>You
       can also use Space bar if on PC.</size>
+    duration: 0
   whenFirstCancel: Well done.
   duration: 2
   chaseItemPositions: []
