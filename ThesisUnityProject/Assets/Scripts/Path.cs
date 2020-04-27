@@ -9,20 +9,17 @@ public class Path : MonoBehaviour
     public int maxPoints = 16;
     public float dotSize = 15f;
     private VectorLine _pathLine;
-    private float _waitTime = 0.1f;
+    private float _waitTime = 0.1f, _timer;
     private Color _myColor;
+    private int _pointIndex;
     
     // Start is called before the first frame update
     private void OnEnable()
     {
         _pathLine = new VectorLine("Path", new List<Vector3>(), dotSize * Screen.height / 1080f, LineType.Discrete);
-        //Services.TotalLineNumber++;
         _myColor = GetComponent<SpriteRenderer>().color;
         _pathLine.color = _myColor;
         _pathLine.endPointsUpdate = 2;
-        //_pathLine.drawDepth = 0;
-        //_pathLine.Draw3D();
-        StartCoroutine(WaitAndSamplePointsNew());
     }
 
     private void OnDisable()
@@ -30,25 +27,21 @@ public class Path : MonoBehaviour
         VectorLine.Destroy(ref _pathLine);
         _pointIndex = 0;
     }
-
-    private int _pointIndex;
-    private IEnumerator WaitAndSamplePointsNew()
+    
+    private void Update()
     {
-        yield return new WaitForSeconds(_waitTime);
-        
-        _pathLine.points3.Add(transform.position);
-        _pointIndex++;
-
-        if (_pointIndex % 2 == 0)
+        _timer += Time.deltaTime;
+        if (_timer > _waitTime)
         {
-            _pathLine.Draw3D();
-            if (_pointIndex > maxPoints * 2)
+            _timer = 0f;
+            _pathLine.points3.Add(transform.position);
+            _pointIndex++;
+            if (_pointIndex % 2 == 0)
             {
-                _pathLine.drawStart += 2;
+                _pathLine.Draw3D();
+                if (_pointIndex > maxPoints * 2)
+                    _pathLine.drawStart += 2;
             }
-            
         }
-        
-        StartCoroutine(WaitAndSamplePointsNew());
     }
 }
