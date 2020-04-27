@@ -69,6 +69,7 @@ public class ObjectPool
     private readonly int _initialNum;
     private GameObject _pooledObject;
     private readonly Transform _parentTransform;
+    private List<GameObject> _spawned = new List<GameObject>();
 
     public ObjectPool(CometManager cometManager, int initialNumber = 50)
     {
@@ -92,17 +93,12 @@ public class ObjectPool
     public GameObject Spawn(Vector3 position, Quaternion rotation)
     {
         GameObject toSpawn;
-        if (_pool.Count > 0)
-        {
-            toSpawn = _pool.Pop();
-            toSpawn.SetActive(true);
-        }
-        else
-        {
-            toSpawn = Object.Instantiate(_pooledObject, _parentTransform);
-            var sr = toSpawn.GetComponent<SpriteRenderer>();
-            sr.color = Random.ColorHSV(0.5f, 0.6f, 0.3f, 0.8f, 0.8f, 1f);
-        }
+        toSpawn = _pool.Pop();
+        toSpawn.SetActive(true);
+        _spawned.Add(toSpawn);
+        
+        if (_pool.Count <= 1)
+            Despawn(_spawned[0]);
         
         toSpawn.transform.position = position;
         toSpawn.transform.rotation = rotation;
@@ -113,6 +109,7 @@ public class ObjectPool
     public void Despawn(GameObject toDespawn)
     {
         _pool.Push(toDespawn);
+        _spawned.Remove(toDespawn);
         toDespawn.SetActive(false);
     }
     

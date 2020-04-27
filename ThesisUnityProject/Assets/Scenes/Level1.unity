@@ -1232,7 +1232,7 @@ PrefabInstance:
     - target: {fileID: 6510428200852934308, guid: da82e14b3f706e248b37eea69c578bce,
         type: 3}
       propertyPath: m_IsTrigger
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6510428200852934308, guid: da82e14b3f706e248b37eea69c578bce,
         type: 3}
@@ -1327,7 +1327,7 @@ PrefabInstance:
     - target: {fileID: 6510428200852934331, guid: da82e14b3f706e248b37eea69c578bce,
         type: 3}
       propertyPath: m_TagString
-      value: Untagged
+      value: GateConstant
       objectReference: {fileID: 0}
     - target: {fileID: 6510428200861099685, guid: da82e14b3f706e248b37eea69c578bce,
         type: 3}

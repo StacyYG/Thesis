@@ -12,6 +12,9 @@ public class LevelManager1 : LevelManager
     private GameObject _gateObj, _flagObj, _highlightObj, _shadeObj;
     private int _failTimes;
     private List<PrintAndWait> _printTasks;
+    private WaitAndPrint _firstForceReminder;
+    private BoxCollider2D _gateCollider;
+    
 
     public override void Awake()
     {
@@ -27,6 +30,7 @@ public class LevelManager1 : LevelManager
         _flagObj = GameObject.FindGameObjectWithTag("Goal");
         _shadeObj = GameObject.FindGameObjectWithTag("Shade");
         _shadeObj.SetActive(false);
+        _gateCollider = GameObject.FindGameObjectWithTag("GateConstant").GetComponent<BoxCollider2D>();
         Services.CameraController.lockY = true;
         Services.EventManager.Register<LoseLife>(OnLoseLife);
         Services.EventManager.Register<Success>(OnSuccess);
@@ -44,6 +48,8 @@ public class LevelManager1 : LevelManager
     {
         Services.ControllerSquare.Start();
         taskManager.Do(Services.ControllerSquare.boundCircle.GrowUp);
+        _firstForceReminder = new WaitAndPrint(_tmp, cfg1.waitTime, cfg1.firstForceReminder);
+        taskManager.Do(_firstForceReminder);
     }
 
     // Update is called once per frame
@@ -74,11 +80,12 @@ public class LevelManager1 : LevelManager
 
     private void OnDestroy()
     {
-        Services.EventManager.Unregister<LoseLife>(OnLoseLife);
+        
     }
     
     private void OnSuccess(AGPEvent e)
     {
+        Services.EventManager.Unregister<LoseLife>(OnLoseLife);
         Services.EventManager.Unregister<Success>(OnSuccess);
         _tmp.text = gameCfg.whenSuccess;
         var waitForNextLevel = new WaitTask(gameCfg.nextLevelTime);
@@ -118,6 +125,7 @@ public class LevelManager1 : LevelManager
         });
         wait.Then(showCancelButton);
         taskManager.Do(wait);
+        _gateCollider.isTrigger = true;
     }
 
     private void OnFirstCancel(AGPEvent e)

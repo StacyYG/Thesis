@@ -12,6 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c60448ec9e78054288f56c53f36b505, type: 3}
   m_Name: Level1
   m_EditorClassIdentifier: 
+  waitTime: 3
+  firstForceReminder: You haven't added any forces yet, try to add one.
+  showCancelButtonTime: 2
+  cancelInstruction: This <b>Cancel Button</b> removes all the forces you added.
+    <size=4>You can also use Space bar if on PC.</size>
+  whenFirstCancel: Well done.
+  duration: 2
   failInstructions:
   - startTime: 0
     content: Those little squares can pass the gate--is it because of how they move?
@@ -23,24 +30,3 @@ MonoBehaviour:
   - startTime: 0
     content: Force changes your speed and direction, so remove it.
     duration: 3
-  v0: {x: 0, y: 0}
-  showCancelButtonTime: 2
-  waitTime: 5
-  cancelInstruction: This <b>Cancel Button</b> removes all the forces you added.
-    <size=4>You can also use Space bar if on PC.</size>
-  cancelInstructions:
-  - startTime: 1
-    content: This <b>Cancel Button</b> removes all the forces you added. <size=4>You
-      can also use Space bar if on PC.</size>
-    duration: 0
-  whenFirstCancel: Well done.
-  duration: 2
-  chaseItemPositions: []
-  chaseItem: {fileID: 0}
-  goalExplanation: 
-  errorHints:
-  - The gate can only be passed through with a <b>constant velocity</b>.
-  - So your <b>speed</b> and <b>direction</b> should keep the same.
-  - Force changes your speed or direction, right?
-  - So remove the force before your box enters the area.
-  whenSuccess: Good job!

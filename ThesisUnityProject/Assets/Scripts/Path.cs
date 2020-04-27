@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Vectrosity;
@@ -12,7 +13,7 @@ public class Path : MonoBehaviour
     private Color _myColor;
     
     // Start is called before the first frame update
-    void Start()
+    private void OnEnable()
     {
         _pathLine = new VectorLine("Path", new List<Vector3>(), dotSize * Screen.height / 1080f, LineType.Discrete);
         //Services.TotalLineNumber++;
@@ -20,8 +21,14 @@ public class Path : MonoBehaviour
         _pathLine.color = _myColor;
         _pathLine.endPointsUpdate = 2;
         //_pathLine.drawDepth = 0;
-        _pathLine.Draw3D();
+        //_pathLine.Draw3D();
         StartCoroutine(WaitAndSamplePointsNew());
+    }
+
+    private void OnDisable()
+    {
+        VectorLine.Destroy(ref _pathLine);
+        _pointIndex = 0;
     }
 
     private int _pointIndex;
@@ -44,5 +51,4 @@ public class Path : MonoBehaviour
         
         StartCoroutine(WaitAndSamplePointsNew());
     }
-    
 }
