@@ -169,12 +169,12 @@ public class LevelManager0 : LevelManager
     {
         _checkDistance.SetStatus(Task.TaskStatus.Success);
         Services.EventManager.Unregister<Success>(OnSuccess);
-        _tmp.text = cfg0.whenSuccess;
+        _tmp.text = gameCfg.whenSuccess;
         var waitForNextLevel = new WaitTask(cfg0.nextLevelLoadTime);
         var transition = new ActionTask(() =>
         {
             _shadeObj.SetActive(true);
-            _tmp.text = cfg0.nextLevelText;
+            _tmp.text = gameCfg.moreLevels;
             Services.ControllerSquare.Respond = false;
             Services.ControllerSquare.ResetPlayerForce();
             Services.ControllerSquare.LateUpdate();

@@ -25,4 +25,8 @@ public class GameCfg : ScriptableObject
     public GameObject lifeBox;
     public GameObject rawLife;
     public GameObject successParticles;
+    [Header("Success")] 
+    public string whenSuccess;
+    public string moreLevels;
+    public float nextLevelTime;
 }

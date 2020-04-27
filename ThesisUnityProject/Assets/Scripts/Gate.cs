@@ -10,6 +10,7 @@ public class Gate : MonoBehaviour
     private List<TrackVelocity> _trackVelocities;
     public bool isDetect = true;
     public float impulseMultiplier;
+    private bool _waitingToFire;
 
     // Start is called before the first frame update
     void Start()
@@ -25,16 +26,12 @@ public class Gate : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!isDetect) return;
+        if (!other.attachedRigidbody) return;
         var trackV = new TrackVelocity();
         trackV.gameObject = other.gameObject;
-        trackV.rb = other.gameObject.GetComponent<Rigidbody2D>();
+        trackV.rb = other.attachedRigidbody;
         trackV.enterVelocity = trackV.rb.velocity;
         trackV.collider = other;
-        trackV.hasBeenPushed = false;
-        if (trackV.gameObject.CompareTag("TargetSquare"))
-        {
-            Debug.Log("has been pushed: " + trackV.hasBeenPushed);
-        }
         _trackVelocities.Add(trackV);
     }
 
@@ -50,9 +47,8 @@ public class Gate : MonoBehaviour
                 var impulseSize = impulseMultiplier * trackV.rb.mass * trackV.enterVelocity.x;
                 trackV.rb.AddForce(new Vector2(-impulseSize, 0f), ForceMode2D.Impulse);
                 if (trackV.gameObject.CompareTag("TargetSquare"))
-                {
-                    Services.EventManager.Fire(new LoseLife());
-                }
+                    _waitingToFire = true;
+
             }
         }
     }
@@ -60,16 +56,19 @@ public class Gate : MonoBehaviour
     private void OnTriggerExit2D(Collider2D other)
     {
         for (int i = 0; i < _trackVelocities.Count; i++)
-        {
             if (ReferenceEquals(_trackVelocities[i].collider, other))
-            {
                 _trackVelocities.Remove(_trackVelocities[i]);
+
+        if (other.gameObject.CompareTag("TargetSquare"))
+        {
+            if (_waitingToFire)
+            {
+                Services.EventManager.Fire(new LoseLife());
+                _waitingToFire = false;
             }
         }
     }
 }
-
-public class Success : AGPEvent{}
 
 public class TrackVelocity
 {
@@ -77,5 +76,4 @@ public class TrackVelocity
     public Vector2 enterVelocity;
     public Collider2D collider;
     public GameObject gameObject;
-    public bool hasBeenPushed;
 }

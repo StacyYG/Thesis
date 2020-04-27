@@ -9,7 +9,7 @@ public class LevelManager1 : LevelManager
 {
     public LevelCfg1 cfg1;
     private TextMeshPro _tmp;
-    private GameObject _gateObj, _flagObj, _highlightObj;
+    private GameObject _gateObj, _flagObj, _highlightObj, _shadeObj;
     private int _failTimes;
     private List<PrintAndWait> _printTasks;
 
@@ -24,8 +24,14 @@ public class LevelManager1 : LevelManager
         _highlightObj = GameObject.FindGameObjectWithTag("Highlight");
         _highlightObj.SetActive(false);
         _tmp = GetComponent<TextMeshPro>();
+        _flagObj = GameObject.FindGameObjectWithTag("Goal");
+        _shadeObj = GameObject.FindGameObjectWithTag("Shade");
+        _shadeObj.SetActive(false);
         Services.CameraController.lockY = true;
         Services.EventManager.Register<LoseLife>(OnLoseLife);
+        Services.EventManager.Register<Success>(OnSuccess);
+        Services.EventManager.Register<FirstForce>(OnFirstForce);
+        Services.EventManager.Register<FirstCancel>(OnFirstCancel);
         _printTasks = new List<PrintAndWait>();
         foreach (var instruction in cfg1.failInstructions)
         {
@@ -38,9 +44,7 @@ public class LevelManager1 : LevelManager
     {
         Services.ControllerSquare.Start();
         taskManager.Do(Services.ControllerSquare.boundCircle.GrowUp);
-        
     }
-
 
     // Update is called once per frame
     public override void Update()
@@ -71,6 +75,56 @@ public class LevelManager1 : LevelManager
     private void OnDestroy()
     {
         Services.EventManager.Unregister<LoseLife>(OnLoseLife);
+    }
+    
+    private void OnSuccess(AGPEvent e)
+    {
+        Services.EventManager.Unregister<Success>(OnSuccess);
+        _tmp.text = gameCfg.whenSuccess;
+        var waitForNextLevel = new WaitTask(gameCfg.nextLevelTime);
+        var transition = new ActionTask(() =>
+        {
+            _shadeObj.SetActive(true);
+            _tmp.text = gameCfg.moreLevels;
+            Services.ControllerSquare.Respond = false;
+            Services.ControllerSquare.ResetPlayerForce();
+            Services.ControllerSquare.LateUpdate();
+            cxlButton.SetActive(false);
+            ctrlSqr.SetActive(false);
+            Services.ControllerSquare.boundCircle.Clear();
+            Services.CancelButton.boundCircle.Clear();
+        });
+        waitForNextLevel.Then(transition);
+        _flagObj.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+        _flagObj.transform.parent = targetSqr.transform;
+        var p = Instantiate(gameCfg.successParticles, targetSqr.transform.position, Quaternion.identity);
+        var wait = new WaitTask(1f);
+        var clearParticles = new ActionTask(() => Destroy(p));
+        wait.Then(clearParticles);
+        taskManager.Do(wait);
+        taskManager.Do(waitForNextLevel);
+    }
+
+    private void OnFirstForce(AGPEvent e)
+    {
+        Services.EventManager.Unregister<FirstForce>(OnFirstForce);
+        taskManager.Do(new WaitAndPrint(_tmp, cfg1.showCancelButtonTime, cfg1.cancelInstruction));
+        var wait = new WaitTask(cfg1.showCancelButtonTime);
+        var showCancelButton = new ActionTask(() =>
+        {
+            cxlButton.SetActive(true);
+            Services.CancelButton.Start();
+            taskManager.Do(Services.CancelButton.boundCircle.GrowUp);
+        });
+        wait.Then(showCancelButton);
+        taskManager.Do(wait);
+    }
+
+    private void OnFirstCancel(AGPEvent e)
+    {
+        Services.EventManager.Unregister<FirstCancel>(OnFirstCancel);
+        var congrats = new PrintAndWait(_tmp, cfg1.duration, cfg1.whenFirstCancel);
+        taskManager.Do(congrats);
     }
 }
     

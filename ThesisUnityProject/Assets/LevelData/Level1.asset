@@ -24,12 +24,12 @@ MonoBehaviour:
     content: Force changes your speed and direction, so remove it.
     duration: 3
   v0: {x: 0, y: 0}
-  showCancelButtonTime: 5
+  showCancelButtonTime: 2
   waitTime: 5
   cancelInstruction: This <b>Cancel Button</b> removes all the forces you added.
     <size=4>You can also use Space bar if on PC.</size>
   cancelInstructions:
-  - startTime: 5
+  - startTime: 1
     content: This <b>Cancel Button</b> removes all the forces you added. <size=4>You
       can also use Space bar if on PC.</size>
     duration: 0

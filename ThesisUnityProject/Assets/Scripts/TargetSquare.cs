@@ -138,3 +138,5 @@ public class TargetSquare : MonoBehaviour
         _hurtTimer = 0f;
     }
 }
+
+public class Success : AGPEvent{}

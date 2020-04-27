@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 6510428199283679542}
   m_Layer: 17
   m_Name: Gate
-  m_TagString: Goal
+  m_TagString: GateConstant
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4796,9 +4796,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isDetect: 1
-  restingMaterial: {fileID: 2100000, guid: 8a165d120200e0f4a8512077ea7ed5ff, type: 2}
-  hazardMaterial: {fileID: 2100000, guid: 7350290ee26aa3d4e97f9ed4c1676917, type: 2}
-  recoverTime: 1
+  impulseMultiplier: 0
 --- !u!1 &6510428200861099706
 GameObject:
   m_ObjectHideFlags: 0
