@@ -48,7 +48,6 @@ public class Gate : MonoBehaviour
                 trackV.rb.AddForce(new Vector2(-impulseSize, 0f), ForceMode2D.Impulse);
                 if (trackV.gameObject.CompareTag("TargetSquare"))
                     _waitingToFire = true;
-
             }
         }
     }

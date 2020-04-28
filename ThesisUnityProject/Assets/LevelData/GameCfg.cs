@@ -28,5 +28,5 @@ public class GameCfg : ScriptableObject
     [Header("Success")] 
     public string whenSuccess;
     public string moreLevels;
-    public float nextLevelTime;
+    public float afterSuccessWaitTime;
 }

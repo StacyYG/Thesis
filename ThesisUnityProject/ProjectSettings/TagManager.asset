@@ -20,6 +20,7 @@ TagManager:
   - SpeedWarning
   - Highlight
   - ChaseItem
+  - SubGameController
   layers:
   - Default
   - TransparentFX

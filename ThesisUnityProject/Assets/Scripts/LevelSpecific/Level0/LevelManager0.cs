@@ -7,7 +7,7 @@ public class LevelManager0 : LevelManager
     public LevelCfg0 cfg0;
     private TextMeshPro _tmp;
     private Instructions0 _instructions0;
-    private GameObject _shadeObj, _flagObj, _chaseItemObj;
+    private GameObject _chaseItemObj;
     private List<Task> _initialInstructions;
     private Task _secondForceReminder, _whenFirstForce, _checkDistance;
     private LevelManager _currentLevelManager;
@@ -24,19 +24,18 @@ public class LevelManager0 : LevelManager
         ctrlSqr.SetActive(false);
         cxlButton.SetActive(false);
         Services.CancelButton.Respond = false;
-        _shadeObj = GameObject.FindGameObjectWithTag("Shade");
-        _shadeObj.SetActive(false);
-        _flagObj = GameObject.FindGameObjectWithTag("Goal");
-        _flagObj.SetActive(false);
         _chaseItemObj = GameObject.FindGameObjectWithTag("ChaseItem");
         _chaseItemObj.SetActive(false);
         _tmp = GetComponent<TextMeshPro>();
         _instructions0 = Instructions0.Load(cfg0);
+        flagObj.SetActive(false);
     }
     
     // Start is called before the first frame update
     public override void Start()
     {
+        Services.ControllerSquare.Start();
+        Services.CancelButton.Start();
         Services.EventManager.Register<FirstForce>(OnFirstForce);
         Services.EventManager.Register<SecondForce>(OnSecondForce);
         _initialInstructions = new List<Task>();
@@ -74,7 +73,6 @@ public class LevelManager0 : LevelManager
             if (ctrlSqrTime > cfg0.showCtrlSqrTime)
             {
                 ctrlSqr.SetActive(true);
-                Services.ControllerSquare.Start();
                 taskManager.Do(Services.ControllerSquare.boundCircle.GrowUp);
                 return true;
             }
@@ -117,7 +115,7 @@ public class LevelManager0 : LevelManager
         var timeElapsed = 0f;
         var whenSecondForce = new DelegateTask(() =>
         {
-            _shadeObj.SetActive(true);
+            shadeObj.SetActive(true);
             _tmp.text = cfg0.whenSecondForce;
             timeElapsed = 0f;
         }, () =>
@@ -125,7 +123,7 @@ public class LevelManager0 : LevelManager
             timeElapsed += Time.deltaTime;
             if (timeElapsed > cfg0.secondForceInstructionDuration)
             {
-                _shadeObj.SetActive(false);
+                shadeObj.SetActive(false);
                 _tmp.text = cfg0.chaseExplanation;
                 ShowChaseItem();
                 return true;
@@ -144,18 +142,18 @@ public class LevelManager0 : LevelManager
 
     private void OnShowGoal(AGPEvent e)
     {
-        _flagObj.transform.position = _chaseItemObj.transform.position;
-        _flagObj.SetActive(true);
+        flagObj.transform.position = _chaseItemObj.transform.position;
+        flagObj.SetActive(true);
         _tmp.text = cfg0.goalExplanation;
         Services.EventManager.Register<Success>(OnSuccess);
         Services.EventManager.Unregister<ShowGoal>(OnShowGoal);
         _checkDistance = new DelegateTask(() => {}, () =>
         {
-            if (Vector2.Distance(targetSqr.transform.position, _flagObj.transform.position) > cfg0.failThreshold)
+            if (Vector2.Distance(targetSqr.transform.position, flagObj.transform.position) > cfg0.failThreshold)
             {
                 _chaseItemObj.GetComponent<ChaseItem>().ResetPosition();
                 ShowChaseItem();
-                _flagObj.SetActive(false);
+                flagObj.SetActive(false);
                 _tmp.text = cfg0.lost;
                 return true;
             }
@@ -165,31 +163,12 @@ public class LevelManager0 : LevelManager
         taskManager.Do(_checkDistance);
     }
 
-    private void OnSuccess(AGPEvent e)
+    public override void OnSuccess(AGPEvent e)
     {
+        base.OnSuccess(e);
+        var congrats = new PrintAndWait(_tmp, gameCfg.afterSuccessWaitTime, gameCfg.whenSuccess);
+        taskManager.Do(congrats);
         _checkDistance.SetStatus(Task.TaskStatus.Success);
-        Services.EventManager.Unregister<Success>(OnSuccess);
-        _tmp.text = gameCfg.whenSuccess;
-        var waitForNextLevel = new WaitTask(cfg0.nextLevelLoadTime);
-        var transition = new ActionTask(() =>
-        {
-            _shadeObj.SetActive(true);
-            _tmp.text = gameCfg.moreLevels;
-            Services.ControllerSquare.Respond = false;
-            Services.ControllerSquare.ResetPlayerForce();
-            Services.ControllerSquare.LateUpdate();
-            ctrlSqr.SetActive(false);
-            Services.ControllerSquare.boundCircle.Clear();
-        });
-        waitForNextLevel.Then(transition);
-        _flagObj.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-        _flagObj.transform.parent = targetSqr.transform;
-        var p = Instantiate(gameCfg.successParticles, targetSqr.transform.position, Quaternion.identity);
-        var wait = new WaitTask(1f);
-        var clearParticles = new ActionTask(() => Destroy(p));
-        wait.Then(clearParticles);
-        taskManager.Do(wait);
-        taskManager.Do(waitForNextLevel);
     }
 }
 

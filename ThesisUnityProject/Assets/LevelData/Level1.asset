@@ -21,7 +21,7 @@ MonoBehaviour:
   duration: 2
   failInstructions:
   - startTime: 0
-    content: Those little squares can pass the gate--is it because of how they move?
+    content: Some little squares can pass the gate--is it because of how they move?
     duration: 3
   - startTime: 0
     content: Ah I see! To pass the gate, your <b>speed</b> and <b>direction</b> should

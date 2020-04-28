@@ -9,6 +9,7 @@ public class InputManager
 
     private int _fingerOnCtrlSqr = -1;
     private RaycastHit2D[] results = new RaycastHit2D[1];
+    
     public void Update()
     {
         if (_useTouch)

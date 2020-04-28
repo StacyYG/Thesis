@@ -44,8 +44,7 @@ public class TargetSquare : MonoBehaviour
                 _isHurt = false;
         }
     }
-
-    //private List<Vector2> points = new List<Vector2>(); //for presentation
+    
     private void OnCollisionEnter2D(Collision2D other)
     {
         if (other.gameObject.CompareTag("BarrierObject"))
@@ -55,15 +54,6 @@ public class TargetSquare : MonoBehaviour
 
             if (!_frictions.ContainsKey(other.collider))
                 _frictions.Add(other.collider, new Friction(gameObject, other, _frictions.Count));
-            
-            //for presentation
-            // Debug.Log("contact number: " + other.contactCount);
-            // for (int i = 0; i < other.contactCount; i++)
-            // {
-            //     var relativePos = other.GetContact(i).point - (Vector2) transform.position;
-            //     Debug.Log("contact point position: " + relativePos);
-            //     points.Add(other.GetContact(i).point);
-            // }
         }
 
         if (other.gameObject.CompareTag("HazardObject"))
@@ -74,15 +64,6 @@ public class TargetSquare : MonoBehaviour
         }
     }
     
-    // private void OnDrawGizmos() //for presentation
-    // {
-    //     foreach (var point in points)
-    //     {
-    //         Gizmos.color = Color.red;
-    //         Gizmos.DrawCube(point, 0.3f * Vector3.one);
-    //     }
-    // }
-
     private void OnCollisionStay2D(Collision2D other)
     {
         if (other.gameObject.CompareTag("BarrierObject"))
@@ -94,18 +75,7 @@ public class TargetSquare : MonoBehaviour
             Friction friction;
             if (_frictions.TryGetValue(other.collider, out friction))
                 friction.Change(other);
-            
-            //for presentation
-            // Debug.Log("contact number: " + other.contactCount);
-            // points = new List<Vector2>();
-            // for (int i = 0; i < other.contactCount; i++)
-            // {
-            //     var relativePos = other.GetContact(i).point - (Vector2) transform.position;
-            //     Debug.Log("contact point position: " + relativePos);
-            //     points.Add(other.GetContact(i).point);
-            // }
         }
-
     }
 
     private void OnCollisionExit2D(Collision2D other)
@@ -126,9 +96,7 @@ public class TargetSquare : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.CompareTag("Goal"))
-        {
             Services.EventManager.Fire(new Success());
-        }
     }
 
     private void OnLoseLife(AGPEvent e)

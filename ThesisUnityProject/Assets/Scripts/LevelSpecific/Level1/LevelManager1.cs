@@ -9,7 +9,7 @@ public class LevelManager1 : LevelManager
 {
     public LevelCfg1 cfg1;
     private TextMeshPro _tmp;
-    private GameObject _gateObj, _flagObj, _highlightObj, _shadeObj;
+    private GameObject _gateObj, _highlightObj;
     private int _failTimes;
     private List<PrintAndWait> _printTasks;
     private WaitAndPrint _firstForceReminder;
@@ -27,9 +27,6 @@ public class LevelManager1 : LevelManager
         _highlightObj = GameObject.FindGameObjectWithTag("Highlight");
         _highlightObj.SetActive(false);
         _tmp = GetComponent<TextMeshPro>();
-        _flagObj = GameObject.FindGameObjectWithTag("Goal");
-        _shadeObj = GameObject.FindGameObjectWithTag("Shade");
-        _shadeObj.SetActive(false);
         _gateCollider = GameObject.FindGameObjectWithTag("GateConstant").GetComponent<BoxCollider2D>();
         Services.CameraController.lockY = true;
         Services.EventManager.Register<LoseLife>(OnLoseLife);
@@ -47,6 +44,7 @@ public class LevelManager1 : LevelManager
     public override void Start()
     {
         Services.ControllerSquare.Start();
+        Services.CancelButton.Start();
         taskManager.Do(Services.ControllerSquare.boundCircle.GrowUp);
         _firstForceReminder = new WaitAndPrint(_tmp, cfg1.waitTime, cfg1.firstForceReminder);
         taskManager.Do(_firstForceReminder);
@@ -70,6 +68,11 @@ public class LevelManager1 : LevelManager
             case 6:
                 taskManager.Do(_printTasks[1]);
                 _printTasks[0].SetStatus(Task.TaskStatus.Success);
+                _highlightObj.SetActive(true);
+                var turnOff = new ActionTask(() => {_highlightObj.SetActive(false);});
+                var wait = new WaitTask(cfg1.failInstructions[1].duration);
+                wait.Then(turnOff);
+                taskManager.Do(wait);
                 break;
             case 9:
                 taskManager.Do(_printTasks[2]);
@@ -83,44 +86,24 @@ public class LevelManager1 : LevelManager
         
     }
     
-    private void OnSuccess(AGPEvent e)
+    public override void OnSuccess(AGPEvent e)
     {
+        base.OnSuccess(e);
         Services.EventManager.Unregister<LoseLife>(OnLoseLife);
-        Services.EventManager.Unregister<Success>(OnSuccess);
-        _tmp.text = gameCfg.whenSuccess;
-        var waitForNextLevel = new WaitTask(gameCfg.nextLevelTime);
-        var transition = new ActionTask(() =>
-        {
-            _shadeObj.SetActive(true);
-            _tmp.text = gameCfg.moreLevels;
-            Services.ControllerSquare.Respond = false;
-            Services.ControllerSquare.ResetPlayerForce();
-            Services.ControllerSquare.LateUpdate();
-            cxlButton.SetActive(false);
-            ctrlSqr.SetActive(false);
-            Services.ControllerSquare.boundCircle.Clear();
-            Services.CancelButton.boundCircle.Clear();
-        });
-        waitForNextLevel.Then(transition);
-        _flagObj.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-        _flagObj.transform.parent = targetSqr.transform;
-        var p = Instantiate(gameCfg.successParticles, targetSqr.transform.position, Quaternion.identity);
-        var wait = new WaitTask(1f);
-        var clearParticles = new ActionTask(() => Destroy(p));
-        wait.Then(clearParticles);
-        taskManager.Do(wait);
-        taskManager.Do(waitForNextLevel);
+        var moreLevels = new WaitAndPrint(_tmp, gameCfg.afterSuccessWaitTime, gameCfg.moreLevels);
+        taskManager.Do(moreLevels);
     }
 
     private void OnFirstForce(AGPEvent e)
     {
         Services.EventManager.Unregister<FirstForce>(OnFirstForce);
+        _firstForceReminder.SetStatus(Task.TaskStatus.Success);
+        _tmp.text = "";
         taskManager.Do(new WaitAndPrint(_tmp, cfg1.showCancelButtonTime, cfg1.cancelInstruction));
         var wait = new WaitTask(cfg1.showCancelButtonTime);
         var showCancelButton = new ActionTask(() =>
         {
             cxlButton.SetActive(true);
-            Services.CancelButton.Start();
             taskManager.Do(Services.CancelButton.boundCircle.GrowUp);
         });
         wait.Then(showCancelButton);

@@ -34,7 +34,6 @@ public class BoundCircle
     public BoundCircle(float radius, int segments, Transform anchor, float duration = 1f)
     {
         _circle = new VectorLine("circle", new List<Vector3>(segments), 8f * Screen.height / 1080f, LineType.Points);
-        //Services.TotalLineNumber++;
         GrowUp = new DelegateTask(() => {}, () =>
         {
             _elapsedTime += Time.deltaTime;
