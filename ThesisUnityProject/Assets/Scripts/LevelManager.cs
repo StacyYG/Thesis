@@ -53,7 +53,6 @@ public class LevelManager : MonoBehaviour
 
     public virtual void FixedUpdate()
     {
-        Services.Input.Update();
         if(ctrlSqr.activeSelf && Services.ControllerSquare.Respond) 
             targetRb.AddForce(Services.ControllerSquare.PlayerForce);
         foreach (var force in Services.Forces)
@@ -64,6 +63,7 @@ public class LevelManager : MonoBehaviour
 
     public virtual void Update()
     {
+        Services.Input.Update();
         Services.VelocityBar.Update();
         taskManager.Update();
     }

@@ -44,8 +44,9 @@ public class Gate : MonoBehaviour
         {
             if (trackV.rb.velocity != trackV.enterVelocity)
             {
-                var impulseSize = impulseMultiplier * trackV.rb.mass * trackV.enterVelocity.x;
-                trackV.rb.AddForce(new Vector2(-impulseSize, 0f), ForceMode2D.Impulse);
+                var impulse = impulseMultiplier * trackV.rb.mass * trackV.enterVelocity;
+                trackV.rb.AddForce(-impulse, ForceMode2D.Impulse);
+                Debug.Log(impulse);
                 if (trackV.gameObject.CompareTag("TargetSquare"))
                     _waitingToFire = true;
             }

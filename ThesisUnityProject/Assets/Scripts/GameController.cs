@@ -16,7 +16,6 @@ public class GameController : MonoBehaviour
         var gameControllers = GameObject.FindGameObjectsWithTag("GameController");
         if (gameControllers.Length > 0)
         {
-            Debug.Log("gameControllerNum: " + gameControllers.Length);
             Destroy(gameObject);
             return;
         }
@@ -43,7 +42,6 @@ public class GameController : MonoBehaviour
 
     public void LoadPrevScene()
     {
-        Debug.Log("prev");
         var currentIndex = SceneManager.GetActiveScene().buildIndex;
         if(currentIndex == 0) return;
         SceneManager.LoadScene(currentIndex - 1);
@@ -51,7 +49,6 @@ public class GameController : MonoBehaviour
     
     public void LoadNextScene()
     {
-        Debug.Log("next");
         var currentIndex = SceneManager.GetActiveScene().buildIndex;
         if(currentIndex == SceneManager.sceneCountInBuildSettings - 1) return;
         SceneManager.LoadScene(currentIndex + 1);
@@ -59,7 +56,6 @@ public class GameController : MonoBehaviour
     
     public void Reload()
     {
-        Debug.Log("reload");
         var currentIndex = SceneManager.GetActiveScene().buildIndex;
         SceneManager.LoadScene(currentIndex);
     }

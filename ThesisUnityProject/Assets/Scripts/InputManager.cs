@@ -21,8 +21,8 @@ public class InputManager
                 switch (touch.phase)
                 {
                     case TouchPhase.Began:
-                        var hit = Physics2D.Raycast(Services.MainCamera.ScreenToWorldPoint(touch.position), Vector2.zero,
-                            Mathf.Infinity, ~9);
+                        var hit = Physics2D.Raycast(Services.MainCamera.ScreenToWorldPoint(touch.position), Vector3.forward,
+                            Mathf.Infinity, LayerMask.GetMask("Raycast"));
                         if (!ReferenceEquals(hit.collider, null))
                         {
                             if (hit.collider.gameObject.CompareTag("ControllerSquare"))
@@ -61,7 +61,7 @@ public class InputManager
             if (Input.GetMouseButtonDown(0))
             {
                 var countHit = Physics2D.RaycastNonAlloc(Services.MainCamera.ScreenToWorldPoint(Input.mousePosition),
-                    Vector2.zero, results, Mathf.Infinity, LayerMask.GetMask("Raycast"));
+                    Vector3.forward, results, Mathf.Infinity, LayerMask.GetMask("Raycast"));
                 var hit = results[0];
                 if (!ReferenceEquals(hit.collider, null))
                 {
@@ -84,14 +84,16 @@ public class InputManager
             if (Input.GetMouseButton(0))
                 if (_mouseStayOnCtrlSqr)
                     Services.ControllerSquare.UpdateCurrentPlayerForce(_toWorldUnits(Input.mousePosition));
-                
+
             if (Input.GetMouseButtonUp(0))
+            {
                 if (_mouseStayOnCtrlSqr)
                 {
                     _mouseStayOnCtrlSqr = false;
                     Services.ControllerSquare.OnMouseOrTouchUp();
                 }
-            
+            }
+
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 if (Services.CancelButton.Respond)
