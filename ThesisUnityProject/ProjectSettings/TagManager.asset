@@ -21,6 +21,7 @@ TagManager:
   - Highlight
   - ChaseItem
   - SubGameController
+  - GravityButton
   layers:
   - Default
   - TransparentFX

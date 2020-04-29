@@ -44,18 +44,24 @@ public abstract class Force
 
 public class Gravity : Force
 {
+    public bool ignore, use;
     private Vector2 _vector;
     public Gravity(GameObject gameObject) : base(gameObject)
     {
         line.name = "Gravity";
         line.endCap = "fullArrow";
         line.color = Color.gray;
-        _vector = new Vector2(0f, rb.gravityScale * Physics2D.gravity.y * rb.mass);
+        _vector = new Vector2(0f, Physics2D.gravity.y * rb.mass);
     }
 
     public override void Update()
     {
-        SetVector(_vector);
+        if (ignore)
+            return;
+        if(use) 
+            SetVector(_vector);
+        else
+            SetVector(Vector2.zero);
     }
 }
 

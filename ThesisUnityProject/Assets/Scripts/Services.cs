@@ -167,4 +167,16 @@ public static class Services
         }
         set => _forces = value;
     }
+
+    private static GravityButton _gravityButton;
+    
+    public static GravityButton GravityButton
+    {
+        get
+        {
+            Debug.Assert(_gravityButton != null);
+            return _gravityButton;
+        }
+        set => _gravityButton = value;
+    }
 }

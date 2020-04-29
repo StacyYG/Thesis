@@ -79,6 +79,11 @@ public class InputManager
                             Services.ControllerSquare.ResetPlayerForce();
                         }
                     }
+
+                    if (hit.collider.gameObject.CompareTag("GravityButton"))
+                    {
+                        Services.GravityButton.GravitySwitch();
+                    }
                 }
             }
             if (Input.GetMouseButton(0))

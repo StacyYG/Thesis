@@ -16,12 +16,15 @@ public class LevelManager2 : LevelManager
     private void Init()
     {
         _tmp = GetComponent<TextMeshPro>();
+        Services.GravityButton = new GravityButton(GameObject.FindGameObjectWithTag("GravityButton"));
     }
     
     // Start is called before the first frame update
     public override void Start()
     {
         base.Start();
+        Services.GravityButton.Start();
+        taskManager.Do(Services.GravityButton.boundCircle.GrowUp);
     }
     
     

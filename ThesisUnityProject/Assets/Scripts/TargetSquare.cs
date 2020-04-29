@@ -22,8 +22,7 @@ public class TargetSquare : MonoBehaviour
         _normalForces = new Dictionary<Collider2D, NormalForce>();
         _frictions = new Dictionary<Collider2D, Friction>();
         new PlayerForce(gameObject);
-        if (Mathf.Abs(_rb.gravityScale) > Mathf.Epsilon)
-            new Gravity(gameObject);
+        new Gravity(gameObject);
     }
 
     private void OnDestroy()
