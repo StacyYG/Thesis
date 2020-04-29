@@ -90,7 +90,7 @@ public class LevelManager1 : LevelManager
     {
         base.OnSuccess(e);
         Services.EventManager.Unregister<LoseLife>(OnLoseLife);
-        var moreLevels = new WaitAndPrint(_tmp, gameCfg.afterSuccessWaitTime, gameCfg.moreLevels);
+        var moreLevels = new WaitAndPrint(_tmp, Services.GameCfg.afterSuccessWaitTime, Services.GameCfg.moreLevels);
         taskManager.Do(moreLevels);
     }
 

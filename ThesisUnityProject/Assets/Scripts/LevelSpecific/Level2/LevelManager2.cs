@@ -6,10 +6,7 @@ using TMPro;
 
 public class LevelManager2 : LevelManager
 {
-    public LevelCfg1 levelCfg1;
     private TextMeshPro _tmp;
-    private int _lastIndex;
-
     public override void Awake()
     {
         base.Awake();
@@ -18,7 +15,6 @@ public class LevelManager2 : LevelManager
 
     private void Init()
     {
-        Services.LivesBar = new LivesBar(GameObject.FindGameObjectWithTag("LivesBar").transform);
         _tmp = GetComponent<TextMeshPro>();
     }
     
@@ -26,7 +22,6 @@ public class LevelManager2 : LevelManager
     public override void Start()
     {
         base.Start();
-        Services.LivesBar.Init();
     }
     
     
@@ -34,7 +29,6 @@ public class LevelManager2 : LevelManager
     public override void Update()
     {
         base.Update();
-        Services.LivesBar.Update();
     }
     
 }

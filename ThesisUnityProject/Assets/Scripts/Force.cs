@@ -10,6 +10,7 @@ public abstract class Force
     protected readonly Rigidbody2D rb;
     private Vector2 _vector;
     public Vector2 Vector => _vector;
+    protected readonly float vectorMultiplier = Services.GameCfg.vectorMultiplier;
     
     protected Force(GameObject gameObject)
     {
@@ -29,6 +30,7 @@ public abstract class Force
     {
         _vector = forceVector;
         Vector2 pureForceVector = _targetTransform.InverseTransformVector(forceVector);
+        pureForceVector *= vectorMultiplier;
         line.points3[0] = pureForceVector;
     }
 
@@ -69,7 +71,6 @@ public class PlayerForce : Force
     {
         SetVector(Services.ControllerSquare.PlayerForce);
     }
-    
 }
 
 public class NormalForce : Force

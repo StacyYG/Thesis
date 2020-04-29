@@ -166,7 +166,7 @@ public class LevelManager0 : LevelManager
     public override void OnSuccess(AGPEvent e)
     {
         base.OnSuccess(e);
-        var congrats = new PrintAndWait(_tmp, gameCfg.afterSuccessWaitTime, gameCfg.whenSuccess);
+        var congrats = new PrintAndWait(_tmp, Services.GameCfg.afterSuccessWaitTime, Services.GameCfg.whenSuccess);
         taskManager.Do(congrats);
         _checkDistance.SetStatus(Task.TaskStatus.Success);
     }

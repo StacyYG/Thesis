@@ -18,11 +18,14 @@ MonoBehaviour:
   initialInstructions:
   - startTime: 0
     content: How do forces affect motion?
+    duration: 0
   - startTime: 5
-    content: This <b>Control Box</b> transfers any force it receives to the target
+    content: This <b>Control Button</b> transfers any force it receives to the target
       box.
+    duration: 0
   - startTime: 5
-    content: To add a force, you need to click the <b>Control Box</b> and drag.
+    content: To add a force, you need to click the <b>Control Button</b>.
+    duration: 0
   whenFirstForce: Yes! you just added a force.
   secondForceRemindTime: 7
   secondForceReminder: Try to add another force.

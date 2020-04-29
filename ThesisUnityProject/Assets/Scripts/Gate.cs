@@ -44,11 +44,13 @@ public class Gate : MonoBehaviour
         {
             if (trackV.rb.velocity != trackV.enterVelocity)
             {
-                var impulse = impulseMultiplier * trackV.rb.mass * trackV.enterVelocity;
-                trackV.rb.AddForce(-impulse, ForceMode2D.Impulse);
-                Debug.Log(impulse);
+                var offset = trackV.rb.position - (Vector2)transform.position;
+                trackV.rb.AddForce(impulseMultiplier * trackV.rb.mass / offset.magnitude * offset.normalized,
+                    ForceMode2D.Impulse);
                 if (trackV.gameObject.CompareTag("TargetSquare"))
-                    _waitingToFire = true;
+                {
+                    Services.TargetSquare.isHurt = true;
+                }
             }
         }
     }
@@ -58,15 +60,6 @@ public class Gate : MonoBehaviour
         for (int i = 0; i < _trackVelocities.Count; i++)
             if (ReferenceEquals(_trackVelocities[i].collider, other))
                 _trackVelocities.Remove(_trackVelocities[i]);
-
-        if (other.gameObject.CompareTag("TargetSquare"))
-        {
-            if (_waitingToFire)
-            {
-                Services.EventManager.Fire(new LoseLife());
-                _waitingToFire = false;
-            }
-        }
     }
 }
 

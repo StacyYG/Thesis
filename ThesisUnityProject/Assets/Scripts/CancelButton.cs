@@ -23,9 +23,13 @@ public class CancelButton
     {
         boundCircle = new BoundCircle(_boundCircleRadius, Segments, _gameObject.transform);
     }
-    
 }
 
+public class GravityButton
+{
+    public BoundCircle boundCircle;
+    public GameObject triangle;
+}
 public class BoundCircle
 {
     private VectorLine _circle;

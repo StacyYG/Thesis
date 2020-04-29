@@ -15,7 +15,7 @@ public class ControlMonitor : MonoBehaviour
 
     private void OnMouseDrag()
     {
-        if (!Services.ControllerSquare.Respond) return;
+        if (!Services.ControllerSquare.respond) return;
         if (Services.ControllerSquare.PlayerForce.magnitude > _detectThreshold)
         {
             if (_clickTimes == 0 && !_firstForceFired)
@@ -35,7 +35,7 @@ public class ControlMonitor : MonoBehaviour
 
     private void OnMouseUp()
     {
-        if (!Services.ControllerSquare.Respond) return;
+        if (!Services.ControllerSquare.respond) return;
         if(_firstForceFired) 
             _clickTimes++;
     }

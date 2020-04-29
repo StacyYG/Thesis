@@ -8,17 +8,19 @@ public class ControllerSquare
 {
     private VectorLine _currentLine, _netForceLine, _previousNetForceLine, _circleLine;
     private Vector2 _currentForce, _sum, _netForce, _myWorldPosition;
-    private const float MaxForceSize = 2f;
-    public bool Respond = true;
-    public Vector2 PlayerForce => _netForce;
+    private const float MaxForceSize = 1.5f;
+    public bool respond = true;
+    public Vector2 PlayerForce => 1f / _vectorMultiplier * _netForce;
     private readonly Transform _transform;
     public BoundCircle boundCircle;
     private GameObject _gameObject;
-
+    private readonly float _vectorMultiplier;
     public ControllerSquare(GameObject gameObject)
     {
         _gameObject = gameObject;
         _transform = gameObject.transform;
+        gameObject.GetComponent<CircleCollider2D>().radius = MaxForceSize;
+        _vectorMultiplier = Services.GameCfg.vectorMultiplier;
     }
     
     public void Awake()
@@ -54,7 +56,7 @@ public class ControllerSquare
 
     public void UpdateCurrentPlayerForce(Vector2 mouseWorldPos)
     {
-        if(!Respond) return;
+        if(!respond) return;
         _currentForce =
             Vector2.ClampMagnitude(mouseWorldPos - (Vector2) _transform.position,
                 MaxForceSize);
@@ -65,40 +67,50 @@ public class ControllerSquare
 
     public void LateUpdate()
     {
-        _currentLine.Draw();
+        if (_sum != Vector2.zero)
+        {
+            _previousNetForceLine.Draw();
+            _currentLine.Draw();
+        }
+        
         _netForceLine.Draw();
-        _previousNetForceLine.Draw();
     }
-
-    // figure out a better way to replace this when on mobile
+    
     public void OnMouseOrTouchDown()
     {
-        if (!Respond) return;
+        if (!respond) return;
         _currentLine.active = true;
         _previousNetForceLine.active = true;
     }
 
     public void OnMouseOrTouchUp()
     {
-        if(!Respond) return;
+        if(!respond) return;
         _sum = _netForce;
         _currentLine.active = false;
         _previousNetForceLine.active = false;
-        _previousNetForceLine.points3[0] = _netForce;
+        _previousNetForceLine.points3[0] = _sum;
     }
 
     public void ResetPlayerForce()
     {
         _sum = _netForce = _currentForce = Vector2.zero;
         _currentLine.points3[0] = _netForceLine.points3[0] = _previousNetForceLine.points3[0] = Vector2.zero;
+        _previousNetForceLine.Draw();
+        _currentLine.Draw();
+        _netForceLine.Draw();
     }
 }
 
 public static class Arrow
 {
+    public static bool isSet { get; private set; }
     public static void SetUp()
     {
+        if(isSet)
+            return;
         VectorLine.SetEndCap("dashedArrow", EndCap.Front, -0.5f, Services.GameCfg.dashedLineTexture, Services.GameCfg.frontTexture);
         VectorLine.SetEndCap("fullArrow", EndCap.Front, -0.5f, Services.GameCfg.fullLineTexture, Services.GameCfg.frontTexture);
+        isSet = true;
     }
 }

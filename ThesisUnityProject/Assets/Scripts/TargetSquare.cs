@@ -11,7 +11,7 @@ public class TargetSquare : MonoBehaviour
     private Dictionary<Collider2D, NormalForce> _normalForces;
     private Dictionary<Collider2D, Friction> _frictions;
     public float recoverTime;
-    private bool _isHurt;
+    public bool isHurt;
     private float _hurtTimer;
 
     // Start is called before the first frame update
@@ -24,24 +24,25 @@ public class TargetSquare : MonoBehaviour
         new PlayerForce(gameObject);
         if (Mathf.Abs(_rb.gravityScale) > Mathf.Epsilon)
             new Gravity(gameObject);
-        Services.EventManager.Register<LoseLife>(OnLoseLife);
     }
 
     private void OnDestroy()
     {
-        Services.EventManager.Unregister<LoseLife>(OnLoseLife);
         foreach (var force in Services.Forces)
             force.Destroy();
     }
 
     public void Update()
     {
-        if (_isHurt)
+        if (isHurt)
         {
             _hurtTimer += Time.deltaTime;
             _sr.color = Color.Lerp(Services.GameCfg.hurtColor, Services.GameCfg.liveColor, _hurtTimer / recoverTime);
-            if (_hurtTimer >= recoverTime) 
-                _isHurt = false;
+            if (_hurtTimer >= recoverTime)
+            {
+                isHurt = false;
+                _hurtTimer = 0f;
+            }
         }
     }
     
@@ -58,10 +59,13 @@ public class TargetSquare : MonoBehaviour
 
         if (other.gameObject.CompareTag("HazardObject"))
         {
-            if(_isHurt) return;
+            if(isHurt) return;
             Services.EventManager.Fire(new LoseLife());
             Destroy(other.gameObject);
         }
+        
+        if (other.gameObject.CompareTag("Goal"))
+            Services.EventManager.Fire(new Success());
     }
     
     private void OnCollisionStay2D(Collision2D other)
@@ -90,20 +94,6 @@ public class TargetSquare : MonoBehaviour
             if (_frictions.TryGetValue(other.collider, out friction))
                 friction.Reset();
         }
-        
-    }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.gameObject.CompareTag("Goal"))
-            Services.EventManager.Fire(new Success());
-    }
-
-    private void OnLoseLife(AGPEvent e)
-    {
-        //_rb.velocity = Vector2.zero;
-        _isHurt = true;
-        _hurtTimer = 0f;
     }
 }
 

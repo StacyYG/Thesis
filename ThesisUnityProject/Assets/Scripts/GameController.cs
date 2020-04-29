@@ -24,8 +24,6 @@ public class GameController : MonoBehaviour
         isSub = false;
         Services.GameController = this;
         transform.tag = "GameController";
-        Services.GameCfg = gameCfg;
-        Arrow.SetUp();
     }
 
     // Start is called before the first frame update
