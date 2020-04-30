@@ -113,17 +113,17 @@ public class LevelManager0 : LevelManager
         _whenFirstForce.SetStatus(Task.TaskStatus.Success);
         _secondForceReminder.SetStatus(Task.TaskStatus.Success);
         var timeElapsed = 0f;
-        var whenSecondForce = new DelegateTask(() =>
-        {
-            shadeObj.SetActive(true);
-            _tmp.text = cfg0.whenSecondForce;
-            timeElapsed = 0f;
-        }, () =>
+        var cameraTransform = Services.MainCamera.transform;
+        var shade = Instantiate(gameCfg.shade,
+            new Vector3(cameraTransform.position.x, cameraTransform.position.y, 0f),
+            Quaternion.identity, cameraTransform);
+        _tmp.text = cfg0.whenSecondForce;
+        var whenSecondForce = new DelegateTask(() => {}, () =>
         {
             timeElapsed += Time.deltaTime;
             if (timeElapsed > cfg0.secondForceInstructionDuration)
             {
-                shadeObj.SetActive(false);
+                Destroy(shade);
                 _tmp.text = cfg0.chaseExplanation;
                 ShowChaseItem();
                 return true;

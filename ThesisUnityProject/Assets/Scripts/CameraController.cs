@@ -16,7 +16,7 @@ public class CameraController
 	private float _moveBoundX, _moveBoundY;
 	private readonly Transform _transform;
 	public Margin viewMargin;
-	public bool lockY;
+	public bool lockY, lockX;
 	public CameraController(Camera camera, bool isFollow, Transform targetSquare)
 	{
 		_transform = camera.transform;
@@ -40,15 +40,18 @@ public class CameraController
 		if (isFollowing) 
 		{
 			var targetPos = _targetSquare.position;
-			if (Mathf.Abs(x - _targetSquare.position.x)> _moveBoundX)
+			if (!lockX)
 			{
-				if (x - _targetSquare.position.x > 0) x = _targetSquare.position.x + _moveBoundX;
-				else x = _targetSquare.position.x - _moveBoundX;
-			}
+				if (Mathf.Abs(x - _targetSquare.position.x) > _moveBoundX)
+				{
+					if (x - _targetSquare.position.x > 0) x = _targetSquare.position.x + _moveBoundX;
+					else x = _targetSquare.position.x - _moveBoundX;
+				}
 
-			if (Mathf.Abs (x - targetPos.x) > _innerMargin.x)
-			{
-				x = Mathf.Lerp(x, targetPos.x, (Mathf.Abs(x - targetPos.x) - _innerMargin.x) * Time.fixedDeltaTime);
+				if (Mathf.Abs(x - targetPos.x) > _innerMargin.x)
+				{
+					x = Mathf.Lerp(x, targetPos.x, (Mathf.Abs(x - targetPos.x) - _innerMargin.x) * Time.fixedDeltaTime);
+				}
 			}
 
 			if (!lockY)

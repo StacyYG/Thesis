@@ -7,7 +7,7 @@ public class LevelManager : MonoBehaviour
 {
     public GameCfg gameCfg;
     protected Rigidbody2D targetRb;
-    protected GameObject targetSqr, ctrlSqr, cxlButton, shadeObj, flagObj;
+    protected GameObject targetSqr, ctrlSqr, cxlButton, flagObj;
     protected TaskManager taskManager;
 
     public virtual void Awake()
@@ -30,9 +30,6 @@ public class LevelManager : MonoBehaviour
         Services.CameraController = new CameraController(Services.MainCamera, true, targetSqr.transform);
         Services.VelocityBar = new VelocityBar(targetRb);
 
-        shadeObj = GameObject.FindGameObjectWithTag("Shade");
-        shadeObj.SetActive(false);
-        
         flagObj = GameObject.FindGameObjectWithTag("Goal");
 
         Services.EventManager = new EventManager();
@@ -85,7 +82,10 @@ public class LevelManager : MonoBehaviour
         var waitToShowButton = new WaitTask(Services.GameCfg.afterSuccessWaitTime);
         var showButton = new ActionTask(() =>
         {
-            shadeObj.SetActive(true);
+            var cameraTransform = Services.MainCamera.transform;
+            var shade = Instantiate(gameCfg.shade,
+                new Vector3(cameraTransform.position.x, cameraTransform.position.y, 0f),
+                Quaternion.identity, cameraTransform);
             cxlButton.SetActive(false);
             ctrlSqr.SetActive(false);
             Services.ControllerSquare.respond = false;

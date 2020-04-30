@@ -20,12 +20,16 @@ public class GameCfg : ScriptableObject
     public Color currentNetForceColor;
     public float lineWidth;
     public float vectorMultiplier;
+    [Header("Bound Circle")] 
+    public Color boundCircleColor;
+    public int segmentsPerRadius;
     [Header("Life Settings")] 
     public int startLifeNum;
     [Header("Prefabs")] 
     public GameObject lifeBox;
     public GameObject rawLife;
     public GameObject successParticles;
+    public GameObject shade;
     [Header("Success")] 
     public string whenSuccess;
     public string moreLevels;

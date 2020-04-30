@@ -21,7 +21,7 @@ public class CancelButton
 
     public void Start()
     {
-        boundCircle = new BoundCircle(_boundCircleRadius, Segments, _gameObject.transform);
+        boundCircle = new BoundCircle(_boundCircleRadius, _gameObject.transform);
     }
 }
 
@@ -31,7 +31,7 @@ public class GravityButton
     private GameObject _triangle;
     private Rigidbody2D[] _rbs;
     private float _boundCircleRadius;
-    private const int Segments = 10;
+    private const int Segments = 15;
     public bool GravityOn { get; private set; }
 
     public GravityButton(GameObject triangleObj)
@@ -42,7 +42,7 @@ public class GravityButton
 
     public void Start()
     {
-        boundCircle = new BoundCircle(_boundCircleRadius, Segments, _triangle.transform);
+        boundCircle = new BoundCircle(_boundCircleRadius, _triangle.transform);
         _rbs = GameObject.FindObjectsOfType<Rigidbody2D>();
     }
 
@@ -54,7 +54,7 @@ public class GravityButton
             for (int i = 0; i < _rbs.Length; i++)
                 _rbs[i].gravityScale = 0f;
             _triangle.transform.localScale = new Vector3(1f, 0f, 1f);
-            
+
         }
         else
         {
@@ -65,19 +65,26 @@ public class GravityButton
         }
     }
     
+    public void UpdateRbs()
+    {
+        _rbs = GameObject.FindObjectsOfType<Rigidbody2D>();
+    }
 }
+
 public class BoundCircle
 {
     private VectorLine _circle;
     public DelegateTask GrowUp;
     private float _elapsedTime;
-    public BoundCircle(float radius, int segments, Transform anchor, float duration = 1f)
+    public BoundCircle(float radius, Transform anchor, float duration = 1f)
     {
-        _circle = new VectorLine("circle", new List<Vector3>(segments), 8f * Screen.height / 1080f, LineType.Points);
+        var segmentNum = (int) (Services.GameCfg.segmentsPerRadius * radius);
+        _circle = new VectorLine("circle", new List<Vector3>(segmentNum), 8f * Screen.height / 1080f, LineType.Points);
+        _circle.color = Services.GameCfg.boundCircleColor;
         GrowUp = new DelegateTask(() => {}, () =>
         {
             _elapsedTime += Time.deltaTime;
-            _circle.MakeCircle(anchor.position, _elapsedTime / duration * radius, segments);
+            _circle.MakeCircle(anchor.position, _elapsedTime / duration * radius, segmentNum);
             _circle.Draw();
             return _elapsedTime >= duration;
         });

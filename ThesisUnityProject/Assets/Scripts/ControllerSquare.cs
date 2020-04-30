@@ -30,7 +30,7 @@ public class ControllerSquare
     // Start is called before the first frame update
     public void Start()
     {
-        boundCircle = new BoundCircle(MaxForceSize, 30, _gameObject.transform);
+        boundCircle = new BoundCircle(MaxForceSize, _gameObject.transform);
         SetUpVectorLines();
     }
 

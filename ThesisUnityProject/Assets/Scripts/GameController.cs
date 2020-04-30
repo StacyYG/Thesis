@@ -8,7 +8,6 @@ using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
-    public GameCfg gameCfg;
     public GameObject reload, next, prev;
     public bool isSub = true;
     private void Awake()

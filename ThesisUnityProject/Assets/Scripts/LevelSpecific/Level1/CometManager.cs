@@ -83,7 +83,7 @@ public class ObjectPool
         {
             var oneCopy = Object.Instantiate(toPool, _parentTransform);
             var sr = oneCopy.GetComponent<SpriteRenderer>();
-            sr.color = Random.ColorHSV(0.5f, 0.6f, 0.3f, 0.8f, 0.8f, 1f);
+            sr.color = Random.ColorHSV(0.5f, 0.7f, 0.3f, 0.8f, 0.8f, 1f);
             _pool.Push(oneCopy);
             oneCopy.SetActive(false);
         }

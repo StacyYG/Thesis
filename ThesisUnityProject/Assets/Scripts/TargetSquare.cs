@@ -22,7 +22,6 @@ public class TargetSquare : MonoBehaviour
         _normalForces = new Dictionary<Collider2D, NormalForce>();
         _frictions = new Dictionary<Collider2D, Friction>();
         new PlayerForce(gameObject);
-        new Gravity(gameObject);
     }
 
     private void OnDestroy()
