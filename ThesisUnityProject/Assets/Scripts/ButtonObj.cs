@@ -14,7 +14,7 @@ public class ButtonObj : MonoBehaviour
     public float k;
     public float threshold = 0.3f;
     public float tiredRecoverTime = 1f;
-    private bool _isTired, _inCollision;
+    private bool _isTired;
     private float _tiredTimer;
 
     // Start is called before the first frame update
@@ -35,18 +35,20 @@ public class ButtonObj : MonoBehaviour
             }
         }
 
-        if (!_inCollision && transform.localScale.y < _restScale.y)
-        {
-            transform.localScale = Vector3.Lerp(transform.localScale, _restScale, 0.01f);
-        }
-        
         _sr.color = Color.Lerp(pressedColor, restColor,
             (transform.localScale.y - smallestY) / (_restScale.y - smallestY));
     }
 
+    private void FixedUpdate()
+    {
+        if (transform.localScale.y < _restScale.y)
+        {
+            transform.localScale = Vector3.Lerp(transform.localScale, _restScale, 0.01f);
+        }
+    }
+
     private void OnCollisionStay2D(Collision2D other)
     {
-        _inCollision = true;
         var contactNum = other.GetContacts(_contacts);
         float pressureSize = 0f;
         for (int i = 0; i < contactNum; i++)
@@ -62,11 +64,6 @@ public class ButtonObj : MonoBehaviour
             Services.EventManager.Fire(new ButtonObjPressed(true));
             _isTired = true;
         }
-    }
-
-    private void OnCollisionExit2D(Collision2D other)
-    {
-        _inCollision = false;
     }
 }
 

@@ -90,8 +90,6 @@ public class LevelManager1 : LevelManager
     {
         base.OnSuccess(e);
         Services.EventManager.Unregister<LoseLife>(OnLoseLife);
-        var moreLevels = new WaitAndPrint(_tmp, Services.GameCfg.afterSuccessWaitTime, Services.GameCfg.moreLevels);
-        taskManager.Do(moreLevels);
     }
 
     private void OnFirstForce(AGPEvent e)

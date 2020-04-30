@@ -14,3 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraFollowX: 2
   loadSecondPartX: 18
+  loadThirdPartX: 43
+  gravityInstruction: Gravity is a force that pulls things down. Press G if on PC.
+  gravityInstructionDuration: 4

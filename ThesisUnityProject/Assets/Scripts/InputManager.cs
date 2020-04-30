@@ -62,9 +62,9 @@ public class InputManager
             {
                 var countHit = Physics2D.RaycastNonAlloc(Services.MainCamera.ScreenToWorldPoint(Input.mousePosition),
                     Vector3.forward, results, Mathf.Infinity, LayerMask.GetMask("Raycast"));
-                var hit = results[0];
-                if (!ReferenceEquals(hit.collider, null))
+                if (countHit > 0)
                 {
+                    var hit = results[0];
                     if (hit.collider.gameObject.CompareTag("ControllerSquare"))
                     {
                         _mouseStayOnCtrlSqr = true;

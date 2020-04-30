@@ -8,7 +8,7 @@ using Random = UnityEngine.Random;
 public class LevelManager2 : LevelManager
 {
     private TextMeshPro _tmp;
-    public GameObject barrier, gate0, gate1, randomComets0, randomComets1;
+    public GameObject barrier, gate0, gate1, gate2, randomComets0, randomComets1;
     public LevelCfg2 cfg2;
     
     public override void Awake()
@@ -20,12 +20,18 @@ public class LevelManager2 : LevelManager
     private void Init()
     {
         _tmp = GetComponent<TextMeshPro>();
-        Services.GravityButton = new GravityButton(GameObject.FindGameObjectWithTag("GravityButton"));
+        var circle = GameObject.FindGameObjectWithTag("GravityButton");
+        Services.GravityButton = new GravityButton(circle, circle.transform.GetChild(0).gameObject);
         new Gravity(targetSqr);
         Services.EventManager.Register<ButtonObjPressed>(OnButtonPressed);
         Services.CameraController.isFollowing = false;
         Services.CameraController.lockY = true;
         flagObj.SetActive(false);
+        randomComets1.SetActive(false);
+        gate0.SetActive(false);
+        gate1.SetActive(false);
+        gate2.SetActive(false);
+        Services.EventManager.Register<FirstGravity>(OnFirstGravity);
     }
     
     // Start is called before the first frame update
@@ -53,8 +59,20 @@ public class LevelManager2 : LevelManager
         {
             if (targetSqr.transform.position.x > cfg2.loadSecondPartX)
             {
-                randomComets1.SetActive(true);
                 gate1.SetActive(true);
+                Services.GravityButton.UpdateRbs();
+                return true;
+            }
+
+            return false;
+        });
+        
+        var checkTargetX2 = new DelegateTask(() => {}, () =>
+        {
+            if (targetSqr.transform.position.x > cfg2.loadThirdPartX)
+            {
+                randomComets1.SetActive(true);
+                gate2.SetActive(true);
                 flagObj.SetActive(true);
                 Services.GravityButton.UpdateRbs();
                 return true;
@@ -62,7 +80,7 @@ public class LevelManager2 : LevelManager
 
             return false;
         });
-        checkTargetX0.Then(checkTargetX1);
+        checkTargetX0.Then(checkTargetX1).Then(checkTargetX2);
         taskManager.Do(checkTargetX0);
     }
     
@@ -71,6 +89,19 @@ public class LevelManager2 : LevelManager
     public override void Update()
     {
         base.Update();
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            Services.GravityButton.GravitySwitch();
+        }
+        Services.GravityButton.UpdateGravity();
+    }
+
+    public override void OnSuccess(AGPEvent e)
+    {
+        base.OnSuccess(e);
+        Services.GravityButton.boundCircle.Clear();
+        var moreLevels = new WaitAndPrint(_tmp, Services.GameCfg.afterSuccessWaitTime, Services.GameCfg.moreLevels);
+        taskManager.Do(moreLevels);
     }
 
     private void OnDestroy()
@@ -82,6 +113,16 @@ public class LevelManager2 : LevelManager
         var button = (ButtonObjPressed) e;
         barrier.SetActive(!button.isPressed);
         gate0.SetActive(button.isPressed);
+    }
+
+    private void OnFirstGravity(AGPEvent e)
+    {
+        Services.EventManager.Unregister<FirstGravity>(OnFirstGravity);
+        _tmp.text = cfg2.gravityInstruction;
+        var wait = new WaitTask(cfg2.gravityInstructionDuration);
+        var clear = new ActionTask(() => _tmp.text = "");
+        wait.Then(clear);
+        taskManager.Do(wait);
     }
 }
 
