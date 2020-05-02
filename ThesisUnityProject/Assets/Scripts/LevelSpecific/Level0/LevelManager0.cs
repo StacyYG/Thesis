@@ -21,7 +21,7 @@ public class LevelManager0 : LevelManager
     private void Init()
     {
         Services.CameraController.isFollowing = false;
-        ctrlSqr.SetActive(false);
+        ctrlButton.SetActive(false);
         cxlButton.SetActive(false);
         Services.CancelButton.Respond = false;
         _chaseItemObj = GameObject.FindGameObjectWithTag("ChaseItem");
@@ -34,12 +34,13 @@ public class LevelManager0 : LevelManager
     // Start is called before the first frame update
     public override void Start()
     {
-        Services.ControllerSquare.Start();
+        Services.GameController.ShowButtons(false);
+        Services.ControllerButton.Start();
         Services.CancelButton.Start();
         Services.EventManager.Register<FirstForce>(OnFirstForce);
         Services.EventManager.Register<SecondForce>(OnSecondForce);
         _initialInstructions = new List<Task>();
-        
+        targetSqr.GetComponent<Path>().SetUpNewPath();
         for (int i = 0; i < _instructions0.InitialInstructions.Count; i++)
         {
             _initialInstructions.Add(new WaitAndPrint(_tmp, _instructions0.InitialInstructions[i].startTime,
@@ -72,8 +73,8 @@ public class LevelManager0 : LevelManager
             ctrlSqrTime += Time.deltaTime;
             if (ctrlSqrTime > cfg0.showCtrlSqrTime)
             {
-                ctrlSqr.SetActive(true);
-                taskManager.Do(Services.ControllerSquare.boundCircle.GrowUp);
+                ctrlButton.SetActive(true);
+                taskManager.Do(Services.ControllerButton.boundCircle.GrowUp);
                 return true;
             }
 

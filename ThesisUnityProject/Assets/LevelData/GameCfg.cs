@@ -18,8 +18,12 @@ public class GameCfg : ScriptableObject
     public Color currentForceColor;
     public Color previousNetForceColor;
     public Color currentNetForceColor;
-    public float lineWidth;
+    public float forceLineWidth;
     public float vectorMultiplier;
+    [Header("Velocity Line settings")] 
+    public float velocityLineWidth;
+    public Color velocityLineColor;
+    public Color velocityLineHighlightColor;
     [Header("Bound Circle")] 
     public Color boundCircleColor;
     public int segmentsPerRadius;

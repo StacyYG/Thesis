@@ -41,16 +41,16 @@ public static class Services
         set { _gameController = value; }
     }
 
-    private static ControllerSquare _controllerSquare;
+    private static ControllerButton _controllerButton;
 
-    public static ControllerSquare ControllerSquare
+    public static ControllerButton ControllerButton
     {
         get
         {
-            Debug.Assert(_controllerSquare != null);
-            return _controllerSquare;
+            Debug.Assert(_controllerButton != null);
+            return _controllerButton;
         }
-        set { _controllerSquare = value; }
+        set { _controllerButton = value; }
     }
 
     private static TargetSquare _targetSquare;
@@ -143,18 +143,18 @@ public static class Services
         }
         set => _livesBar = value;
     }
-
-    private static VelocityBar _velocityBar;
-
-    public static VelocityBar VelocityBar
-    {
-        get
-        {
-            Debug.Assert(_velocityBar != null);
-            return _velocityBar;
-        }
-        set => _velocityBar = value;
-    }
+    
+    // private static VelocityBar _velocityBar;
+    //
+    // public static VelocityBar VelocityBar
+    // {
+    //     get
+    //     {
+    //         Debug.Assert(_velocityBar != null);
+    //         return _velocityBar;
+    //     }
+    //     set => _velocityBar = value;
+    // }
 
     private static List<Force> _forces = new List<Force>();
 
@@ -178,5 +178,17 @@ public static class Services
             return _gravityButton;
         }
         set => _gravityButton = value;
+    }
+
+    private static VelocityLine _velocityLine;
+
+    public static VelocityLine VelocityLine
+    {
+        get
+        {
+            Debug.Assert(_velocityLine != null);
+            return _velocityLine;
+        }
+        set => _velocityLine = value;
     }
 }

@@ -11,7 +11,7 @@ public class TargetSquare : MonoBehaviour
     private Dictionary<Collider2D, NormalForce> _normalForces;
     private Dictionary<Collider2D, Friction> _frictions;
     public float recoverTime;
-    public bool isHurt;
+    public bool isHurt, showNormalForce = true, showFriction = true;
     private float _hurtTimer;
 
     // Start is called before the first frame update
@@ -48,11 +48,17 @@ public class TargetSquare : MonoBehaviour
     {
         if (other.gameObject.CompareTag("BarrierObject"))
         {
-            if (!_normalForces.ContainsKey(other.collider))
-                _normalForces.Add(other.collider, new NormalForce(gameObject, other, _normalForces.Count));
+            if (showNormalForce)
+            {
+                if (!_normalForces.ContainsKey(other.collider))
+                    _normalForces.Add(other.collider, new NormalForce(gameObject, other, _normalForces.Count));
+            }
 
-            if (!_frictions.ContainsKey(other.collider))
-                _frictions.Add(other.collider, new Friction(gameObject, other, _frictions.Count));
+            if (showFriction)
+            {
+                if (!_frictions.ContainsKey(other.collider))
+                    _frictions.Add(other.collider, new Friction(gameObject, other, _frictions.Count));
+            }
         }
 
         if (other.gameObject.CompareTag("HazardObject"))
@@ -70,13 +76,19 @@ public class TargetSquare : MonoBehaviour
     {
         if (other.gameObject.CompareTag("BarrierObject"))
         {
-            NormalForce normalForce;
-            if (_normalForces.TryGetValue(other.collider, out normalForce))
-                normalForce.Change(other);
+            if (showNormalForce)
+            {
+                NormalForce normalForce;
+                if (_normalForces.TryGetValue(other.collider, out normalForce))
+                    normalForce.Change(other);
+            }
 
-            Friction friction;
-            if (_frictions.TryGetValue(other.collider, out friction))
-                friction.Change(other);
+            if (showFriction)
+            {
+                Friction friction;
+                if (_frictions.TryGetValue(other.collider, out friction))
+                    friction.Change(other);
+            }
         }
     }
 
@@ -84,13 +96,19 @@ public class TargetSquare : MonoBehaviour
     {
         if (other.gameObject.CompareTag("BarrierObject"))
         {
-            NormalForce normalForce;
-            if (_normalForces.TryGetValue(other.collider, out normalForce))
-                normalForce.Reset();
-            
-            Friction friction;
-            if (_frictions.TryGetValue(other.collider, out friction))
-                friction.Reset();
+            if (showNormalForce)
+            {
+                NormalForce normalForce;
+                if (_normalForces.TryGetValue(other.collider, out normalForce))
+                    normalForce.Reset();
+            }
+
+            if (showFriction)
+            {
+                Friction friction;
+                if (_frictions.TryGetValue(other.collider, out friction))
+                    friction.Reset();
+            }
         }
     }
 }

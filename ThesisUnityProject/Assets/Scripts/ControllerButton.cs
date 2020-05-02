@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Vectrosity;
 
-public class ControllerSquare
+public class ControllerButton
 {
     private VectorLine _currentLine, _netForceLine, _previousNetForceLine, _circleLine;
     private Vector2 _currentForce, _sum, _netForce, _myWorldPosition;
@@ -15,7 +15,7 @@ public class ControllerSquare
     public BoundCircle boundCircle;
     private GameObject _gameObject;
     private readonly float _vectorMultiplier;
-    public ControllerSquare(GameObject gameObject)
+    public ControllerButton(GameObject gameObject)
     {
         _gameObject = gameObject;
         _transform = gameObject.transform;
@@ -36,7 +36,7 @@ public class ControllerSquare
 
     private void SetUpVectorLines()
     {
-        var realLineWidth = Services.GameCfg.lineWidth * Screen.height / 1080f;
+        var realLineWidth = Services.GameCfg.forceLineWidth * Screen.height / 1080f;
         _netForceLine = new VectorLine("currentNetForce", new List<Vector3> {Vector2.zero, Vector2.zero}, realLineWidth);
         _netForceLine.color = Services.GameCfg.currentNetForceColor;
 
@@ -67,12 +67,8 @@ public class ControllerSquare
 
     public void LateUpdate()
     {
-        if (_sum != Vector2.zero)
-        {
-            _previousNetForceLine.Draw();
-            _currentLine.Draw();
-        }
-        
+        _previousNetForceLine.Draw();
+        _currentLine.Draw();
         _netForceLine.Draw();
     }
     
@@ -104,13 +100,13 @@ public class ControllerSquare
 
 public static class Arrow
 {
-    public static bool isSet { get; private set; }
+    private static bool _isSet;
     public static void SetUp()
     {
-        if(isSet)
+        if(_isSet)
             return;
         VectorLine.SetEndCap("dashedArrow", EndCap.Front, -0.5f, Services.GameCfg.dashedLineTexture, Services.GameCfg.frontTexture);
         VectorLine.SetEndCap("fullArrow", EndCap.Front, -0.5f, Services.GameCfg.fullLineTexture, Services.GameCfg.frontTexture);
-        isSet = true;
+        _isSet = true;
     }
 }

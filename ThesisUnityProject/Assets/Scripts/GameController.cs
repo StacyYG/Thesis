@@ -25,18 +25,6 @@ public class GameController : MonoBehaviour
         transform.tag = "GameController";
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     public void LoadPrevScene()
     {
         var currentIndex = SceneManager.GetActiveScene().buildIndex;

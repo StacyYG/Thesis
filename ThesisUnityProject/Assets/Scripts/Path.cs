@@ -16,6 +16,11 @@ public class Path : MonoBehaviour
     // Start is called before the first frame update
     private void OnEnable()
     {
+        SetUpNewPath();
+    }
+
+    public void SetUpNewPath()
+    {
         _pathLine = new VectorLine("Path", new List<Vector3>(), dotSize * Screen.height / 1080f, LineType.Discrete);
         _myColor = GetComponent<SpriteRenderer>().color;
         _pathLine.color = _myColor;

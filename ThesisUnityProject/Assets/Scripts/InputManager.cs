@@ -28,19 +28,19 @@ public class InputManager
                             if (hit.collider.gameObject.CompareTag("ControllerSquare"))
                             {
                                 _fingerOnCtrlSqr = touch.fingerId;
-                                Services.ControllerSquare.OnMouseOrTouchDown();
+                                Services.ControllerButton.OnMouseOrTouchDown();
                             }
         
                             if (hit.collider.gameObject.CompareTag("CancelButton"))
                             {
                                 if (Services.CancelButton.Respond)
-                                    Services.ControllerSquare.ResetPlayerForce();
+                                    Services.ControllerButton.ResetPlayerForce();
                             }
                         }
                         break;
                     case TouchPhase.Moved:
                         if (touch.fingerId == _fingerOnCtrlSqr)
-                            Services.ControllerSquare.UpdateCurrentPlayerForce(_toWorldUnits(touch.position));
+                            Services.ControllerButton.UpdateCurrentPlayerForce(_toWorldUnits(touch.position));
                         break;
                     case TouchPhase.Stationary:
                         break;
@@ -48,7 +48,7 @@ public class InputManager
                     case TouchPhase.Canceled:
                         if (touch.fingerId == _fingerOnCtrlSqr)
                         {
-                            Services.ControllerSquare.OnMouseOrTouchUp();
+                            Services.ControllerButton.OnMouseOrTouchUp();
                             _fingerOnCtrlSqr = -1;
                         }
                         break;
@@ -68,7 +68,7 @@ public class InputManager
                     if (hit.collider.gameObject.CompareTag("ControllerSquare"))
                     {
                         _mouseStayOnCtrlSqr = true;
-                        Services.ControllerSquare.OnMouseOrTouchDown();
+                        Services.ControllerButton.OnMouseOrTouchDown();
                     }
 
                     if (hit.collider.gameObject.CompareTag("CancelButton"))
@@ -76,7 +76,7 @@ public class InputManager
                         if (Services.CancelButton.Respond)
                         {
                             _mouseStayOnCtrlSqr = false;
-                            Services.ControllerSquare.ResetPlayerForce();
+                            Services.ControllerButton.ResetPlayerForce();
                         }
                     }
 
@@ -88,14 +88,14 @@ public class InputManager
             }
             if (Input.GetMouseButton(0))
                 if (_mouseStayOnCtrlSqr)
-                    Services.ControllerSquare.UpdateCurrentPlayerForce(_toWorldUnits(Input.mousePosition));
+                    Services.ControllerButton.UpdateCurrentPlayerForce(_toWorldUnits(Input.mousePosition));
 
             if (Input.GetMouseButtonUp(0))
             {
                 if (_mouseStayOnCtrlSqr)
                 {
                     _mouseStayOnCtrlSqr = false;
-                    Services.ControllerSquare.OnMouseOrTouchUp();
+                    Services.ControllerButton.OnMouseOrTouchUp();
                 }
             }
 
@@ -104,7 +104,7 @@ public class InputManager
                 if (Services.CancelButton.Respond)
                 {
                     _mouseStayOnCtrlSqr = false;
-                    Services.ControllerSquare.ResetPlayerForce();
+                    Services.ControllerButton.ResetPlayerForce();
                 }
             }
         }

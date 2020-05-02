@@ -9,7 +9,7 @@ public class LevelManager1 : LevelManager
 {
     public LevelCfg1 cfg1;
     private TextMeshPro _tmp;
-    private GameObject _gateObj, _highlightObj;
+    private GameObject _gateObj;
     private int _failTimes;
     private List<PrintAndWait> _printTasks;
     private WaitAndPrint _firstForceReminder;
@@ -24,8 +24,6 @@ public class LevelManager1 : LevelManager
 
     private void Init()
     {
-        _highlightObj = GameObject.FindGameObjectWithTag("Highlight");
-        _highlightObj.SetActive(false);
         _tmp = GetComponent<TextMeshPro>();
         _gateCollider = GameObject.FindGameObjectWithTag("GateConstant").GetComponent<BoxCollider2D>();
         Services.CameraController.lockY = true;
@@ -43,17 +41,12 @@ public class LevelManager1 : LevelManager
     // Start is called before the first frame update
     public override void Start()
     {
-        Services.ControllerSquare.Start();
+        Services.GameController.ShowButtons(false);
+        Services.ControllerButton.Start();
         Services.CancelButton.Start();
-        taskManager.Do(Services.ControllerSquare.boundCircle.GrowUp);
+        taskManager.Do(Services.ControllerButton.boundCircle.GrowUp);
         _firstForceReminder = new WaitAndPrint(_tmp, cfg1.waitTime, cfg1.firstForceReminder);
         taskManager.Do(_firstForceReminder);
-    }
-
-    // Update is called once per frame
-    public override void Update()
-    {
-        base.Update();
     }
 
     public void OnLoseLife(AGPEvent e)
@@ -68,22 +61,31 @@ public class LevelManager1 : LevelManager
             case 6:
                 taskManager.Do(_printTasks[1]);
                 _printTasks[0].SetStatus(Task.TaskStatus.Success);
-                _highlightObj.SetActive(true);
-                var turnOff = new ActionTask(() => {_highlightObj.SetActive(false);});
-                var wait = new WaitTask(cfg1.failInstructions[1].duration);
-                wait.Then(turnOff);
-                taskManager.Do(wait);
+                float timer = 0f;
+                var shine = new DelegateTask(() =>
+                {
+                    Services.VelocityLine.MultiplyWidth(2f);
+                }, () =>
+                {
+                    timer += Time.deltaTime;
+                    Services.VelocityLine.SetColor(Color.Lerp(Services.GameCfg.velocityLineHighlightColor,
+                        Services.GameCfg.velocityLineColor, Mathf.PingPong(Time.time * 4f, 1)));
+                    if (timer > cfg1.failInstructions[1].duration)
+                    {
+                        Services.VelocityLine.SetColor(Services.GameCfg.velocityLineColor);
+                        Services.VelocityLine.MultiplyWidth(0.5f);
+                        return true;
+                    }
+
+                    return false;
+                });
+                taskManager.Do(shine);
                 break;
             case 9:
                 taskManager.Do(_printTasks[2]);
                 _printTasks[1].SetStatus(Task.TaskStatus.Success);
                 break;
         }
-    }
-
-    private void OnDestroy()
-    {
-        
     }
     
     public override void OnSuccess(AGPEvent e)

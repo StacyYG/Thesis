@@ -21,8 +21,11 @@ MonoBehaviour:
   currentForceColor: {r: 1, g: 1, b: 1, a: 1}
   previousNetForceColor: {r: 0.8018868, g: 0.8018868, b: 0.8018868, a: 1}
   currentNetForceColor: {r: 1, g: 0.2971698, b: 0.2971698, a: 1}
-  lineWidth: 35
+  forceLineWidth: 35
   vectorMultiplier: 0.4
+  velocityLineWidth: 30
+  velocityLineColor: {r: 0.7411765, g: 0.9874646, b: 1, a: 1}
+  velocityLineHighlightColor: {r: 1, g: 0.7411765, b: 0.7492241, a: 1}
   boundCircleColor: {r: 0.35826805, g: 0.52343434, b: 0.9150943, a: 1}
   segmentsPerRadius: 20
   startLifeNum: 3

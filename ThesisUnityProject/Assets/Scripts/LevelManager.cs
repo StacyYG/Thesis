@@ -7,7 +7,7 @@ public class LevelManager : MonoBehaviour
 {
     public GameCfg gameCfg;
     protected Rigidbody2D targetRb;
-    protected GameObject targetSqr, ctrlSqr, cxlButton, flagObj;
+    protected GameObject targetSqr, ctrlButton, cxlButton, flagObj;
     protected TaskManager taskManager;
 
     public virtual void Awake()
@@ -18,8 +18,8 @@ public class LevelManager : MonoBehaviour
         Services.Input = new InputManager();
         taskManager = new TaskManager();
         
-        ctrlSqr = GameObject.FindGameObjectWithTag("ControllerSquare");
-        Services.ControllerSquare = new ControllerSquare(ctrlSqr);
+        ctrlButton = GameObject.FindGameObjectWithTag("ControllerSquare");
+        Services.ControllerButton = new ControllerButton(ctrlButton);
 
         cxlButton = GameObject.FindGameObjectWithTag("CancelButton");
         Services.CancelButton = new CancelButton(cxlButton);
@@ -28,32 +28,32 @@ public class LevelManager : MonoBehaviour
         Services.TargetSquare = targetSqr.GetComponent<TargetSquare>();
         targetRb = targetSqr.GetComponent<Rigidbody2D>();
         Services.CameraController = new CameraController(Services.MainCamera, true, targetSqr.transform);
-        Services.VelocityBar = new VelocityBar(targetRb);
 
         flagObj = GameObject.FindGameObjectWithTag("Goal");
 
         Services.EventManager = new EventManager();
+        Services.EventManager.Register<Success>(OnSuccess);
 
         var speedWarning = GameObject.FindGameObjectWithTag("SpeedWarning");
         speedWarning.SetActive(false);
         
         Services.Forces = new List<Force>();
-        Services.GameController.ShowButtons(false);
-        Services.EventManager.Register<Success>(OnSuccess);
+        Services.VelocityLine = new VelocityLine(targetSqr);
     }
     
     public virtual void Start()
     {
-        Services.ControllerSquare.Start();
+        Services.GameController.ShowButtons(false);
+        Services.ControllerButton.Start();
         Services.CancelButton.Start();
-        taskManager.Do(Services.ControllerSquare.boundCircle.GrowUp);
+        taskManager.Do(Services.ControllerButton.boundCircle.GrowUp);
         taskManager.Do(Services.CancelButton.boundCircle.GrowUp);
     }
 
     public virtual void FixedUpdate()
     {
-        if(ctrlSqr.activeSelf && Services.ControllerSquare.respond) 
-            targetRb.AddForce(Services.ControllerSquare.PlayerForce);
+        if(ctrlButton.activeSelf && Services.ControllerButton.respond) 
+            targetRb.AddForce(Services.ControllerButton.PlayerForce);
         foreach (var force in Services.Forces)
             force.Update();
         if(Services.CameraController.isFollowing) 
@@ -63,16 +63,16 @@ public class LevelManager : MonoBehaviour
     public virtual void Update()
     {
         Services.Input.Update();
-        Services.VelocityBar.Update();
         taskManager.Update();
     }
 
     public virtual void LateUpdate()
     {
-        if(ctrlSqr.activeSelf && Services.ControllerSquare.respond) 
-            Services.ControllerSquare.LateUpdate();
+        if(ctrlButton.activeSelf && Services.ControllerButton.respond) 
+            Services.ControllerButton.LateUpdate();
         foreach (var force in Services.Forces)
             force.Draw();
+        Services.VelocityLine.LateUpdate();
     }
 
     public virtual void OnSuccess(AGPEvent e)
@@ -87,11 +87,11 @@ public class LevelManager : MonoBehaviour
                 new Vector3(cameraTransform.position.x, cameraTransform.position.y, 0f),
                 Quaternion.identity, cameraTransform);
             cxlButton.SetActive(false);
-            ctrlSqr.SetActive(false);
-            Services.ControllerSquare.respond = false;
-            Services.ControllerSquare.ResetPlayerForce();
-            Services.ControllerSquare.LateUpdate();
-            Services.ControllerSquare.boundCircle.Clear();
+            ctrlButton.SetActive(false);
+            Services.ControllerButton.respond = false;
+            Services.ControllerButton.ResetPlayerForce();
+            Services.ControllerButton.LateUpdate();
+            Services.ControllerButton.boundCircle.Clear();
             Services.CancelButton.boundCircle.Clear();
             Services.GameController.ShowButtons(true);
         });
