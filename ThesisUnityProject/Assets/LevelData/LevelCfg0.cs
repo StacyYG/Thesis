@@ -28,4 +28,7 @@ public class LevelCfg0 : ScriptableObject
     public string whenSuccess;
     public float nextLevelLoadTime;
     public string nextLevelText;
+
+    [Header("New Instructions")] 
+    public List<InstructionItem> instructions;
 }
