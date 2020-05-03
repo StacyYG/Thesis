@@ -25,7 +25,7 @@ MonoBehaviour:
   vectorMultiplier: 0.4
   velocityLineWidth: 30
   velocityLineColor: {r: 0.7411765, g: 0.9874646, b: 1, a: 1}
-  velocityLineHighlightColor: {r: 1, g: 0.7411765, b: 0.7492241, a: 1}
+  velocityLineHighlightColor: {r: 1, g: 0.23137254, b: 0.7323611, a: 1}
   boundCircleColor: {r: 0.35826805, g: 0.52343434, b: 0.9150943, a: 1}
   segmentsPerRadius: 20
   startLifeNum: 3
