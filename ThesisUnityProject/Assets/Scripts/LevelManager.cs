@@ -38,7 +38,6 @@ public class LevelManager : MonoBehaviour
         speedWarning.SetActive(false);
         
         Services.Forces = new List<Force>();
-        Services.VelocityLine = new VelocityLine(targetSqr);
     }
     
     public virtual void Start()
@@ -46,6 +45,7 @@ public class LevelManager : MonoBehaviour
         Services.GameController.ShowButtons(false);
         Services.ControllerButton.Start();
         Services.CancelButton.Start();
+        Services.VelocityLine = new VelocityLine(targetSqr);
         taskManager.Do(Services.ControllerButton.boundCircle.GrowUp);
         taskManager.Do(Services.CancelButton.boundCircle.GrowUp);
     }

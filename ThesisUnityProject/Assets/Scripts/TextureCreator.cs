@@ -47,7 +47,7 @@ public class TextureCreator : MonoBehaviour
 		float stepsizeX = 1f / width;
 		float stepsizeY = 1f / height;
 
-		Random.seed = 42;
+		Random.InitState(42);
 		for (int y = 0; y < height; y++)
 		{
 			//interpolate the corners first based on y then x; point0 for left side, point1 for the right side

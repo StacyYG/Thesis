@@ -52,9 +52,4 @@ MonoBehaviour:
   whenSuccess: Good job!
   nextLevelLoadTime: 3
   nextLevelText: Thanks for playing! More levels under construction.
-  instructions:
-  - startTime: 0
-    content: hello
-    duration: 3
-    textPosition: {x: 0, y: 1.5, z: 0}
-    whenToShow: 1
+  instructions: []

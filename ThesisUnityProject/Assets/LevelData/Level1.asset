@@ -23,10 +23,22 @@ MonoBehaviour:
   - startTime: 0
     content: Some little squares can pass the gate--is it because of how they move?
     duration: 3
+    textPosition: {x: 0, y: 0, z: 0}
+    whenToShow: 0
   - startTime: 0
     content: Ah I see! To pass the gate, your <b>speed</b> and <b>direction</b> should
       keep the same.
     duration: 3
+    textPosition: {x: 0, y: 0, z: 0}
+    whenToShow: 0
   - startTime: 0
     content: Force changes your speed and direction, so remove it.
     duration: 3
+    textPosition: {x: 0, y: 0, z: 0}
+    whenToShow: 0
+  instructions:
+  - startTime: 0
+    content: hello
+    duration: 3
+    textPosition: {x: 0, y: 1.5, z: 0}
+    whenToShow: 0

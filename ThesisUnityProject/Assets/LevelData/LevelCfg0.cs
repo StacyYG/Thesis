@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine.Serialization;
 
 [CreateAssetMenu(fileName = "Data", menuName = "ScriptableObjects/Level0", order = 1)]
-public class LevelCfg0 : ScriptableObject
+public class LevelCfg0 : LevelCfg
 {
     public Vector2 v0 = new Vector2(2f, 0f);
     [Header("Initial Instructions")]
@@ -28,7 +28,10 @@ public class LevelCfg0 : ScriptableObject
     public string whenSuccess;
     public float nextLevelLoadTime;
     public string nextLevelText;
+}
 
+public class LevelCfg : ScriptableObject
+{
     [Header("New Instructions")] 
     public List<InstructionItem> instructions;
 }
