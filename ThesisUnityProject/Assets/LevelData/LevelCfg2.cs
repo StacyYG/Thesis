@@ -11,4 +11,7 @@ public class LevelCfg2 : ScriptableObject
     public string gravityInstruction;
     public float gravityInstructionDuration;
 
+    [Header("New Instructions")] 
+    public List<InstructionItem> instructions;
+
 }

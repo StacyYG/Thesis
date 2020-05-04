@@ -19,13 +19,19 @@ MonoBehaviour:
   - startTime: 0
     content: How do forces affect motion?
     duration: 0
+    textPosition: {x: 0, y: 0, z: 0}
+    whenToShow: 0
   - startTime: 5
     content: This <b>Control Button</b> transfers any force it receives to the target
       box.
     duration: 0
+    textPosition: {x: 0, y: 0, z: 0}
+    whenToShow: 0
   - startTime: 5
     content: To add a force, you need to click the <b>Control Button</b>.
     duration: 0
+    textPosition: {x: 0, y: 0, z: 0}
+    whenToShow: 0
   whenFirstForce: Yes! you just added a force.
   secondForceRemindTime: 7
   secondForceReminder: Try to add another force.
@@ -46,3 +52,9 @@ MonoBehaviour:
   whenSuccess: Good job!
   nextLevelLoadTime: 3
   nextLevelText: Thanks for playing! More levels under construction.
+  instructions:
+  - startTime: 0
+    content: hello
+    duration: 3
+    textPosition: {x: 0, y: 1.5, z: 0}
+    whenToShow: 1

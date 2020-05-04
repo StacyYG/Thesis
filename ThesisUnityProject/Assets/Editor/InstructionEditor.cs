@@ -13,6 +13,7 @@ public class InstructionEditor : EditorWindow
     public float duration = 3f;
     public Transform container;
     public GameObject tmpPrefab;
+    public ScriptableObject levelData;
 
     [MenuItem("Tools/Instruction Editor")]
     public static void ShowWindow()
@@ -30,10 +31,41 @@ public class InstructionEditor : EditorWindow
         container =
             EditorGUILayout.ObjectField("Container", container, typeof(Transform), true) as Transform;
         tmpPrefab = EditorGUILayout.ObjectField("TMPPrefab", tmpPrefab, typeof(GameObject), false) as GameObject;
+        levelData = EditorGUILayout.ObjectField("Scriptable Object", levelData, typeof(ScriptableObject), false) as ScriptableObject;
         if (GUILayout.Button("Add"))
         {
             var textObj = Instantiate(tmpPrefab, textPosition, Quaternion.identity, container);
             textObj.GetComponent<TextMeshPro>().text = content;
+            textObj.name = content.Substring(0, Mathf.Min(10, content.Length));
+            var instruction = CreateInstruction();
+
+            //var type = levelData.GetType();
+            if (levelData is LevelCfg0)
+            {
+                var cfg0 = (LevelCfg0) levelData;
+                cfg0.instructions.Add(instruction);
+            }
+            else if (levelData is LevelCfg1)
+            {
+                var cfg1 = (LevelCfg1) levelData;
+                cfg1.instructions.Add(instruction);
+            }
+            else if (levelData is LevelCfg2)
+            {
+                var cfg2 = (LevelCfg2) levelData;
+                cfg2.instructions.Add(instruction);
+            }
         }
+        
+    }
+
+    private InstructionItem CreateInstruction()
+    {
+        var instruction = new InstructionItem();
+        instruction.textPosition = textPosition;
+        instruction.content = content;
+        instruction.whenToShow = whenToShow;
+        instruction.duration = duration;
+        return instruction;
     }
 }

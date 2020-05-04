@@ -17,4 +17,7 @@ public class LevelCfg1 : ScriptableObject
     public float duration;
     [Header("Fail Instructions")]
     public List<InstructionItem> failInstructions;
+    
+    [Header("New Instructions")] 
+    public List<InstructionItem> instructions;
 }
