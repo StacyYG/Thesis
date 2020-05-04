@@ -44,6 +44,7 @@ public class LevelManager1 : LevelManager
         Services.GameController.ShowButtons(false);
         Services.ControllerButton.Start();
         Services.CancelButton.Start();
+        Services.VelocityLine = new VelocityLine(targetSqr);
         taskManager.Do(Services.ControllerButton.boundCircle.GrowUp);
         _firstForceReminder = new WaitAndPrint(_tmp, cfg1.waitTime, cfg1.firstForceReminder);
         taskManager.Do(_firstForceReminder);

@@ -39,6 +39,7 @@ public class LevelManager0 : LevelManager
         Services.CancelButton.Start();
         Services.EventManager.Register<FirstForce>(OnFirstForce);
         Services.EventManager.Register<SecondForce>(OnSecondForce);
+        Services.VelocityLine = new VelocityLine(targetSqr);
         _initialInstructions = new List<Task>();
         targetSqr.GetComponent<Path>().SetUpNewPath();
         for (int i = 0; i < _instructions0.InitialInstructions.Count; i++)
