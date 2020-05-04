@@ -10,8 +10,4 @@ public class LevelCfg2 : LevelCfg
 
     public string gravityInstruction;
     public float gravityInstructionDuration;
-
-    [Header("New Instructions")] 
-    public List<InstructionItem> instructions;
-
 }

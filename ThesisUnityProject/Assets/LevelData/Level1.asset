@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c60448ec9e78054288f56c53f36b505, type: 3}
   m_Name: Level1
   m_EditorClassIdentifier: 
+  instructions: []
   waitTime: 3
   firstForceReminder: You haven't added any forces yet, try to add one.
   showCancelButtonTime: 2
@@ -35,10 +36,4 @@ MonoBehaviour:
     content: Force changes your speed and direction, so remove it.
     duration: 3
     textPosition: {x: 0, y: 0, z: 0}
-    whenToShow: 0
-  instructions:
-  - startTime: 0
-    content: hello
-    duration: 3
-    textPosition: {x: 0, y: 1.5, z: 0}
     whenToShow: 0

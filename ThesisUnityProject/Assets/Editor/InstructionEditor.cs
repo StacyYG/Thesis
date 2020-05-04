@@ -15,8 +15,8 @@ public class InstructionEditor : EditorWindow
     public Transform container;
     public GameObject tmpPrefab;
     public LevelCfg levelData;
-    private Dictionary<TextMeshPro, InstructionItem> _tmpToItem;
-    private Dictionary<InstructionItem, TextMeshPro> _itemToTmp;
+    private Dictionary<TextMeshPro, InstructionData> _tmpToItem = new Dictionary<TextMeshPro, InstructionData>();
+    private Dictionary<InstructionData, TextMeshPro> _itemToTmp = new Dictionary<InstructionData, TextMeshPro>();
 
     [MenuItem("Tools/Instruction Editor")]
     public static void ShowWindow()
@@ -38,42 +38,72 @@ public class InstructionEditor : EditorWindow
         if (GUILayout.Button("Add"))
         {
             var textObj = Instantiate(tmpPrefab, textPosition, Quaternion.identity, container);
-            textObj.GetComponent<TextMeshPro>().text = content;
+            var tmp = textObj.GetComponent<TextMeshPro>();
+            tmp.text = content;
             textObj.name = content.Substring(0, Mathf.Min(10, content.Length));
-            var instruction = CreateInstruction();
+            var instruction = CreateInstruction(textObj.name);
             levelData.instructions.Add(instruction);
+            // _itemToTmp.Add(instruction, tmp);
+            // _tmpToItem.Add(tmp, instruction);
+        }
+
+        if (GUILayout.Button("Clear"))
+        {
+            foreach (Transform child in container.transform)
+            {
+                DestroyImmediate(child.gameObject);
+            }
+
+            levelData.instructions.Clear();
         }
         
     }
 
-    private InstructionItem CreateInstruction()
+    private InstructionData CreateInstruction(string textObjName)
     {
-        var instruction = new InstructionItem();
-        instruction.textPosition = textPosition;
-        instruction.content = content;
+        var instruction = new InstructionData();
         instruction.whenToShow = whenToShow;
         instruction.duration = duration;
+        instruction.textObjName = textObjName;
         return instruction;
     }
 
-    private string _lastTmpText;
-    private string _lastItemText;
+    private List<string> _lastTmpTexts;
+    private List<string> _lastItemTexts;
     private TextMeshPro[] _tmps;
-    private InstructionItem[] _items;
+    private InstructionData[] _items;
     private void Update()
     {
         // _tmps = container.GetComponentsInChildren<TextMeshPro>();
-        // //_items = 
+        // _items = levelData.instructions.ToArray();
         // for (int i = 0; i < _tmps.Length; i++)
         // {
-        //     if (_tmps[i].text != _lastTmpText)
+        //     InstructionItem item;
+        //     if (!_tmpToItem.TryGetValue(_tmps[i], out item))
         //     {
-        //         InstructionItem item;
-        //         _tmpToItem.TryGetValue(_tmps[i], out item);
-        //         item.content = _tmps[i].text;
-        //         _lastTmpText = _tmps[i].text;
+        //         Debug.Log("cannot get instruction item");
         //         return;
         //     }
+        //     item.content = _tmps[i].text;
+        //     Debug.Log(item.content);
+        //
+        //     var temp = levelData.instructions[i];
+        //     temp.content = _tmps[i].text;
+        //     levelData.instructions[i] = temp;
+        //     //levelData.instructions[i].content = _tmps[i].text;
+        //     return;
+        // }
+        //
+        // for (int i = 0; i < _items.Length; i++)
+        // {
+        //     TextMeshPro tmp;
+        //     if (!_itemToTmp.TryGetValue(_items[i], out tmp))
+        //     {
+        //         Debug.Log("cannot get TextMeshPro");
+        //         return;
+        //     }
+        //
+        //     tmp.text = _items[i].content;
         // }
     }
 }

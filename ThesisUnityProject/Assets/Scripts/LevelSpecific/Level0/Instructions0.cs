@@ -26,12 +26,19 @@ public struct InstructionItem
     public float startTime;
     public string content;
     public float duration;
-    public Vector3 textPosition;
-    public Options whenToShow;
 }
 
 public enum Options
 {
     EventBased,
     FollowPrior
+}
+
+[System.Serializable]
+public struct InstructionData
+{
+    public string textObjName;
+    public Options whenToShow;
+    public float duration;
+    
 }

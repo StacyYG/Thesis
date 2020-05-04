@@ -33,5 +33,5 @@ public class LevelCfg0 : LevelCfg
 public class LevelCfg : ScriptableObject
 {
     [Header("New Instructions")] 
-    public List<InstructionItem> instructions;
+    public List<InstructionData> instructions;
 }
