@@ -34,8 +34,7 @@ public class Gate : MonoBehaviour
         trackV.collider = other;
         _trackVelocities.Add(trackV);
     }
-
-    int i = 0;
+    
     private void OnTriggerStay2D(Collider2D other)
     {
         if (!isDetect) return;

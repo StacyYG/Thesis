@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -40,5 +41,5 @@ public struct InstructionData
     public string textObjName;
     public Options whenToShow;
     public float duration;
-    
+    public Type myEvent;
 }
