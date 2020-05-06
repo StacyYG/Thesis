@@ -470,6 +470,11 @@ PrefabInstance:
       propertyPath: m_IsTrigger
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1768096542088210976, guid: 3a0d420468ed69e4e903084e206bb0dc,
+        type: 3}
+      propertyPath: m_Radius
+      value: 1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 6033808625161919472, guid: 3a0d420468ed69e4e903084e206bb0dc,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -488,17 +493,17 @@ PrefabInstance:
     - target: {fileID: 6033808625161919472, guid: 3a0d420468ed69e4e903084e206bb0dc,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6033808625161919472, guid: 3a0d420468ed69e4e903084e206bb0dc,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6033808625161919472, guid: 3a0d420468ed69e4e903084e206bb0dc,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6033808625161919472, guid: 3a0d420468ed69e4e903084e206bb0dc,
         type: 3}
@@ -768,6 +773,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []

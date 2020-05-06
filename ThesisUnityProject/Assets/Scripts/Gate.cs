@@ -59,7 +59,7 @@ public class Gate : MonoBehaviour
     {
         for (int i = 0; i < _trackVelocities.Count; i++)
             if (ReferenceEquals(_trackVelocities[i].collider, other))
-                _trackVelocities.Remove(_trackVelocities[i]);
+                _trackVelocities.RemoveAt(i);
         if (other.gameObject.CompareTag("TargetSquare"))
         {
             Services.EventManager.Fire(new LoseLife());

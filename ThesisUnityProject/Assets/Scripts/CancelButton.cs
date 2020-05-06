@@ -72,7 +72,7 @@ public class GravityButton
         {
             if (ReferenceEquals(_rbs[i], null))
             {
-                _rbs.Remove(_rbs[i]);
+                _rbs.RemoveAt(i);
                 return;
             }
             _rbs[i].gravityScale = GravityOn ? 1f : 0f;
