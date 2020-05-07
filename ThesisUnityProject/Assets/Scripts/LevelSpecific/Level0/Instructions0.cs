@@ -39,6 +39,8 @@ public enum Options
 public struct InstructionData
 {
     public string textObjName;
+    public Vector3 textPosition;
+    public string content;
     public Options whenToShow;
     public float duration;
     public Type myEvent;

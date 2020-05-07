@@ -12,7 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7260f6bda8c4a9f419e12fd7119738e9, type: 3}
   m_Name: Level0
   m_EditorClassIdentifier: 
-  instructions: []
+  instructions:
+  - textObjName: 
+    textPosition: {x: 0, y: 0, z: 0}
+    content: xx
+    whenToShow: 0
+    duration: 0
   v0: {x: 2, y: 0}
   showTargetSqrTime: 0
   showCtrlSqrTime: 5

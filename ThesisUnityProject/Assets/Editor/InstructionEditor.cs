@@ -9,10 +9,6 @@ using System.Linq;
 
 public class InstructionEditor : EditorWindow
 {
-    public Vector3 textPosition = new Vector3(0f, 1.5f, 0f);
-    public string content = "";
-    public Options whenToShow = Options.FollowPrior;
-    public float duration = 3f;
     public Transform container;
     public GameObject tmpPrefab;
     public LevelCfg levelData;
@@ -22,6 +18,8 @@ public class InstructionEditor : EditorWindow
     public int eventIndex = 0;
     public List<InstructionData> instructions;
     public int selectedInstruction = 0;
+    private InstructionData _current = new InstructionData();
+    private InstructionData _temp = new InstructionData();
     [MenuItem("Tools/Instruction Editor")]
     public static void ShowWindow()
     {
@@ -31,18 +29,33 @@ public class InstructionEditor : EditorWindow
     private void OnGUI()
     {
         if (EditorApplication.isPlaying) return;
-
-        GUILayout.Label("Add new", EditorStyles.boldLabel);
         container =
             EditorGUILayout.ObjectField("Container", container, typeof(Transform), true) as Transform;
         tmpPrefab = EditorGUILayout.ObjectField("TMP Prefab", tmpPrefab, typeof(GameObject), false) as GameObject;
         levelData = EditorGUILayout.ObjectField("Level Data", levelData, typeof(LevelCfg), false) as LevelCfg;
-        
         EditorGUI.BeginDisabledGroup(container == null || tmpPrefab == null || levelData == null || container.childCount != _textObjects.Count);
-        textPosition = EditorGUILayout.Vector3Field("Position", textPosition);
-        content = EditorGUILayout.TextField("Content", content);
-        duration = EditorGUILayout.FloatField("Duration", duration);
-        whenToShow = (Options)EditorGUILayout.EnumPopup("When to show", whenToShow);
+        EditorGUILayout.Space();
+        selectedInstruction = EditorGUILayout.Popup("Selected", selectedInstruction, _names.ToArray());
+        GUILayout.Label("Info", EditorStyles.boldLabel);
+        
+        if (instructions.Count == 0)
+        {
+            _current.textPosition = EditorGUILayout.Vector3Field("Position", _current.textPosition);
+            _current.content = EditorGUILayout.TextField("Content", _current.content);
+            _current.duration = EditorGUILayout.FloatField("Duration", _current.duration);
+            _current.whenToShow = (Options) EditorGUILayout.EnumPopup("When to show", _current.whenToShow);
+        }
+        else
+        {
+            Debug.Log("selected: " + selectedInstruction);
+            _current = instructions[selectedInstruction];
+            _current.textPosition = EditorGUILayout.Vector3Field("Position", _current.textPosition);
+            _current.content = EditorGUILayout.TextField("Content", _current.content);
+            _current.duration = EditorGUILayout.FloatField("Duration", _current.duration);
+            _current.whenToShow = (Options) EditorGUILayout.EnumPopup("When to show", _current.whenToShow);
+            //instructions[selectedInstruction] = _current;
+        }
+
         var typeList = typeof(AGPEvent).Assembly.GetTypes().Where(type => type.IsSubclassOf(typeof(AGPEvent)))
             .ToList();
         var stringList = new List<string>();
@@ -50,35 +63,42 @@ public class InstructionEditor : EditorWindow
         {
             stringList.Add(typeList[i].ToString());
         }
-        if (whenToShow == Options.EventBased)
+        if (_current.whenToShow == Options.EventBased)
         {
             eventIndex = EditorGUILayout.Popup("Event", eventIndex, stringList.ToArray());
         }
+        
         if (GUILayout.Button("Add"))
         {
-            var textObj = Instantiate(tmpPrefab, textPosition, Quaternion.identity, container);
+            Debug.Log("add loop");
+            _current.textPosition = EditorGUILayout.Vector3Field("Position", _current.textPosition);
+            _current.content = EditorGUILayout.TextField("Content", _current.content);
+            Debug.Log("content: " + _current.content);
+            _current.duration = EditorGUILayout.FloatField("Duration", _current.duration);
+            _current.whenToShow = (Options) EditorGUILayout.EnumPopup("When to show", _current.whenToShow);
+            var textObj = Instantiate(tmpPrefab, _current.textPosition, Quaternion.identity, container);
             var tmp = textObj.GetComponent<TextMeshPro>();
-            tmp.text = content;
-            textObj.name = content.Substring(0, Mathf.Min(10, content.Length));
-            var instruction = CreateInstruction(textObj.name, typeList[eventIndex]);
-            levelData.instructions.Add(instruction);
-            instructions.Add(instruction);
+            tmp.text = _current.content;
+            //textObj.name = _temp.content.Substring(0, Mathf.Min(10, _temp.content.Length));
+            Debug.Assert(levelData != null);
+            levelData.instructions.Add(_current);
+            instructions.Add(_current);
             _textObjects.Add(textObj);
             _names.Add(textObj.name);
+            selectedInstruction = instructions.Count - 1;
         }
         
         EditorGUILayout.Space();
         GUILayout.Label("Remove", EditorStyles.boldLabel);
         if (_textObjects.Count > 0)
         {
-            //toRemove = 0;
             toRemove = EditorGUILayout.Popup("To Remove", toRemove, _names.ToArray());
             if (GUILayout.Button("Remove"))
             {
                 DestroyImmediate(_textObjects[toRemove]);
                 _textObjects.RemoveAt(toRemove);
-                if(levelData != null) 
-                    levelData.instructions.RemoveAt(toRemove);
+                Debug.Assert(levelData != null); 
+                levelData.instructions.RemoveAt(toRemove);
                 instructions.RemoveAt(toRemove);
                 _names.RemoveAt(toRemove);
             }
@@ -86,16 +106,20 @@ public class InstructionEditor : EditorWindow
         EditorGUILayout.Space();
         
         GUILayout.Label("Edit", EditorStyles.boldLabel);
-        selectedInstruction = EditorGUILayout.Popup("To Edit", selectedInstruction, _names.ToArray());
+        if (GUILayout.Button("Edit"))
+        {
+            
+        }
         
-        if(container != null)
-            if (container.childCount != _textObjects.Count)
-            {
-                EditorGUILayout.HelpBox("Please use the Remove button instead of deleting game objects directly", MessageType.Warning);
-            }
+        Debug.Assert(container != null);
+        if (container.childCount != _textObjects.Count)
+        {
+            EditorGUILayout.HelpBox("container: " + container.childCount + "; textObjects: " + _textObjects.Count, MessageType.Warning);
+        }
         
         if (GUILayout.Button("Update"))
         {
+            selectedInstruction = 0;
             _names = new List<string>();
             foreach (var textObject in _textObjects)
             {
@@ -104,13 +128,14 @@ public class InstructionEditor : EditorWindow
                 _names.Add(textObject.name);
             }
 
-            if(levelData != null) 
-                for (int i = 0; i < levelData.instructions.Count; i++)
-                {
-                    var data = levelData.instructions[i];
-                    data.textObjName = _textObjects[i].name;
-                    levelData.instructions[i] = data;
-                }
+            
+            Debug.Assert(levelData != null); 
+            for (int i = 0; i < levelData.instructions.Count; i++)
+            {
+                var data = levelData.instructions[i];
+                data.textObjName = _textObjects[i].name;
+                levelData.instructions[i] = data;
+            }
         }
         EditorGUI.EndDisabledGroup();
         
@@ -119,10 +144,11 @@ public class InstructionEditor : EditorWindow
             for (int i = 0; i < _textObjects.Count; i++)
                 DestroyImmediate(_textObjects[i]);
             _textObjects.Clear();
-            if(levelData != null) 
-                levelData.instructions.Clear();
+            Debug.Assert(levelData != null); 
+            levelData.instructions.Clear();
             instructions.Clear();
             _names.Clear();
+            selectedInstruction = 0;
         }
         
         EditorGUILayout.Space();
@@ -139,16 +165,6 @@ public class InstructionEditor : EditorWindow
             EditorGUILayout.HelpBox("Assign a level data scriptable object", MessageType.Warning);
         }
         
-    }
-
-    private InstructionData CreateInstruction(string textObjName, Type myEvent)
-    {
-        var instruction = new InstructionData();
-        instruction.whenToShow = whenToShow;
-        instruction.duration = duration;
-        instruction.textObjName = textObjName;
-        instruction.myEvent = myEvent;
-        return instruction;
     }
 
     private void Update()
