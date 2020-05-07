@@ -13,13 +13,13 @@ public class InstructionEditor : EditorWindow
     public GameObject tmpPrefab;
     public LevelCfg levelData;
     private List<GameObject> _textObjects = new List<GameObject>();
-    public int toRemove = 0;
+    //public int toRemove = 0;
     private List<string> _names = new List<string>();
     public int eventIndex = 0;
     public List<InstructionData> instructions;
     public int selectedInstruction = 0;
-    private InstructionData _current = new InstructionData();
-    private InstructionData _temp = new InstructionData();
+    private InstructionData _selected = new InstructionData();
+    private InstructionData _new = new InstructionData();
     [MenuItem("Tools/Instruction Editor")]
     public static void ShowWindow()
     {
@@ -33,124 +33,7 @@ public class InstructionEditor : EditorWindow
             EditorGUILayout.ObjectField("Container", container, typeof(Transform), true) as Transform;
         tmpPrefab = EditorGUILayout.ObjectField("TMP Prefab", tmpPrefab, typeof(GameObject), false) as GameObject;
         levelData = EditorGUILayout.ObjectField("Level Data", levelData, typeof(LevelCfg), false) as LevelCfg;
-        EditorGUI.BeginDisabledGroup(container == null || tmpPrefab == null || levelData == null || container.childCount != _textObjects.Count);
-        EditorGUILayout.Space();
-        selectedInstruction = EditorGUILayout.Popup("Selected", selectedInstruction, _names.ToArray());
-        GUILayout.Label("Info", EditorStyles.boldLabel);
-        
-        if (instructions.Count == 0)
-        {
-            _current.textPosition = EditorGUILayout.Vector3Field("Position", _current.textPosition);
-            _current.content = EditorGUILayout.TextField("Content", _current.content);
-            _current.duration = EditorGUILayout.FloatField("Duration", _current.duration);
-            _current.whenToShow = (Options) EditorGUILayout.EnumPopup("When to show", _current.whenToShow);
-        }
-        else
-        {
-            Debug.Log("selected: " + selectedInstruction);
-            _current = instructions[selectedInstruction];
-            _current.textPosition = EditorGUILayout.Vector3Field("Position", _current.textPosition);
-            _current.content = EditorGUILayout.TextField("Content", _current.content);
-            _current.duration = EditorGUILayout.FloatField("Duration", _current.duration);
-            _current.whenToShow = (Options) EditorGUILayout.EnumPopup("When to show", _current.whenToShow);
-            //instructions[selectedInstruction] = _current;
-        }
-
-        var typeList = typeof(AGPEvent).Assembly.GetTypes().Where(type => type.IsSubclassOf(typeof(AGPEvent)))
-            .ToList();
-        var stringList = new List<string>();
-        for (int i = 0; i < typeList.Count; i++)
-        {
-            stringList.Add(typeList[i].ToString());
-        }
-        if (_current.whenToShow == Options.EventBased)
-        {
-            eventIndex = EditorGUILayout.Popup("Event", eventIndex, stringList.ToArray());
-        }
-        
-        if (GUILayout.Button("Add"))
-        {
-            Debug.Log("add loop");
-            _current.textPosition = EditorGUILayout.Vector3Field("Position", _current.textPosition);
-            _current.content = EditorGUILayout.TextField("Content", _current.content);
-            Debug.Log("content: " + _current.content);
-            _current.duration = EditorGUILayout.FloatField("Duration", _current.duration);
-            _current.whenToShow = (Options) EditorGUILayout.EnumPopup("When to show", _current.whenToShow);
-            var textObj = Instantiate(tmpPrefab, _current.textPosition, Quaternion.identity, container);
-            var tmp = textObj.GetComponent<TextMeshPro>();
-            tmp.text = _current.content;
-            //textObj.name = _temp.content.Substring(0, Mathf.Min(10, _temp.content.Length));
-            Debug.Assert(levelData != null);
-            levelData.instructions.Add(_current);
-            instructions.Add(_current);
-            _textObjects.Add(textObj);
-            _names.Add(textObj.name);
-            selectedInstruction = instructions.Count - 1;
-        }
-        
-        EditorGUILayout.Space();
-        GUILayout.Label("Remove", EditorStyles.boldLabel);
-        if (_textObjects.Count > 0)
-        {
-            toRemove = EditorGUILayout.Popup("To Remove", toRemove, _names.ToArray());
-            if (GUILayout.Button("Remove"))
-            {
-                DestroyImmediate(_textObjects[toRemove]);
-                _textObjects.RemoveAt(toRemove);
-                Debug.Assert(levelData != null); 
-                levelData.instructions.RemoveAt(toRemove);
-                instructions.RemoveAt(toRemove);
-                _names.RemoveAt(toRemove);
-            }
-        }
-        EditorGUILayout.Space();
-        
-        GUILayout.Label("Edit", EditorStyles.boldLabel);
-        if (GUILayout.Button("Edit"))
-        {
-            
-        }
-        
-        Debug.Assert(container != null);
-        if (container.childCount != _textObjects.Count)
-        {
-            EditorGUILayout.HelpBox("container: " + container.childCount + "; textObjects: " + _textObjects.Count, MessageType.Warning);
-        }
-        
-        if (GUILayout.Button("Update"))
-        {
-            selectedInstruction = 0;
-            _names = new List<string>();
-            foreach (var textObject in _textObjects)
-            {
-                var text = textObject.GetComponent<TextMeshPro>().text;
-                textObject.name = text.Substring(0, Mathf.Min(10, text.Length));
-                _names.Add(textObject.name);
-            }
-
-            
-            Debug.Assert(levelData != null); 
-            for (int i = 0; i < levelData.instructions.Count; i++)
-            {
-                var data = levelData.instructions[i];
-                data.textObjName = _textObjects[i].name;
-                levelData.instructions[i] = data;
-            }
-        }
-        EditorGUI.EndDisabledGroup();
-        
-        if (GUILayout.Button("Clear"))
-        {
-            for (int i = 0; i < _textObjects.Count; i++)
-                DestroyImmediate(_textObjects[i]);
-            _textObjects.Clear();
-            Debug.Assert(levelData != null); 
-            levelData.instructions.Clear();
-            instructions.Clear();
-            _names.Clear();
-            selectedInstruction = 0;
-        }
-        
+                
         EditorGUILayout.Space();
         if (container == null)
         {
@@ -165,10 +48,117 @@ public class InstructionEditor : EditorWindow
             EditorGUILayout.HelpBox("Assign a level data scriptable object", MessageType.Warning);
         }
         
+        EditorGUI.BeginDisabledGroup(container == null || tmpPrefab == null || levelData == null || container.childCount != _textObjects.Count);
+        EditorGUILayout.Space();
+
+        EditorGUILayout.Space();
+        GUILayout.Label("Add New", EditorStyles.boldLabel);
+        
+        _new.textPosition = EditorGUILayout.Vector3Field("Position", _new.textPosition);
+        _new.content = EditorGUILayout.TextField("Content", _new.content);
+        _new.duration = EditorGUILayout.FloatField("Duration", _new.duration);
+        _new.whenToShow = (Options) EditorGUILayout.EnumPopup("When to show", _new.whenToShow);
+
+        var typeList = typeof(AGPEvent).Assembly.GetTypes().Where(type => type.IsSubclassOf(typeof(AGPEvent)))
+            .ToList();
+        var stringList = new List<string>();
+        for (int i = 0; i < typeList.Count; i++)
+        {
+            stringList.Add(typeList[i].ToString());
+        }
+        if (_selected.whenToShow == Options.EventBased)
+        {
+            eventIndex = EditorGUILayout.Popup("Event", eventIndex, stringList.ToArray());
+        }
+        
+        if (GUILayout.Button("Add"))
+        {
+            var textObj = Instantiate(tmpPrefab, _new.textPosition, Quaternion.identity, container);
+            var tmp = textObj.GetComponent<TextMeshPro>();
+            tmp.text = _new.content;
+            textObj.name = _new.content.Substring(0, Mathf.Min(10, _new.content.Length));
+            levelData.instructions.Add(_new);
+            instructions.Add(_new);
+            _textObjects.Add(textObj);
+            _names.Add(textObj.name);
+            selectedInstruction = instructions.Count - 1;
+        }
+        EditorGUILayout.Space();
+        GUILayout.Label("Edit", EditorStyles.boldLabel);
+        selectedInstruction = EditorGUILayout.Popup("Selected", selectedInstruction, _names.ToArray());
+        if (instructions.Count != 0)
+        {
+            _selected = instructions[selectedInstruction];
+            _selected.textPosition = EditorGUILayout.Vector3Field("Position", _selected.textPosition);
+            _selected.content = EditorGUILayout.TextField("Content", _selected.content);
+            _selected.duration = EditorGUILayout.FloatField("Duration", _selected.duration);
+            _selected.whenToShow = (Options) EditorGUILayout.EnumPopup("When to show", _selected.whenToShow);
+            instructions[selectedInstruction] = _selected;
+        }
+        
+        if(container != null) 
+            if (container.childCount != _textObjects.Count)
+            {
+                EditorGUILayout.HelpBox("container: " + container.childCount + "; textObjects: " + _textObjects.Count, MessageType.Warning);
+            }
+        
+        EditorGUILayout.Space();
+        if (GUILayout.Button("Update"))
+        {
+            _names = new List<string>();
+            for (int i = 0; i < instructions.Count; i++)
+            {
+                var content = instructions[i].content;
+                var objName = content.Substring(0, Mathf.Min(10, content.Length));
+                _textObjects[i].GetComponent<TextMeshPro>().text = content;
+                _textObjects[i].name = objName;
+                _names.Add(objName);
+                
+                var data = levelData.instructions[i];
+                data.content = instructions[i].content;
+                data.duration = instructions[i].duration;
+                data.myEvent = instructions[i].myEvent;
+                data.textPosition = instructions[i].textPosition;
+                data.whenToShow = instructions[i].whenToShow;
+                levelData.instructions[i] = data;
+            }
+        }
+        EditorGUILayout.Space();
+        if (_textObjects.Count > 0)
+        {
+            if (GUILayout.Button("Remove"))
+            {
+                DestroyImmediate(_textObjects[selectedInstruction]);
+                _textObjects.RemoveAt(selectedInstruction);
+                levelData.instructions.RemoveAt(selectedInstruction);
+                instructions.RemoveAt(selectedInstruction);
+                _names.RemoveAt(selectedInstruction);
+                selectedInstruction = selectedInstruction == 0 ? 0 : selectedInstruction - 1;
+            }
+        }
+        EditorGUILayout.Space();
+        EditorGUI.EndDisabledGroup();
+        
+        if (GUILayout.Button("Clear"))
+        {
+            for (int i = 0; i < _textObjects.Count; i++)
+                DestroyImmediate(_textObjects[i]);
+            _textObjects.Clear();
+            if(levelData != null)
+                levelData.instructions.Clear();
+            instructions.Clear();
+            _names.Clear();
+            selectedInstruction = 0;
+        }
+
     }
 
     private void Update()
     {
         if (EditorApplication.isPlaying) return;
+        for (int i = 0; i < instructions.Count; i++)
+        {
+            _textObjects[i].transform.position = instructions[i].textPosition;
+        }
     }
 }

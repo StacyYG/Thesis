@@ -38,9 +38,8 @@ public enum Options
 [System.Serializable]
 public struct InstructionData
 {
-    public string textObjName;
-    public Vector3 textPosition;
     public string content;
+    public Vector3 textPosition;
     public Options whenToShow;
     public float duration;
     public Type myEvent;
