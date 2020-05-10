@@ -81,11 +81,11 @@ public class InputManager
                     }
 
                     if (hit.collider.gameObject.CompareTag("GravityButton"))
-                    {
                         Services.GravityButton.GravitySwitch();
-                    }
+                    
                 }
             }
+            
             if (Input.GetMouseButton(0))
                 if (_mouseStayOnCtrlSqr)
                     Services.ControllerButton.UpdateCurrentPlayerForce(_toWorldUnits(Input.mousePosition));
@@ -107,6 +107,7 @@ public class InputManager
                     Services.ControllerButton.ResetPlayerForce();
                 }
             }
+            
         }
     }
 

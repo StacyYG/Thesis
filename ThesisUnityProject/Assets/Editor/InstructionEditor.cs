@@ -156,9 +156,9 @@ public class InstructionEditor : EditorWindow
     private void Update()
     {
         if (EditorApplication.isPlaying) return;
-        for (int i = 0; i < instructions.Count; i++)
-        {
-            _textObjects[i].transform.position = instructions[i].textPosition;
-        }
+        // for (int i = 0; i < instructions.Count; i++)
+        // {
+        //     _textObjects[i].transform.position = instructions[i].textPosition;
+        // }
     }
 }

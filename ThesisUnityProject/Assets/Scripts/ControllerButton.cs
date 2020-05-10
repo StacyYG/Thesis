@@ -22,10 +22,6 @@ public class ControllerButton
         gameObject.GetComponent<CircleCollider2D>().radius = MaxForceSize;
         _vectorMultiplier = Services.GameCfg.vectorMultiplier;
     }
-    
-    public void Awake()
-    {
-    }
 
     // Start is called before the first frame update
     public void Start()

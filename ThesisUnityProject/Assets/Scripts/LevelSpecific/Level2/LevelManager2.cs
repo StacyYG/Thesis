@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using TMPro;
 using Random = UnityEngine.Random;
@@ -10,6 +11,7 @@ public class LevelManager2 : LevelManager
     private TextMeshPro _tmp;
     public GameObject barrier, gate0, gate1, gate2, randomComets0, randomComets1;
     public LevelCfg2 cfg2;
+    private List<Rigidbody2D> _activeRbs;
     
     public override void Awake()
     {
@@ -32,6 +34,7 @@ public class LevelManager2 : LevelManager
         gate1.SetActive(false);
         gate2.SetActive(false);
         Services.EventManager.Register<FirstGravity>(OnFirstGravity);
+        _activeRbs = new List<Rigidbody2D>();
     }
     
     // Start is called before the first frame update
@@ -90,12 +93,29 @@ public class LevelManager2 : LevelManager
     {
         base.Update();
         if (Input.GetKeyDown(KeyCode.G))
-        {
             Services.GravityButton.GravitySwitch();
-        }
+        
         Services.GravityButton.UpdateGravity();
+
+        for (int i = 0; i < _activeRbs.Count; i++)
+        {
+            if (_isInCameraView(_activeRbs[i].position))
+            {
+                
+            }
+
+            var sth = _activeRbs[i].position;
+        }
     }
 
+    private bool _isInCameraView(Vector2 position)
+    {
+        if (position.x > Services.CameraController.viewMargin.right) return false;
+        if (position.x < Services.CameraController.viewMargin.left) return false;
+        if (position.y > Services.CameraController.viewMargin.up) return false;
+        if (position.y < Services.CameraController.viewMargin.down) return false;
+        return true;
+    }
     public override void OnSuccess(AGPEvent e)
     {
         base.OnSuccess(e);

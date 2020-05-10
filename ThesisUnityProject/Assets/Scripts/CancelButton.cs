@@ -10,7 +10,6 @@ public class CancelButton
     private float _boundCircleRadius;
     private VectorLine _circleLine;
     public bool Respond = true;
-    private const int Segments = 20;
     public BoundCircle boundCircle;
     private GameObject _gameObject;
 
@@ -32,7 +31,6 @@ public class GravityButton
     private GameObject _triangle;
     private List<Rigidbody2D> _rbs;
     private float _boundCircleRadius;
-    private const int Segments = 15;
     public bool GravityOn { get; private set; }
 
     public GravityButton(GameObject circleObj, GameObject triangleObj)
