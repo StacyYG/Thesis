@@ -14,7 +14,6 @@ public class InstructionEditor : EditorWindow
     public LevelCfg levelData;
     private List<GameObject> _textObjects = new List<GameObject>();
     private List<string> _names = new List<string>();
-    //public int eventIndex = 0;
     public List<InstructionData> instructions;
     public int selectedIndex = 0;
     private InstructionData _selected = new InstructionData();
@@ -30,6 +29,11 @@ public class InstructionEditor : EditorWindow
     }
 
     private void Awake()
+    {
+        GetEvents();
+    }
+
+    private void OnEnable()
     {
         GetEvents();
     }
@@ -176,6 +180,7 @@ public class InstructionEditor : EditorWindow
     private void Update()
     {
         if (EditorApplication.isPlaying) return;
+        if(instructions.Count == 0 || _textObjects.Count == 0) return;
         for (int i = 0; i < instructions.Count; i++)
         {
             _textObjects[i].transform.position = instructions[i].textPosition;

@@ -12,4 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a1567f4528c76445ab4929bfce1c337, type: 3}
   m_Name: example
   m_EditorClassIdentifier: 
-  instructions: []
+  instructions:
+  - content: first instruction
+    textPosition: {x: 0, y: 0, z: 0}
+    whenToShow: 0
+    duration: 1
+    eventIndex: 2
+    eventName: FirstForce
+  - content: and second
+    textPosition: {x: 0, y: -1.03, z: 0}
+    whenToShow: 0
+    duration: 3
+    eventIndex: 6
+    eventName: Success
+  - content: yes
+    textPosition: {x: 0, y: -2.71, z: 0}
+    whenToShow: 0
+    duration: 5
+    eventIndex: 8
+    eventName: GainLife
