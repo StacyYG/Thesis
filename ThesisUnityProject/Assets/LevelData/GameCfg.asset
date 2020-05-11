@@ -21,6 +21,7 @@ MonoBehaviour:
   currentForceColor: {r: 1, g: 1, b: 1, a: 1}
   previousNetForceColor: {r: 0.8018868, g: 0.8018868, b: 0.8018868, a: 1}
   currentNetForceColor: {r: 1, g: 0.2971698, b: 0.2971698, a: 1}
+  gravityColor: {r: 0.5754717, g: 0.5754717, b: 0.5754717, a: 1}
   forceLineWidth: 35
   vectorMultiplier: 0.4
   velocityLineWidth: 30

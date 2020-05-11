@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Vectrosity;
+using Object = UnityEngine.Object;
 
 public class CancelButton
 {
@@ -31,18 +32,26 @@ public class GravityButton
     private GameObject _triangle;
     private List<Rigidbody2D> _rbs;
     private float _boundCircleRadius;
+    private List<Rigidbody2D> _allRbs, _activeRbs;
     public bool GravityOn { get; private set; }
 
-    public GravityButton(GameObject circleObj, GameObject triangleObj)
+    public GravityButton(GameObject circleObj)
     {
         _boundCircleRadius = circleObj.GetComponent<CircleCollider2D>().radius;
-        _triangle = triangleObj;
+        _triangle = circleObj.transform.GetChild(0).gameObject;
+        Init();
     }
 
     public void Start()
     {
         boundCircle = new BoundCircle(_boundCircleRadius, _triangle.transform);
-        _rbs = GameObject.FindObjectsOfType<Rigidbody2D>().ToList();
+        for (int i = 0; i < _allRbs.Count; i++)
+        {
+            if (!_allRbs[i].CompareTag("TargetSquare"))
+                if (_allRbs[i].gameObject.GetComponent<SpriteRenderer>())
+                    new Gravity(_allRbs[i].gameObject,
+                        _allRbs[i].gameObject.GetComponent<SpriteRenderer>().color + new Color(0.2f, 0.2f, 0.2f, 1f));
+        }
     }
 
     public void GravitySwitch()
@@ -58,22 +67,56 @@ public class GravityButton
             _triangle.transform.localScale = new Vector3(1f, 1f, 1f);
         }
     }
-    
-    public void UpdateRbs()
+
+    private void Init()
     {
-        _rbs = GameObject.FindObjectsOfType<Rigidbody2D>().ToList();
+        _allRbs = new List<Rigidbody2D>();
+        _activeRbs = new List<Rigidbody2D>();
+        _allRbs = Object.FindObjectsOfType<Rigidbody2D>().ToList();
+        _activeRbs = Object.FindObjectsOfType<Rigidbody2D>().ToList();
+    }
+    private bool _isInCameraView(Vector2 position)
+    {
+        if (position.x > Services.CameraController.viewMargin.right) return false;
+        if (position.x < Services.CameraController.viewMargin.left) return false;
+        if (position.y > Services.CameraController.viewMargin.up) return false;
+        if (position.y < Services.CameraController.viewMargin.down) return false;
+        return true;
     }
 
-    public void UpdateGravity()
+    public void Update()
     {
-        for (int i = 0; i < _rbs.Count; i++)
+        UpdateRbs();
+        UpdateGravity();
+    }
+
+    private void UpdateRbs()
+    {
+        for (int i = 0; i < _allRbs.Count; i++)
         {
-            if (ReferenceEquals(_rbs[i], null))
+            if (_isInCameraView(_allRbs[i].position))
             {
-                _rbs.RemoveAt(i);
-                return;
+                if (!_allRbs[i].gameObject.activeSelf)
+                {
+                    _allRbs[i].gameObject.SetActive(true);
+                    _activeRbs.Add(_allRbs[i]);
+                }
             }
-            _rbs[i].gravityScale = GravityOn ? 1f : 0f;
+            else
+            {
+                if (_allRbs[i].gameObject.activeSelf)
+                {
+                    _allRbs[i].gameObject.SetActive(false);
+                    _activeRbs.Remove(_allRbs[i]);
+                }
+            }
+        }
+    }
+    private void UpdateGravity()
+    {
+        for (int i = 0; i < _activeRbs.Count; i++)
+        {
+            _activeRbs[i].gravityScale = GravityOn ? 1f : 0f;
         }
     }
 }

@@ -71,10 +71,10 @@ public class CameraController
 		}
 
 		_transform.position = new Vector3(x, y, currentPos.z);
-		viewMargin.left = x - cameraBoundHalfX;
-		viewMargin.right = x + cameraBoundHalfX;
-		viewMargin.down = y - cameraBoundHalfY;
-		viewMargin.up = y + cameraBoundHalfY;
+		viewMargin.left = x - cameraBoundHalfX - 2f;
+		viewMargin.right = x + cameraBoundHalfX + 2f;
+		viewMargin.down = y - cameraBoundHalfY - 1f;
+		viewMargin.up = y + cameraBoundHalfY + 1f;
 	}
 	
 }

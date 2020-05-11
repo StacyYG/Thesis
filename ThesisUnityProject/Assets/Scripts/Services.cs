@@ -76,15 +76,7 @@ public static class Services
         }
         set { _cameraController = value; }
     }
-
-    // private static int _totalLineNumber;
-    //
-    // public static int TotalLineNumber
-    // {
-    //     get => _totalLineNumber;
-    //     set => _totalLineNumber = value;
-    // }
-
+    
     private static EventManager _eventManager;
     public static EventManager EventManager
     {
@@ -144,18 +136,6 @@ public static class Services
         set => _livesBar = value;
     }
     
-    // private static VelocityBar _velocityBar;
-    //
-    // public static VelocityBar VelocityBar
-    // {
-    //     get
-    //     {
-    //         Debug.Assert(_velocityBar != null);
-    //         return _velocityBar;
-    //     }
-    //     set => _velocityBar = value;
-    // }
-
     private static List<Force> _forces = new List<Force>();
 
     public static List<Force> Forces

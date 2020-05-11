@@ -65,16 +65,16 @@ public class LevelManager1 : LevelManager
                 float timer = 0f;
                 var shine = new DelegateTask(() =>
                 {
-                    Services.VelocityLine.MultiplyWidth(2f);
+                    Services.VelocityLine.MultiplyWidth(2.5f);
                 }, () =>
                 {
                     timer += Time.deltaTime;
                     Services.VelocityLine.SetColor(Color.Lerp(Services.GameCfg.velocityLineHighlightColor,
-                        Services.GameCfg.velocityLineColor, Mathf.PingPong(Time.time * 4f, 1)));
+                        Color.red, Mathf.PingPong(Time.time * 4f, 1)));
                     if (timer > cfg1.failInstructions[1].duration)
                     {
                         Services.VelocityLine.SetColor(Services.GameCfg.velocityLineColor);
-                        Services.VelocityLine.MultiplyWidth(0.5f);
+                        Services.VelocityLine.MultiplyWidth(0.4f);
                         return true;
                     }
 

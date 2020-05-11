@@ -27,7 +27,7 @@ public class TargetSquare : MonoBehaviour
     private void OnDestroy()
     {
         foreach (var force in Services.Forces)
-            force.Destroy();
+            force.DestroyLine();
     }
 
     public void Update()

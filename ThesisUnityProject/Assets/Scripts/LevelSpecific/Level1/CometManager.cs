@@ -7,6 +7,7 @@ public class CometManager : MonoBehaviour
     public GameObject comet;
     public static ObjectPool objectPool;
     public Vector2 spawnDistance;
+    public Vector2 spawnMargin;
     public int initialPoolNumber;
     private float _width, _height, _spawnInterval, _spawnTimer;
     private int _columnNum, _rowNum;
@@ -18,8 +19,8 @@ public class CometManager : MonoBehaviour
     {
         objectPool = new ObjectPool(this, initialPoolNumber);
         objectPool.Add(comet);
-        _width = Services.CameraController.cameraBoundHalfX * 2f;
-        _height = Services.CameraController.cameraBoundHalfY * 2f;
+        _width = spawnMargin.x * 2f;
+        _height = spawnMargin.y * 2f;
         _columnNum = (int) (_width / spawnDistance.x);
         _rowNum = (int) (_height / spawnDistance.y);
         _spawnPositions = new Vector2[_columnNum, _rowNum];
@@ -51,8 +52,8 @@ public class CometManager : MonoBehaviour
             {
                 _spawnPositions[i, j] = (Vector2) transform.position +
                                         new Vector2(
-                                            -Services.CameraController.cameraBoundHalfX + (i + 0.5f) * spawnDistance.x,
-                                            -Services.CameraController.cameraBoundHalfY + (j + 0.5f) * spawnDistance.y) +
+                                            -spawnMargin.x + (i + 0.5f) * spawnDistance.x,
+                                            -spawnMargin.y + (j + 0.5f) * spawnDistance.y) +
                                         0.5f * Random.insideUnitCircle;
                 var spawnedObj = objectPool.Spawn(_spawnPositions[i, j]);
                 spawnedObj.GetComponent<Rigidbody2D>().velocity =

@@ -48,6 +48,8 @@ public class LevelManager : MonoBehaviour
         Services.VelocityLine = new VelocityLine(targetSqr);
         taskManager.Do(Services.ControllerButton.boundCircle.GrowUp);
         taskManager.Do(Services.CancelButton.boundCircle.GrowUp);
+        if (targetRb.gravityScale > Mathf.Epsilon)
+            new Gravity(targetSqr, Services.GameCfg.gravityColor);
     }
 
     public virtual void FixedUpdate()
@@ -56,8 +58,7 @@ public class LevelManager : MonoBehaviour
             targetRb.AddForce(Services.ControllerButton.PlayerForce);
         foreach (var force in Services.Forces)
             force.Update();
-        if(Services.CameraController.isFollowing) 
-            Services.CameraController.Update();
+        Services.CameraController.Update();
     }
 
     public virtual void Update()
@@ -90,10 +91,12 @@ public class LevelManager : MonoBehaviour
             ctrlButton.SetActive(false);
             Services.ControllerButton.respond = false;
             Services.ControllerButton.ResetPlayerForce();
-            Services.ControllerButton.LateUpdate();
             Services.ControllerButton.boundCircle.Clear();
             Services.CancelButton.boundCircle.Clear();
             Services.GameController.ShowButtons(true);
+            foreach (var force in Services.Forces)
+                force.HideLine(true);
+            Services.VelocityLine.Hide(true);
         });
         waitToShowButton.Then(showButton);
         taskManager.Do(waitToShowButton);

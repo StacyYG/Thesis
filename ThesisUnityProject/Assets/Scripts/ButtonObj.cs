@@ -13,7 +13,6 @@ public class ButtonObj : MonoBehaviour
     private ContactPoint2D[] _contacts = new ContactPoint2D[4];
     public float k;
     public float threshold = 0.3f;
-    public float tiredRecoverTime = 1f;
     private bool _isTired;
     private float _tiredTimer;
 
@@ -49,20 +48,23 @@ public class ButtonObj : MonoBehaviour
 
     private void OnCollisionStay2D(Collision2D other)
     {
-        var contactNum = other.GetContacts(_contacts);
-        float pressureSize = 0f;
-        for (int i = 0; i < contactNum; i++)
+        if(!other.gameObject.CompareTag("Comet"))
         {
-            pressureSize += _contacts[i].normalImpulse;
-        }
+            var contactNum = other.GetContacts(_contacts);
+            float pressureSize = 0f;
+            for (int i = 0; i < contactNum; i++)
+            {
+                pressureSize += _contacts[i].normalImpulse;
+            }
         
-        var y = _restScale.y;
-        y *= 1f - k * pressureSize;
-        transform.localScale = new Vector3(_restScale.x, Mathf.Max(y, smallestY), _restScale.z);
-        if (transform.localScale.y < threshold && !_isTired)
-        {
-            Services.EventManager.Fire(new ButtonObjPressed(true));
-            _isTired = true;
+            var y = _restScale.y;
+            y *= 1f - k * pressureSize;
+            transform.localScale = new Vector3(_restScale.x, Mathf.Max(y, smallestY), _restScale.z);
+            if (transform.localScale.y < threshold && !_isTired)
+            {
+                Services.EventManager.Fire(new ButtonObjPressed(true));
+                _isTired = true;
+            }
         }
     }
 }

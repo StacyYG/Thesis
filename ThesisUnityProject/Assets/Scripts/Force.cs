@@ -21,11 +21,15 @@ public abstract class Force
         Services.Forces.Add(this);
     }
 
-    public void Destroy()
+    public void DestroyLine()
     {
         VectorLine.Destroy(ref line);
     }
 
+    public void HideLine(bool isHide)
+    {
+        line.active = !isHide;
+    }
     public void SetVector(Vector2 forceVector)
     {
         _vector = forceVector;
@@ -44,13 +48,13 @@ public abstract class Force
 
 public class Gravity : Force
 {
-    public Gravity(GameObject gameObject) : base(gameObject)
+    public Gravity(GameObject gameObject, Color color) : base(gameObject)
     {
-        line.name = "Gravity";
+        line.name = "Gravity_" + gameObject.name;
         line.endCap = "fullArrow";
-        line.color = Color.gray;
+        line.color = color;
     }
-
+    
     public override void Update()
     {
         SetVector(new Vector2(0f, Physics2D.gravity.y * rb.mass * rb.gravityScale));

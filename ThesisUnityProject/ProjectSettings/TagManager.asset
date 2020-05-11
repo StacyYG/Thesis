@@ -22,6 +22,7 @@ TagManager:
   - ChaseItem
   - SubGameController
   - GravityButton
+  - Comet
   layers:
   - Default
   - TransparentFX

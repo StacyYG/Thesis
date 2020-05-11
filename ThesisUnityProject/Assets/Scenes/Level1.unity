@@ -289,6 +289,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -841,7 +842,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 837107172}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -15.87, y: 9.21, z: 0}
+  m_LocalPosition: {x: -15.87, y: 8.5, z: 0}
   m_LocalScale: {x: 100, y: 10, z: 1}
   m_Children: []
   m_Father: {fileID: 273327866}
@@ -1042,6 +1043,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   comet: {fileID: 562851285663167959, guid: c2aef3707ef65ba4db140bb8fe23973e, type: 3}
   spawnDistance: {x: 4, y: 2}
+  spawnMargin: {x: 8, y: 4}
   initialPoolNumber: 100
   averageSpeed: 1.75
   speedDeviation: 0.25
@@ -1053,7 +1055,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1331965582}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1085,7 +1087,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1368935866}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -15.87, y: -9.21, z: 0}
+  m_LocalPosition: {x: -15.87, y: -9, z: 0}
   m_LocalScale: {x: 100, y: 10, z: 1}
   m_Children: []
   m_Father: {fileID: 273327866}
@@ -1177,7 +1179,7 @@ PrefabInstance:
     - target: {fileID: 6510428199283679542, guid: da82e14b3f706e248b37eea69c578bce,
         type: 3}
       propertyPath: impulseMultiplier
-      value: 2
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 6510428200852934308, guid: da82e14b3f706e248b37eea69c578bce,
         type: 3}
@@ -1187,7 +1189,7 @@ PrefabInstance:
     - target: {fileID: 6510428200852934308, guid: da82e14b3f706e248b37eea69c578bce,
         type: 3}
       propertyPath: m_Size.y
-      value: 8
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 6510428200852934308, guid: da82e14b3f706e248b37eea69c578bce,
         type: 3}
@@ -1207,7 +1209,7 @@ PrefabInstance:
     - target: {fileID: 6510428200852934309, guid: da82e14b3f706e248b37eea69c578bce,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.25
       objectReference: {fileID: 0}
     - target: {fileID: 6510428200852934309, guid: da82e14b3f706e248b37eea69c578bce,
         type: 3}
@@ -1254,10 +1256,20 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6510428200852934311, guid: da82e14b3f706e248b37eea69c578bce,
+        type: 3}
+      propertyPath: ShapeModule.m_Scale.y
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 6510428200852934331, guid: da82e14b3f706e248b37eea69c578bce,
         type: 3}
       propertyPath: m_Name
       value: Gate
+      objectReference: {fileID: 0}
+    - target: {fileID: 6510428200861099685, guid: da82e14b3f706e248b37eea69c578bce,
+        type: 3}
+      propertyPath: ShapeModule.m_Scale.y
+      value: 7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: da82e14b3f706e248b37eea69c578bce, type: 3}
@@ -1616,6 +1628,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1647,14 +1660,14 @@ MonoBehaviour:
   m_outlineColor:
     serializedVersion: 2
     rgba: 4278190080
-  m_fontSize: 5
-  m_fontSizeBase: 5
+  m_fontSize: 4.5
+  m_fontSizeBase: 4.5
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_textAlignment: 258
+  m_textAlignment: 514
   m_characterSpacing: 0
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -1782,8 +1795,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 1.5}
-  m_SizeDelta: {x: 9, y: 5}
+  m_AnchoredPosition: {x: 0, y: 4.2}
+  m_SizeDelta: {x: 12, y: 2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &1489617694900799888
 PrefabInstance:

@@ -120,12 +120,14 @@ public class LevelManager0 : LevelManager
             new Vector3(cameraTransform.position.x, cameraTransform.position.y, 0f),
             Quaternion.identity, cameraTransform);
         _tmp.text = cfg0.whenSecondForce;
+        Services.VelocityLine.Hide(true);
         var whenSecondForce = new DelegateTask(() => {}, () =>
         {
             timeElapsed += Time.deltaTime;
             if (timeElapsed > cfg0.secondForceInstructionDuration)
             {
                 Destroy(shade);
+                Services.VelocityLine.Hide(false);
                 _tmp.text = cfg0.chaseExplanation;
                 ShowChaseItem();
                 return true;

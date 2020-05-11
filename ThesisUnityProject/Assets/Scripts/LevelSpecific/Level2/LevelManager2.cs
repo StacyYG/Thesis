@@ -11,8 +11,7 @@ public class LevelManager2 : LevelManager
     private TextMeshPro _tmp;
     public GameObject barrier, gate0, gate1, gate2, randomComets0, randomComets1;
     public LevelCfg2 cfg2;
-    private List<Rigidbody2D> _activeRbs;
-    
+
     public override void Awake()
     {
         base.Awake();
@@ -23,18 +22,11 @@ public class LevelManager2 : LevelManager
     {
         _tmp = GetComponent<TextMeshPro>();
         var circle = GameObject.FindGameObjectWithTag("GravityButton");
-        Services.GravityButton = new GravityButton(circle, circle.transform.GetChild(0).gameObject);
-        new Gravity(targetSqr);
+        Services.GravityButton = new GravityButton(circle);
         Services.EventManager.Register<ButtonObjPressed>(OnButtonPressed);
         Services.CameraController.isFollowing = false;
         Services.CameraController.lockY = true;
-        flagObj.SetActive(false);
-        randomComets1.SetActive(false);
-        gate0.SetActive(false);
-        gate1.SetActive(false);
-        gate2.SetActive(false);
         Services.EventManager.Register<FirstGravity>(OnFirstGravity);
-        _activeRbs = new List<Rigidbody2D>();
     }
     
     // Start is called before the first frame update
@@ -43,6 +35,12 @@ public class LevelManager2 : LevelManager
         base.Start();
         Services.GravityButton.Start();
         taskManager.Do(Services.GravityButton.boundCircle.GrowUp);
+        new Gravity(targetSqr, Services.GameCfg.gravityColor);
+        flagObj.SetActive(false);
+        randomComets1.SetActive(false);
+        gate0.SetActive(false);
+        gate1.SetActive(false);
+        gate2.SetActive(false);
         foreach (var comet in randomComets0.GetComponentsInChildren<Rigidbody2D>())
         {
             comet.AddTorque(Random.Range(-0.3f, 0.3f));
@@ -63,7 +61,6 @@ public class LevelManager2 : LevelManager
             if (targetSqr.transform.position.x > cfg2.loadSecondPartX)
             {
                 gate1.SetActive(true);
-                Services.GravityButton.UpdateRbs();
                 return true;
             }
 
@@ -77,7 +74,6 @@ public class LevelManager2 : LevelManager
                 randomComets1.SetActive(true);
                 gate2.SetActive(true);
                 flagObj.SetActive(true);
-                Services.GravityButton.UpdateRbs();
                 return true;
             }
 
@@ -95,31 +91,16 @@ public class LevelManager2 : LevelManager
         if (Input.GetKeyDown(KeyCode.G))
             Services.GravityButton.GravitySwitch();
         
-        Services.GravityButton.UpdateGravity();
-
-        for (int i = 0; i < _activeRbs.Count; i++)
-        {
-            if (_isInCameraView(_activeRbs[i].position))
-            {
-                
-            }
-
-            var sth = _activeRbs[i].position;
-        }
+        Services.GravityButton.Update();
     }
-
-    private bool _isInCameraView(Vector2 position)
-    {
-        if (position.x > Services.CameraController.viewMargin.right) return false;
-        if (position.x < Services.CameraController.viewMargin.left) return false;
-        if (position.y > Services.CameraController.viewMargin.up) return false;
-        if (position.y < Services.CameraController.viewMargin.down) return false;
-        return true;
-    }
+    
     public override void OnSuccess(AGPEvent e)
     {
         base.OnSuccess(e);
-        Services.GravityButton.boundCircle.Clear();
+        var wait = new WaitTask(Services.GameCfg.afterSuccessWaitTime);
+        var clear = new ActionTask(() => Services.GravityButton.boundCircle.Clear());
+        wait.Then(clear);
+        taskManager.Do(wait);
         var moreLevels = new WaitAndPrint(_tmp, Services.GameCfg.afterSuccessWaitTime, Services.GameCfg.moreLevels);
         taskManager.Do(moreLevels);
     }

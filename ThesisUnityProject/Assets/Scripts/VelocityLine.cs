@@ -183,6 +183,11 @@ public class VelocityLine
         var currentWidth = _line.lineWidth;
         _line.lineWidth = multiplier * currentWidth;
     }
+
+    public void Hide(bool isHide)
+    {
+        _line.active = !isHide;
+    }
 }
 
 

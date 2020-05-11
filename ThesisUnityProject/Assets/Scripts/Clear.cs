@@ -14,11 +14,10 @@ public class Clear : MonoBehaviour
     {
         if (other.gameObject.CompareTag("TargetSquare"))
         {
-            Debug.Log("reload");
-            Services.GameController.Reload();
+            StartCoroutine(Reload());
             return;
         }
-        
+        other.gameObject.transform.position = new Vector3(0f, -30f, 0f);
         other.gameObject.SetActive(false);
     }
 
@@ -26,5 +25,11 @@ public class Clear : MonoBehaviour
     {
         Services.EventManager.Unregister<Success>(OnSuccess);
         Destroy(gameObject);
+    }
+
+    private IEnumerator Reload()
+    {
+        yield return new WaitForSeconds(1f);
+        Services.GameController.Reload();
     }
 }
