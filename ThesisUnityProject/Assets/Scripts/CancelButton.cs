@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using Vectrosity;
 using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
 public class CancelButton
 {
@@ -45,12 +46,17 @@ public class GravityButton
     public void Start()
     {
         boundCircle = new BoundCircle(_boundCircleRadius, _triangle.transform);
-        for (int i = 0; i < _allRbs.Count; i++)
+        foreach (var rb in _allRbs)
         {
-            if (!_allRbs[i].CompareTag("TargetSquare"))
-                if (_allRbs[i].gameObject.GetComponent<SpriteRenderer>())
-                    new Gravity(_allRbs[i].gameObject,
-                        _allRbs[i].gameObject.GetComponent<SpriteRenderer>().color + new Color(0.2f, 0.2f, 0.2f, 1f));
+            if (!rb.CompareTag("TargetSquare"))
+            {
+                if (rb.gameObject.GetComponent<SpriteRenderer>())
+                    new Gravity(rb.gameObject,
+                        rb.gameObject.GetComponent<SpriteRenderer>().color + new Color(0.2f, 0.2f, 0.2f, 1f));
+
+                if (rb.CompareTag("Comet"))
+                    rb.AddTorque(Random.Range(-0.3f, 0.3f));
+            }
         }
     }
 
@@ -92,22 +98,24 @@ public class GravityButton
 
     private void UpdateRbs()
     {
-        for (int i = 0; i < _allRbs.Count; i++)
+        foreach (var rb in _allRbs)
         {
-            if (_isInCameraView(_allRbs[i].position))
+            if (_isInCameraView(rb.position))
             {
-                if (!_allRbs[i].gameObject.activeSelf)
+                if (!rb.gameObject.activeSelf)
                 {
-                    _allRbs[i].gameObject.SetActive(true);
-                    _activeRbs.Add(_allRbs[i]);
+                    rb.gameObject.SetActive(true);
+                    _activeRbs.Add(rb);
+                    if(rb.CompareTag("Comet"))
+                        rb.AddTorque(Random.Range(-0.3f, 0.3f));
                 }
             }
             else
             {
-                if (_allRbs[i].gameObject.activeSelf)
+                if (rb.gameObject.activeSelf)
                 {
-                    _allRbs[i].gameObject.SetActive(false);
-                    _activeRbs.Remove(_allRbs[i]);
+                    rb.gameObject.SetActive(false);
+                    _activeRbs.Remove(rb);
                 }
             }
         }
@@ -115,9 +123,7 @@ public class GravityButton
     private void UpdateGravity()
     {
         for (int i = 0; i < _activeRbs.Count; i++)
-        {
             _activeRbs[i].gravityScale = GravityOn ? 1f : 0f;
-        }
     }
 }
 

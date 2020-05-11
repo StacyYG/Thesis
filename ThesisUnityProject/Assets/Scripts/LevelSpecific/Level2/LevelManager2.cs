@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 using TMPro;
-using Random = UnityEngine.Random;
 
 public class LevelManager2 : LevelManager
 {
     private TextMeshPro _tmp;
-    public GameObject barrier, gate0, gate1, gate2, randomComets0, randomComets1;
+    public GameObject barrier, gate0, gate1, gate2;
     public LevelCfg2 cfg2;
 
     public override void Awake()
@@ -36,15 +31,10 @@ public class LevelManager2 : LevelManager
         Services.GravityButton.Start();
         taskManager.Do(Services.GravityButton.boundCircle.GrowUp);
         new Gravity(targetSqr, Services.GameCfg.gravityColor);
-        flagObj.SetActive(false);
-        randomComets1.SetActive(false);
         gate0.SetActive(false);
         gate1.SetActive(false);
         gate2.SetActive(false);
-        foreach (var comet in randomComets0.GetComponentsInChildren<Rigidbody2D>())
-        {
-            comet.AddTorque(Random.Range(-0.3f, 0.3f));
-        }
+        
         var checkTargetX0 = new DelegateTask(() => {}, () =>
         {
             if (targetSqr.transform.position.x > cfg2.cameraFollowX)
@@ -71,9 +61,7 @@ public class LevelManager2 : LevelManager
         {
             if (targetSqr.transform.position.x > cfg2.loadThirdPartX)
             {
-                randomComets1.SetActive(true);
                 gate2.SetActive(true);
-                flagObj.SetActive(true);
                 return true;
             }
 
