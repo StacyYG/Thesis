@@ -5349,7 +5349,7 @@ PrefabInstance:
     - target: {fileID: 2048799742429153473, guid: 9493a3b3e5e901c48998f284b9cbf07a,
         type: 3}
       propertyPath: m_AdditionalShaderChannelsFlag
-      value: 25
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2048799743286952847, guid: 9493a3b3e5e901c48998f284b9cbf07a,
         type: 3}
@@ -5881,8 +5881,6 @@ MonoBehaviour:
   gate0: {fileID: 683864690}
   gate1: {fileID: 1107063261}
   gate2: {fileID: 956660925}
-  randomComets0: {fileID: 4496483}
-  randomComets1: {fileID: 202510451}
   cfg2: {fileID: 11400000, guid: 0005f08c16a4f2549adfef9fd14b874f, type: 2}
 --- !u!114 &2084675411
 MonoBehaviour:

@@ -35,6 +35,12 @@ public enum Options
     FollowPrior
 }
 
+public enum MyEnum
+{
+    a,
+    b
+}
+
 [System.Serializable]
 public struct InstructionData
 {
@@ -43,4 +49,7 @@ public struct InstructionData
     public Options whenToShow;
     public float duration;
     public Type myEvent;
+    public int eventIndex;
+    public string eventName;
+    public MyEnum eventEnum;
 }

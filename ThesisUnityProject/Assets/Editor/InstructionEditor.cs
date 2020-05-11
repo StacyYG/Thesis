@@ -13,24 +13,36 @@ public class InstructionEditor : EditorWindow
     public GameObject tmpPrefab;
     public LevelCfg levelData;
     private List<GameObject> _textObjects = new List<GameObject>();
-    //public int toRemove = 0;
     private List<string> _names = new List<string>();
-    public int eventIndex = 0;
+    //public int eventIndex = 0;
     public List<InstructionData> instructions;
-    public int selectedInstruction = 0;
+    public int selectedIndex = 0;
     private InstructionData _selected = new InstructionData();
     private InstructionData _new = new InstructionData();
+    private List<string> _eventNames = new List<string>();
+    private List<Type> _events = new List<Type>();
+    public IEnumerable<MyEnum> myEvents;
+
     [MenuItem("Tools/Instruction Editor")]
     public static void ShowWindow()
     {
         GetWindow(typeof(InstructionEditor));
     }
-    
+
+    private void Awake()
+    {
+        GetEvents();
+    }
+
     private void OnGUI()
     {
         if (EditorApplication.isPlaying) return;
-        container =
-            EditorGUILayout.ObjectField("Container", container, typeof(Transform), true) as Transform;
+        if (GUILayout.Button("Get Events"))
+        {
+            GetEvents();
+        }
+        
+        container = EditorGUILayout.ObjectField("Container", container, typeof(Transform), true) as Transform;
         tmpPrefab = EditorGUILayout.ObjectField("TMP Prefab", tmpPrefab, typeof(GameObject), false) as GameObject;
         levelData = EditorGUILayout.ObjectField("Level Data", levelData, typeof(LevelCfg), false) as LevelCfg;
                 
@@ -58,17 +70,13 @@ public class InstructionEditor : EditorWindow
         _new.content = EditorGUILayout.TextField("Content", _new.content);
         _new.duration = EditorGUILayout.FloatField("Duration", _new.duration);
         _new.whenToShow = (Options) EditorGUILayout.EnumPopup("When to show", _new.whenToShow);
-
-        var typeList = typeof(AGPEvent).Assembly.GetTypes().Where(type => type.IsSubclassOf(typeof(AGPEvent)))
-            .ToList();
-        var stringList = new List<string>();
-        for (int i = 0; i < typeList.Count; i++)
+        
+        if (_new.whenToShow == Options.EventBased)
         {
-            stringList.Add(typeList[i].ToString());
-        }
-        if (_selected.whenToShow == Options.EventBased)
-        {
-            eventIndex = EditorGUILayout.Popup("Event", eventIndex, stringList.ToArray());
+            _new.eventIndex = EditorGUILayout.Popup("Event", _new.eventIndex, _eventNames.ToArray());
+            _new.myEvent = _events[_new.eventIndex];
+            _new.eventName = _new.myEvent.ToString();
+            _new.eventEnum = (MyEnum)EditorGUILayout.EnumPopup("My Events", _new.eventEnum);
         }
         
         if (GUILayout.Button("Add"))
@@ -81,19 +89,26 @@ public class InstructionEditor : EditorWindow
             instructions.Add(_new);
             _textObjects.Add(textObj);
             _names.Add(textObj.name);
-            selectedInstruction = instructions.Count - 1;
+            selectedIndex = instructions.Count - 1;
         }
         EditorGUILayout.Space();
         GUILayout.Label("Edit", EditorStyles.boldLabel);
-        selectedInstruction = EditorGUILayout.Popup("Selected", selectedInstruction, _names.ToArray());
+        selectedIndex = EditorGUILayout.Popup("Selected", selectedIndex, _names.ToArray());
         if (instructions.Count != 0)
         {
-            _selected = instructions[selectedInstruction];
+            _selected = instructions[selectedIndex];
             _selected.textPosition = EditorGUILayout.Vector3Field("Position", _selected.textPosition);
             _selected.content = EditorGUILayout.TextField("Content", _selected.content);
             _selected.duration = EditorGUILayout.FloatField("Duration", _selected.duration);
             _selected.whenToShow = (Options) EditorGUILayout.EnumPopup("When to show", _selected.whenToShow);
-            instructions[selectedInstruction] = _selected;
+            if (_selected.whenToShow == Options.EventBased)
+            {
+                _selected.eventIndex = EditorGUILayout.Popup("Event", _selected.eventIndex, _eventNames.ToArray());
+                _selected.myEvent = _events[_selected.eventIndex];
+                _selected.eventName = _selected.myEvent.ToString();
+                _selected.eventEnum = (MyEnum)EditorGUILayout.EnumPopup("My Events", _selected.eventEnum);
+            }
+            instructions[selectedIndex] = _selected;
         }
         
         if(container != null) 
@@ -114,13 +129,7 @@ public class InstructionEditor : EditorWindow
                 _textObjects[i].name = objName;
                 _names.Add(objName);
                 
-                var data = levelData.instructions[i];
-                data.content = instructions[i].content;
-                data.duration = instructions[i].duration;
-                data.myEvent = instructions[i].myEvent;
-                data.textPosition = instructions[i].textPosition;
-                data.whenToShow = instructions[i].whenToShow;
-                levelData.instructions[i] = data;
+                levelData.instructions[i] = instructions[i];
             }
         }
         EditorGUILayout.Space();
@@ -128,12 +137,12 @@ public class InstructionEditor : EditorWindow
         {
             if (GUILayout.Button("Remove"))
             {
-                DestroyImmediate(_textObjects[selectedInstruction]);
-                _textObjects.RemoveAt(selectedInstruction);
-                levelData.instructions.RemoveAt(selectedInstruction);
-                instructions.RemoveAt(selectedInstruction);
-                _names.RemoveAt(selectedInstruction);
-                selectedInstruction = selectedInstruction == 0 ? 0 : selectedInstruction - 1;
+                DestroyImmediate(_textObjects[selectedIndex]);
+                _textObjects.RemoveAt(selectedIndex);
+                levelData.instructions.RemoveAt(selectedIndex);
+                instructions.RemoveAt(selectedIndex);
+                _names.RemoveAt(selectedIndex);
+                selectedIndex = selectedIndex == 0 ? 0 : selectedIndex - 1;
             }
         }
         EditorGUILayout.Space();
@@ -148,17 +157,29 @@ public class InstructionEditor : EditorWindow
                 levelData.instructions.Clear();
             instructions.Clear();
             _names.Clear();
-            selectedInstruction = 0;
+            selectedIndex = 0;
         }
 
+    }
+
+    private void GetEvents()
+    {
+        _events = new List<Type>();
+        _eventNames = new List<string>();
+        _events = typeof(AGPEvent).Assembly.GetTypes().Where(type => type.IsSubclassOf(typeof(AGPEvent)))
+            .ToList();
+        for (int i = 0; i < _events.Count; i++)
+            _eventNames.Add(_events[i].ToString());
+        myEvents = _eventNames.ToArray().Select(a => (MyEnum) Enum.Parse(typeof(MyEnum), a));
     }
 
     private void Update()
     {
         if (EditorApplication.isPlaying) return;
-        // for (int i = 0; i < instructions.Count; i++)
-        // {
-        //     _textObjects[i].transform.position = instructions[i].textPosition;
-        // }
+        for (int i = 0; i < instructions.Count; i++)
+        {
+            _textObjects[i].transform.position = instructions[i].textPosition;
+        }
     }
 }
+
