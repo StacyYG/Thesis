@@ -35,11 +35,7 @@ public enum Options
     FollowPrior
 }
 
-public enum MyEnum
-{
-    a,
-    b
-}
+//public enum MyEnum {}
 
 [System.Serializable]
 public struct InstructionData
@@ -51,5 +47,5 @@ public struct InstructionData
     public Type myEvent;
     public int eventIndex;
     public string eventName;
-    public MyEnum eventEnum;
+    //public MyEnum eventEnum;
 }

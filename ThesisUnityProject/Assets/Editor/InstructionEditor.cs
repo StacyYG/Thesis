@@ -21,7 +21,7 @@ public class InstructionEditor : EditorWindow
     private InstructionData _new = new InstructionData();
     private List<string> _eventNames = new List<string>();
     private List<Type> _events = new List<Type>();
-    public IEnumerable<MyEnum> myEvents;
+    //public IEnumerable<MyEnum> myEvents;
 
     [MenuItem("Tools/Instruction Editor")]
     public static void ShowWindow()
@@ -76,7 +76,7 @@ public class InstructionEditor : EditorWindow
             _new.eventIndex = EditorGUILayout.Popup("Event", _new.eventIndex, _eventNames.ToArray());
             _new.myEvent = _events[_new.eventIndex];
             _new.eventName = _new.myEvent.ToString();
-            _new.eventEnum = (MyEnum)EditorGUILayout.EnumPopup("My Events", _new.eventEnum);
+            //_new.eventEnum = (MyEnum)EditorGUILayout.EnumPopup("My Events", _new.eventEnum);
         }
         
         if (GUILayout.Button("Add"))
@@ -106,7 +106,7 @@ public class InstructionEditor : EditorWindow
                 _selected.eventIndex = EditorGUILayout.Popup("Event", _selected.eventIndex, _eventNames.ToArray());
                 _selected.myEvent = _events[_selected.eventIndex];
                 _selected.eventName = _selected.myEvent.ToString();
-                _selected.eventEnum = (MyEnum)EditorGUILayout.EnumPopup("My Events", _selected.eventEnum);
+                //_selected.eventEnum = (MyEnum)EditorGUILayout.EnumPopup("My Events", _selected.eventEnum);
             }
             instructions[selectedIndex] = _selected;
         }
@@ -170,7 +170,7 @@ public class InstructionEditor : EditorWindow
             .ToList();
         for (int i = 0; i < _events.Count; i++)
             _eventNames.Add(_events[i].ToString());
-        myEvents = _eventNames.ToArray().Select(a => (MyEnum) Enum.Parse(typeof(MyEnum), a));
+        //myEvents = _eventNames.ToArray().Select(a => (MyEnum) Enum.Parse(typeof(MyEnum), a));
     }
 
     private void Update()
