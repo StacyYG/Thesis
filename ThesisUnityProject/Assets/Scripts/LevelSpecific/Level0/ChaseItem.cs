@@ -11,7 +11,7 @@ public class ChaseItem : MonoBehaviour
     private int _currentPosIndex;
     private const float MaxSpeed = 20f;
     private bool _isMoving;
-    private Vector3 _targetPos;
+    private Vector3 _targetPos = new Vector3();
     private Rigidbody2D _myRb;
     private Rigidbody2D _targetRb;
 
@@ -28,8 +28,7 @@ public class ChaseItem : MonoBehaviour
     public void ResetPosition()
     {
         _currentPosIndex = 0;
-        transform.position = Services.TargetSquare.transform.position + positions[_currentPosIndex];
-        _myRb.velocity = 1.2f * _targetRb.velocity;
+        transform.position = Services.MainCamera.transform.position + positions[_currentPosIndex] + new Vector3(0f, 0f, -Services.MainCamera.transform.position.z);
     }
 
     private void Update()
@@ -38,7 +37,6 @@ public class ChaseItem : MonoBehaviour
                 Color.Lerp(Services.GameCfg.liveColor, Color.cyan, Mathf.PingPong(Time.time, 1));
         if(_isMoving)
         {
-            transform.position = Vector3.MoveTowards(transform.position, _targetPos, MaxSpeed * Time.deltaTime);
             if (transform.position == _targetPos)
             {
                 if (_currentPosIndex == positions.Count - 1)
@@ -52,6 +50,8 @@ public class ChaseItem : MonoBehaviour
                     _isMoving = false;
                 }
             }
+            
+            transform.position = Vector3.MoveTowards(transform.position, _targetPos, MaxSpeed * Time.deltaTime);
         }
 
         var pos = transform.position;
@@ -71,7 +71,7 @@ public class ChaseItem : MonoBehaviour
         {
             _collider.enabled = false;
             _currentPosIndex++;
-            _targetPos = Services.TargetSquare.transform.position + positions[_currentPosIndex];
+            _targetPos = Services.MainCamera.transform.position + positions[_currentPosIndex] + new Vector3(0f, 0f, -Services.MainCamera.transform.position.z);
             _isMoving = true;
             _myRb.velocity = Vector2.zero;
             _targetRb.velocity = Vector2.zero;

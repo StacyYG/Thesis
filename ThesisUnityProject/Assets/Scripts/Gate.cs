@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class Gate : MonoBehaviour
 {
@@ -11,11 +12,14 @@ public class Gate : MonoBehaviour
     public bool isDetect = true;
     public float impulseMultiplier;
     private bool _waitingToFire;
+    [SerializeField] private Vector3 throwPosition = new Vector3(-10f, 0f, 0f);
+    private Vector2 _gateSize;
 
     // Start is called before the first frame update
     void Start()
     {
         _trackVelocities = new List<TrackVelocity>();
+        _gateSize = GetComponent<BoxCollider2D>().size;
     }
 
     // Update is called once per frame
@@ -27,11 +31,14 @@ public class Gate : MonoBehaviour
     {
         if (!isDetect) return;
         if (!other.attachedRigidbody) return;
+
         var trackV = new TrackVelocity();
         trackV.gameObject = other.gameObject;
         trackV.rb = other.attachedRigidbody;
         trackV.enterVelocity = trackV.rb.velocity;
         trackV.collider = other;
+        trackV.transform = other.transform;
+        trackV.enterPosition = other.transform.position;
         _trackVelocities.Add(trackV);
     }
     
@@ -43,9 +50,17 @@ public class Gate : MonoBehaviour
         {
             if (trackV.rb.velocity != trackV.enterVelocity)
             {
-                var offset = trackV.rb.position - (Vector2)transform.position;
-                trackV.rb.AddForce(impulseMultiplier * trackV.rb.mass * trackV.rb.mass / offset.magnitude * offset.normalized,
-                    ForceMode2D.Impulse);
+                if (trackV.enterVelocity.magnitude > Mathf.Epsilon) // When the tracked object enters from outside the gate
+                {
+                    trackV.transform.position = trackV.enterPosition + new Vector3(trackV.enterPosition.x - transform.position.x, 0f, 0f);
+                }
+                else // When the tracked object is a still object in the gate from the beginning
+                {
+                    trackV.transform.position =
+                        trackV.enterPosition + _gateSize.magnitude * 0.5f * Random.insideUnitSphere.normalized;
+                }
+                
+                trackV.rb.velocity = Vector2.zero;
                 if (trackV.gameObject.CompareTag("TargetSquare"))
                 {
                     Services.TargetSquare.isHurt = true;
@@ -72,4 +87,6 @@ public class TrackVelocity
     public Vector2 enterVelocity;
     public Collider2D collider;
     public GameObject gameObject;
+    public Transform transform;
+    public Vector3 enterPosition;
 }

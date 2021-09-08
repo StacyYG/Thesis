@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Level0
   m_EditorClassIdentifier: 
   instructions: []
-  v0: {x: 2, y: 0}
+  v0: {x: 1, y: 0}
   showTargetSqrTime: 0
   showCtrlSqrTime: 5
   initialInstructions:

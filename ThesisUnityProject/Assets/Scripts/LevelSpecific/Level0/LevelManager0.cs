@@ -82,18 +82,6 @@ public class LevelManager0 : LevelManager
             return false;
         });
         taskManager.Do(showCtrlSqr);
-        
-        var checkTarget = new DelegateTask(() => {}, () =>
-        {
-            if (Services.TargetSquare.transform.position.x > 0)
-            {
-                Services.CameraController.isFollowing = true;
-                return true;
-            }
-
-            return false;
-        });
-        taskManager.Do(checkTarget);
     }
 
     private void OnFirstForce(AGPEvent e)

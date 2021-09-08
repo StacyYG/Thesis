@@ -4797,6 +4797,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isDetect: 1
   impulseMultiplier: 0.7
+  throwPosition: {x: -3, y: 0, z: 0}
 --- !u!1 &6510428200861099706
 GameObject:
   m_ObjectHideFlags: 0

@@ -1406,7 +1406,7 @@ PrefabInstance:
     - target: {fileID: 2048799742429153473, guid: 9493a3b3e5e901c48998f284b9cbf07a,
         type: 3}
       propertyPath: m_AdditionalShaderChannelsFlag
-      value: 0
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 2048799743286952847, guid: 9493a3b3e5e901c48998f284b9cbf07a,
         type: 3}
@@ -1677,7 +1677,7 @@ PrefabInstance:
     - target: {fileID: 4196810262115688871, guid: 712afd81acf0cc840b2b3983ab9f7479,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 55.6
+      value: 63.91
       objectReference: {fileID: 0}
     - target: {fileID: 4196810262115688871, guid: 712afd81acf0cc840b2b3983ab9f7479,
         type: 3}
