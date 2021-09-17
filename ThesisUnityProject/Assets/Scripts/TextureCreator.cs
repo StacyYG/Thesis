@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class TextureCreator : MonoBehaviour
 {
@@ -21,8 +19,6 @@ public class TextureCreator : MonoBehaviour
 		{
 			texture = new Texture2D(width, height, TextureFormat.RGB24, true);
 			texture.name = "Procedural Texture";
-			//texture.wrapMode = TextureWrapMode.Clamp;
-			//texture.filterMode = FilterMode.Point;
 			GetComponent<MeshRenderer>().material.mainTexture = texture;
 			FillTexture();
 		}
@@ -60,14 +56,11 @@ public class TextureCreator : MonoBehaviour
 				float sample = method(point, frequency);
 				
 				texture.SetPixel(x, y, coloring.Evaluate(sample));
-
 			}
 		}
 		texture.Apply(	);
 	}
-
 	
-	// Update is called once per frame
 	void Update () {
 		if (transform.hasChanged)
 		{

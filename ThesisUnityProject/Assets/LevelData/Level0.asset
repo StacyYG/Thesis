@@ -28,7 +28,7 @@ MonoBehaviour:
     content: To add a force, you need to click the <b>Control Button</b>.
     duration: 0
   whenFirstForce: Yes! you just added a force.
-  secondForceRemindTime: 7
+  secondForceRemindTime: 5
   secondForceReminder: Try to add another force.
   whenSecondForce: When more than one forces are acting on the object, we replace
     them with their sum -- <color=red>Net Force</color>

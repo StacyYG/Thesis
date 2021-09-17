@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Vectrosity;
 
@@ -10,35 +9,37 @@ public abstract class Force
     protected readonly Rigidbody2D rb;
     private Vector2 _vector;
     public Vector2 Vector => _vector;
-    protected readonly float vectorMultiplier = Services.GameCfg.vectorMultiplier;
+    private readonly float _vectorMultiplier = Services.GameCfg.vectorMultiplier;
     
-    protected Force(GameObject gameObject)
+    protected Force(GameObject gameObject) // Gameobject the force is acting upon
     {
         _targetTransform = gameObject.transform;
         rb = gameObject.GetComponent<Rigidbody2D>();
-        line = new VectorLine("", new List<Vector3> {Vector2.zero, Vector2.zero}, Services.GameCfg.forceLineWidth * Screen.height / 1080f);
+        line = new VectorLine("", new List<Vector3> {Vector2.zero, Vector2.zero},
+            Services.GameCfg.forceLineWidth * Screen.height / 1080f);
         line.drawTransform = _targetTransform;
         Services.Forces.Add(this);
     }
 
-    public void DestroyLine()
+    public void DestroyLine() // Destroy the vector line
     {
         VectorLine.Destroy(ref line);
     }
 
-    public void HideLine(bool isHide)
+    public void HideLine(bool isHide) // Set the vector line inactive
     {
         line.active = !isHide;
     }
-    public void SetVector(Vector2 forceVector)
+
+    protected void SetVector(Vector2 forceVector) // Set the force to the given value, update the line in the background (but not draw it yet)
     {
         _vector = forceVector;
         Vector2 pureForceVector = _targetTransform.InverseTransformVector(forceVector);
-        pureForceVector *= vectorMultiplier;
+        pureForceVector *= _vectorMultiplier;
         line.points3[0] = pureForceVector;
     }
 
-    public void Draw()
+    public void Draw() // Draw the line in LateUpdate
     {
         line.Draw();
     }
@@ -46,7 +47,7 @@ public abstract class Force
     public abstract void Update();
 }
 
-public class Gravity : Force
+public class Gravity : Force // A constant force pointing down
 {
     public Gravity(GameObject gameObject, Color color) : base(gameObject)
     {
@@ -71,17 +72,17 @@ public class PlayerForce : Force
     }
     public override void Update()
     {
-        SetVector(Services.ControllerButton.PlayerForce);
+        SetVector(Services.ControlButton.PlayerForce);
     }
 }
 
-public class NormalForce : Force
+public class NormalForce : Force // Created when the target square contacts with a "BarrierObject" surface
 {
     public NormalForce(GameObject gameObject, Collision2D other, int index) : base(gameObject)
     {
         line.endCap = "fullArrow";
         line.name = "N" + index;
-        line.color = other.gameObject.GetComponent<SpriteRenderer>().color;
+        line.color = other.gameObject.GetComponent<SpriteRenderer>().color; // Normal force line color is the same as the contacting surface
     }
     
     public override void Update() {}
@@ -91,15 +92,17 @@ public class NormalForce : Force
     public void Change(Collision2D other)
     {
         var direction = other.GetContact(0).normal.normalized;
-        var size = other.GetContact(0).normalImpulse / Time.fixedDeltaTime;
-        if (other.contactCount > 1)
+        var size = other.GetContact(0).normalImpulse / Time.fixedDeltaTime; // force = impulse / time
+        
+        if (other.contactCount > 1) // There will be at most two contact points at the same time when a square contacts another object
         {
-            size += other.GetContact(1).normalImpulse / Time.fixedDeltaTime;
+            size = other.GetContact(0).normalImpulse / Time.fixedDeltaTime +
+                   other.GetContact(1).normalImpulse / Time.fixedDeltaTime;
         }
         
-        var lerpSize = Mathf.Lerp(_prevNormalForceSize, size, 0.3f);
-        _prevNormalForceSize = lerpSize;
-        SetVector(lerpSize * direction);
+        var lerpedSize = Mathf.Lerp(_prevNormalForceSize, size, 0.3f);
+        SetVector(lerpedSize * direction);
+        _prevNormalForceSize = lerpedSize;
     }
 
     public void Reset()
@@ -109,13 +112,13 @@ public class NormalForce : Force
     }
 }
 
-public class Friction : Force
+public class Friction : Force // Created when the target square contacts with a "BarrierObject" surface
 {
     public Friction(GameObject gameObject, Collision2D other, int index) : base(gameObject)
     {
         line.endCap = "fullArrow";
         line.name = "f" + index;
-        line.color = other.gameObject.GetComponent<SpriteRenderer>().color;
+        line.color = other.gameObject.GetComponent<SpriteRenderer>().color; // Friction force line color is the same as the contacting surface
     }
     public override void Update() {}
 
@@ -124,16 +127,18 @@ public class Friction : Force
     public void Change(Collision2D other)
     {
         var normalDirection = other.GetContact(0).normal.normalized;
-        var direction = Quaternion.AngleAxis(-90, Vector3.forward) * normalDirection;
-        var size = other.GetContact(0).tangentImpulse / Time.fixedDeltaTime;
-        if (other.contactCount > 1)
+        var direction = Quaternion.AngleAxis(-90, Vector3.forward) * normalDirection; // Get friction force direction by rotating the normal for 90 degrees
+        var size = other.GetContact(0).tangentImpulse / Time.fixedDeltaTime; // force = impulse / time
+        
+        if (other.contactCount > 1) // There will be at most two contact points at the same time when a square contacts another object
         {
-            size += other.GetContact(1).tangentImpulse / Time.fixedDeltaTime;
+            size = other.GetContact(0).tangentImpulse / Time.fixedDeltaTime +
+                   other.GetContact(1).tangentImpulse / Time.fixedDeltaTime;
         }
 
-        var lerpSize = Mathf.Lerp(_prevFrictionSize, size, 0.3f);
-        _prevFrictionSize = lerpSize;
-        SetVector(lerpSize * direction);
+        var lerpedSize = Mathf.Lerp(_prevFrictionSize, size, 0.3f);
+        SetVector(lerpedSize * direction);
+        _prevFrictionSize = lerpedSize;
     }
     public void Reset()
     {

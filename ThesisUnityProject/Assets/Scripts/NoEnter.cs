@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using UnityEngine;
 
-public class Clear : MonoBehaviour
+public class NoEnter : MonoBehaviour // GameObjects entering this field will be deactivated
 {
     private void Start()
     {
@@ -12,6 +10,7 @@ public class Clear : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        // If the target square enters this field, the game reloads
         if (other.gameObject.CompareTag("TargetSquare"))
         {
             StartCoroutine(Reload());

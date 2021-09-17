@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Vectrosity;
 
+// The dotted trail after the target square
 public class Path : MonoBehaviour
 {
     public int maxPoints = 16;
@@ -13,7 +12,6 @@ public class Path : MonoBehaviour
     private Color _myColor;
     private int _pointIndex;
     
-    // Start is called before the first frame update
     private void OnEnable()
     {
         SetUpNewPath();

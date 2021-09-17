@@ -11,18 +11,18 @@ TagManager:
   - CancelButton
   - Goal
   - BarrierObject
-  - HazardObject
   - GateConstant
   - NewLife
   - LivesBar
   - SpeedBar
   - DirectionPointer
-  - SpeedWarning
   - Highlight
   - ChaseItem
   - SubGameController
   - GravityButton
   - Comet
+  - ControlButton
+  - HazardObject
   layers:
   - Default
   - TransparentFX

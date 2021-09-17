@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CancelMonitor : MonoBehaviour
 {
-    // Start is called before the first frame update
+    private GameObject _cancelButton;
     void Start()
     {
-        
+        _cancelButton = GameObject.FindWithTag("CancelButton");
     }
-
-    // Update is called once per frame
+    
     void Update()
     {
-        if (!Services.CancelButton.Respond) return;
-        
+        if (!_cancelButton.activeSelf) return;
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Services.EventManager.Fire(new FirstCancel());
@@ -25,8 +20,6 @@ public class CancelMonitor : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (!Services.CancelButton.Respond) return;
-        
         Services.EventManager.Fire(new FirstCancel());
         Destroy(this);
     }

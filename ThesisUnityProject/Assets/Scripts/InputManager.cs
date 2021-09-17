@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class InputManager
@@ -25,22 +23,21 @@ public class InputManager
                             Mathf.Infinity, LayerMask.GetMask("Raycast"));
                         if (!ReferenceEquals(hit.collider, null))
                         {
-                            if (hit.collider.gameObject.CompareTag("ControllerSquare"))
+                            if (hit.collider.gameObject.CompareTag("ControlButton"))
                             {
                                 _fingerOnCtrlSqr = touch.fingerId;
-                                Services.ControllerButton.OnMouseOrTouchDown();
+                                Services.ControlButton.OnMouseOrTouchDown();
                             }
         
                             if (hit.collider.gameObject.CompareTag("CancelButton"))
                             {
-                                if (Services.CancelButton.Respond)
-                                    Services.ControllerButton.ResetPlayerForce();
+                                Services.ControlButton.ResetPlayerForce();
                             }
                         }
                         break;
                     case TouchPhase.Moved:
                         if (touch.fingerId == _fingerOnCtrlSqr)
-                            Services.ControllerButton.UpdateCurrentPlayerForce(_toWorldUnits(touch.position));
+                            Services.ControlButton.UpdatePlayerForce(_toWorldUnits(touch.position));
                         break;
                     case TouchPhase.Stationary:
                         break;
@@ -48,7 +45,7 @@ public class InputManager
                     case TouchPhase.Canceled:
                         if (touch.fingerId == _fingerOnCtrlSqr)
                         {
-                            Services.ControllerButton.OnMouseOrTouchUp();
+                            Services.ControlButton.OnMouseOrTouchUp();
                             _fingerOnCtrlSqr = -1;
                         }
                         break;
@@ -65,50 +62,41 @@ public class InputManager
                 if (countHit > 0)
                 {
                     var hit = results[0];
-                    if (hit.collider.gameObject.CompareTag("ControllerSquare"))
+                    if (hit.collider.gameObject.CompareTag("ControlButton"))
                     {
                         _mouseStayOnCtrlSqr = true;
-                        Services.ControllerButton.OnMouseOrTouchDown();
+                        Services.ControlButton.OnMouseOrTouchDown();
                     }
 
                     if (hit.collider.gameObject.CompareTag("CancelButton"))
                     {
-                        if (Services.CancelButton.Respond)
-                        {
-                            _mouseStayOnCtrlSqr = false;
-                            Services.ControllerButton.ResetPlayerForce();
-                        }
+                        PressCancelButton();
                     }
 
                     if (hit.collider.gameObject.CompareTag("GravityButton"))
                         Services.GravityButton.GravitySwitch();
-                    
                 }
             }
             
             if (Input.GetMouseButton(0))
                 if (_mouseStayOnCtrlSqr)
-                    Services.ControllerButton.UpdateCurrentPlayerForce(_toWorldUnits(Input.mousePosition));
+                    Services.ControlButton.UpdatePlayerForce(_toWorldUnits(Input.mousePosition));
 
             if (Input.GetMouseButtonUp(0))
             {
                 if (_mouseStayOnCtrlSqr)
                 {
                     _mouseStayOnCtrlSqr = false;
-                    Services.ControllerButton.OnMouseOrTouchUp();
+                    Services.ControlButton.OnMouseOrTouchUp();
                 }
             }
-
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                if (Services.CancelButton.Respond)
-                {
-                    _mouseStayOnCtrlSqr = false;
-                    Services.ControllerButton.ResetPlayerForce();
-                }
-            }
-            
         }
+    }
+
+    public void PressCancelButton()
+    {
+        _mouseStayOnCtrlSqr = false;
+        Services.ControlButton.ResetPlayerForce();
     }
 
     private Vector2 _toWorldUnits(Vector3 inputPosition)

@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class TaskManager {
@@ -15,7 +14,7 @@ public class TaskManager {
 	}
 
 	public void Update() 
-	{     
+	{
 		for (int i = _tasks.Count - 1; i >= 0; --i)     
 		{         
 			Task task = _tasks[i];         
@@ -50,5 +49,9 @@ public class TaskManager {
 			return false;
 		return true;
 	}
-	
+
+	public void ClearTasks()
+	{
+		_tasks.Clear();
+	}
 }

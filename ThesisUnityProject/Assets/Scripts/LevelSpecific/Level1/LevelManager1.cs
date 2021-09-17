@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
@@ -15,7 +12,6 @@ public class LevelManager1 : LevelManager
     private WaitAndPrint _firstForceReminder;
     private BoxCollider2D _gateCollider;
     
-
     public override void Awake()
     {
         base.Awake();
@@ -27,7 +23,7 @@ public class LevelManager1 : LevelManager
         _tmp = GetComponent<TextMeshPro>();
         _gateCollider = GameObject.FindGameObjectWithTag("GateConstant").GetComponent<BoxCollider2D>();
         Services.CameraController.lockY = true;
-        Services.EventManager.Register<LoseLife>(OnLoseLife);
+        Services.EventManager.Register<Hurt>(OnHurt);
         Services.EventManager.Register<Success>(OnSuccess);
         Services.EventManager.Register<FirstForce>(OnFirstForce);
         Services.EventManager.Register<FirstCancel>(OnFirstCancel);
@@ -37,36 +33,39 @@ public class LevelManager1 : LevelManager
             _printTasks.Add(new PrintAndWait(_tmp, instruction.duration, instruction.content));
         }
     }
-
-    // Start is called before the first frame update
+    
     public override void Start()
     {
-        Services.GameController.ShowButtons(false);
-        Services.ControllerButton.Start();
-        Services.CancelButton.Start();
+        Services.GameController.ShowMenu(false);
+        Services.ControlButton.Init();
+        Services.CancelButton.CreateCircle();
         Services.VelocityLine = new VelocityLine(targetSqr);
-        taskManager.Do(Services.ControllerButton.boundCircle.GrowUp);
+        taskManager.Do(Services.ControlButton.boundCircle.GrowUp);
         _firstForceReminder = new WaitAndPrint(_tmp, cfg1.waitTime, cfg1.firstForceReminder);
         taskManager.Do(_firstForceReminder);
     }
 
-    public void OnLoseLife(AGPEvent e)
+    private void OnHurt(AGPEvent e)
     {
         _failTimes++;
+        ShowHint(_failTimes); // Show different hints based on player fail times
+    }
 
-        switch (_failTimes)
+    private void ShowHint(int failTimes)
+    {
+        switch (failTimes)
         {
             case 3:
                 taskManager.Do(_printTasks[0]);
                 break;
+            
             case 6:
                 taskManager.Do(_printTasks[1]);
                 _printTasks[0].SetStatus(Task.TaskStatus.Success);
+                
+                // Highlight the velocity line
                 float timer = 0f;
-                var shine = new DelegateTask(() =>
-                {
-                    Services.VelocityLine.MultiplyWidth(2.5f);
-                }, () =>
+                var shine = new DelegateTask(() => { Services.VelocityLine.MultiplyWidth(2.5f); }, () =>
                 {
                     timer += Time.deltaTime;
                     Services.VelocityLine.SetColor(Color.Lerp(Services.GameCfg.velocityLineHighlightColor,
@@ -77,25 +76,25 @@ public class LevelManager1 : LevelManager
                         Services.VelocityLine.MultiplyWidth(0.4f);
                         return true;
                     }
-
                     return false;
                 });
                 taskManager.Do(shine);
                 break;
+            
             case 9:
                 taskManager.Do(_printTasks[2]);
                 _printTasks[1].SetStatus(Task.TaskStatus.Success);
                 break;
         }
     }
-    
-    public override void OnSuccess(AGPEvent e)
+
+    protected override void OnSuccess(AGPEvent e)
     {
         base.OnSuccess(e);
-        Services.EventManager.Unregister<LoseLife>(OnLoseLife);
+        Services.EventManager.Unregister<Hurt>(OnHurt);
     }
 
-    private void OnFirstForce(AGPEvent e)
+    private void OnFirstForce(AGPEvent e) // Wait and show the cancel button
     {
         Services.EventManager.Unregister<FirstForce>(OnFirstForce);
         _firstForceReminder.SetStatus(Task.TaskStatus.Success);
@@ -109,15 +108,18 @@ public class LevelManager1 : LevelManager
         });
         wait.Then(showCancelButton);
         taskManager.Do(wait);
+        
         _gateCollider.isTrigger = true;
     }
 
-    private void OnFirstCancel(AGPEvent e)
+    private void OnFirstCancel(AGPEvent e) // Respond to the cancel action
     {
         Services.EventManager.Unregister<FirstCancel>(OnFirstCancel);
         var congrats = new PrintAndWait(_tmp, cfg1.duration, cfg1.whenFirstCancel);
         taskManager.Do(congrats);
     }
 }
+
+public class Hurt : AGPEvent{} // A failed attempt to pass the gate
     
 

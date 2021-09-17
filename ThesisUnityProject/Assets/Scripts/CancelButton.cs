@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Vectrosity;
 using Object = UnityEngine.Object;
-using Random = UnityEngine.Random;
 
 public class CancelButton
 {
     private float _boundCircleRadius;
     private VectorLine _circleLine;
-    public bool Respond = true;
     public BoundCircle boundCircle;
     private GameObject _gameObject;
 
@@ -21,7 +17,7 @@ public class CancelButton
         _boundCircleRadius = gameObject.GetComponent<CircleCollider2D>().radius;
     }
 
-    public void Start()
+    public void CreateCircle() // Create the button circle but not draw it yet
     {
         boundCircle = new BoundCircle(_boundCircleRadius, _gameObject.transform);
     }
@@ -30,9 +26,9 @@ public class CancelButton
 public class GravityButton
 {
     public BoundCircle boundCircle;
-    private GameObject _triangle;
+    private readonly GameObject _triangle;
     private List<Rigidbody2D> _rbs;
-    private float _boundCircleRadius;
+    private readonly float _boundCircleRadius;
     private List<Rigidbody2D> _allRbs, _activeRbs;
     public bool GravityOn { get; private set; }
 
@@ -48,15 +44,8 @@ public class GravityButton
         boundCircle = new BoundCircle(_boundCircleRadius, _triangle.transform);
         foreach (var rb in _allRbs)
         {
-            if (!rb.CompareTag("TargetSquare"))
-            {
-                if (rb.gameObject.GetComponent<SpriteRenderer>())
-                    new Gravity(rb.gameObject,
-                        rb.gameObject.GetComponent<SpriteRenderer>().color + new Color(0.2f, 0.2f, 0.2f, 1f));
-
-                if (rb.CompareTag("Comet"))
-                    rb.AddTorque(Random.Range(-0.3f, 0.3f));
-            }
+            if (rb.gameObject.GetComponent<SpriteRenderer>())
+                new Gravity(rb.gameObject, rb.gameObject.GetComponent<SpriteRenderer>().color + new Color(0.2f, 0.2f, 0.2f, 1f));
         }
     }
 
@@ -81,6 +70,7 @@ public class GravityButton
         _allRbs = Object.FindObjectsOfType<Rigidbody2D>().ToList();
         _activeRbs = Object.FindObjectsOfType<Rigidbody2D>().ToList();
     }
+    
     private bool _isInCameraView(Vector2 position)
     {
         if (position.x > Services.CameraController.viewMargin.right) return false;
@@ -90,14 +80,15 @@ public class GravityButton
         return true;
     }
 
-    public void Update()
+    public void UpdateObjectsAndGravity()
     {
-        UpdateRbs();
+        UpdateObjects();
         UpdateGravity();
     }
-
-    private void UpdateRbs()
+    
+    private void UpdateObjects()
     {
+        // If the game object is in the camera view, activate it; else deactivate it.
         foreach (var rb in _allRbs)
         {
             if (_isInCameraView(rb.position))
@@ -106,20 +97,19 @@ public class GravityButton
                 {
                     rb.gameObject.SetActive(true);
                     _activeRbs.Add(rb);
-                    if(rb.CompareTag("Comet"))
-                        rb.AddTorque(Random.Range(-0.3f, 0.3f));
                 }
             }
             else
             {
                 if (rb.gameObject.activeSelf)
                 {
-                    rb.gameObject.SetActive(false);
                     _activeRbs.Remove(rb);
+                    rb.gameObject.SetActive(false);
                 }
             }
         }
     }
+    
     private void UpdateGravity()
     {
         for (int i = 0; i < _activeRbs.Count; i++)

@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -41,16 +40,16 @@ public static class Services
         set { _gameController = value; }
     }
 
-    private static ControllerButton _controllerButton;
+    private static ControlButton _controlButton;
 
-    public static ControllerButton ControllerButton
+    public static ControlButton ControlButton
     {
         get
         {
-            Debug.Assert(_controllerButton != null);
-            return _controllerButton;
+            Debug.Assert(_controlButton != null);
+            return _controlButton;
         }
-        set { _controllerButton = value; }
+        set { _controlButton = value; }
     }
 
     private static TargetSquare _targetSquare;
@@ -124,18 +123,6 @@ public static class Services
         set => _gameCfg = value;
     }
 
-    private static LivesBar _livesBar;
-
-    public static LivesBar LivesBar
-    {
-        get
-        {
-            Debug.Assert(_livesBar != null);
-            return _livesBar;
-        }
-        set => _livesBar = value;
-    }
-    
     private static List<Force> _forces = new List<Force>();
 
     public static List<Force> Forces

@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
-
 
 public class GameController : MonoBehaviour
 {
     public GameObject reload, next, prev;
-    public bool isSub = true;
     private void Awake()
     {
         var gameControllers = GameObject.FindGameObjectsWithTag("GameController");
@@ -20,7 +14,6 @@ public class GameController : MonoBehaviour
         }
         
         DontDestroyOnLoad(gameObject);
-        isSub = false;
         Services.GameController = this;
         transform.tag = "GameController";
     }
@@ -45,7 +38,7 @@ public class GameController : MonoBehaviour
         SceneManager.LoadScene(currentIndex);
     }
     
-    public void ShowButtons(bool isShow)
+    public void ShowMenu(bool isShow)
     {
         reload.SetActive(isShow);
         next.SetActive(isShow);

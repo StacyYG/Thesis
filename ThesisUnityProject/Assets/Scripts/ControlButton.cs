@@ -1,36 +1,33 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Vectrosity;
 
-public class ControllerButton
+public class ControlButton
 {
-    private VectorLine _currentLine, _netForceLine, _previousNetForceLine, _circleLine;
+    private VectorLine _currentLine, _netForceLine, _previousNetForceLine;
     private Vector2 _currentForce, _sum, _netForce, _myWorldPosition;
     private const float MaxForceSize = 1.5f;
-    public bool respond = true;
     public Vector2 PlayerForce => 1f / _vectorMultiplier * _netForce;
     private readonly Transform _transform;
     public BoundCircle boundCircle;
     private GameObject _gameObject;
     private readonly float _vectorMultiplier;
-    public ControllerButton(GameObject gameObject)
+    
+    public ControlButton(GameObject gameObject)
     {
         _gameObject = gameObject;
         _transform = gameObject.transform;
         gameObject.GetComponent<CircleCollider2D>().radius = MaxForceSize;
         _vectorMultiplier = Services.GameCfg.vectorMultiplier;
     }
-
-    // Start is called before the first frame update
-    public void Start()
+    
+    public void Init()
     {
-        boundCircle = new BoundCircle(MaxForceSize, _gameObject.transform);
         SetUpVectorLines();
+        boundCircle = new BoundCircle(MaxForceSize, _gameObject.transform);
     }
 
-    private void SetUpVectorLines()
+    private void SetUpVectorLines() // Initialize for vector line utility
     {
         var realLineWidth = Services.GameCfg.forceLineWidth * Screen.height / 1080f;
         _netForceLine = new VectorLine("currentNetForce", new List<Vector3> {Vector2.zero, Vector2.zero}, realLineWidth);
@@ -50,41 +47,36 @@ public class ControllerButton
         _previousNetForceLine.textureScale = _currentLine.textureScale = 1.0f;
     }
 
-    public void UpdateCurrentPlayerForce(Vector2 mouseWorldPos)
+    public void UpdatePlayerForce(Vector2 mouseWorldPos) // Ready the vector lines in background but not draw it yet
     {
-        if(!respond) return;
-        _currentForce =
-            Vector2.ClampMagnitude(mouseWorldPos - (Vector2) _transform.position,
-                MaxForceSize);
+        _currentForce = Vector2.ClampMagnitude(mouseWorldPos - (Vector2) _transform.position, MaxForceSize);
         _currentLine.points3[0] = _currentForce;
         _netForce = _sum + _currentForce;
         _netForceLine.points3[0] = _netForce;
     }
 
-    public void LateUpdate()
+    public void DrawForceLines() // Draw the vector lines in late update
     {
         _previousNetForceLine.Draw();
         _currentLine.Draw();
         _netForceLine.Draw();
     }
     
-    public void OnMouseOrTouchDown()
+    public void OnMouseOrTouchDown() // Show current line and previous net force line when player starts touching
     {
-        if (!respond) return;
         _currentLine.active = true;
         _previousNetForceLine.active = true;
     }
 
-    public void OnMouseOrTouchUp()
+    public void OnMouseOrTouchUp() // Only show the net force line when player is not touching
     {
-        if(!respond) return;
-        _sum = _netForce;
+        _sum = _netForce; // update the sum of forces
         _currentLine.active = false;
         _previousNetForceLine.active = false;
         _previousNetForceLine.points3[0] = _sum;
     }
 
-    public void ResetPlayerForce()
+    public void ResetPlayerForce() // Set player force to zero and draw
     {
         _sum = _netForce = _currentForce = Vector2.zero;
         _currentLine.points3[0] = _netForceLine.points3[0] = _previousNetForceLine.points3[0] = Vector2.zero;
@@ -94,7 +86,7 @@ public class ControllerButton
     }
 }
 
-public static class Arrow
+public static class Arrow // Set up the Arrow looks in vector line
 {
     private static bool _isSet;
     public static void SetUp()

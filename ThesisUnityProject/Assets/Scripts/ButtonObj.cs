@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ButtonObj : MonoBehaviour
 {
@@ -16,7 +13,6 @@ public class ButtonObj : MonoBehaviour
     private bool _isTired;
     private float _tiredTimer;
 
-    // Start is called before the first frame update
     void Start()
     {
         _sr = GetComponent<SpriteRenderer>();

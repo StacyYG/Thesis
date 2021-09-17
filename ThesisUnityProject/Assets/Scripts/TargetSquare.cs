@@ -1,23 +1,17 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using Vectrosity;
 
 public class TargetSquare : MonoBehaviour
 {
-    private Rigidbody2D _rb;
     private SpriteRenderer _sr;
-    private Dictionary<Collider2D, NormalForce> _normalForces;
-    private Dictionary<Collider2D, Friction> _frictions;
-    public float recoverTime;
+    private Dictionary<Collider2D, NormalForce> _normalForces; // collider of the object contacting the target square -- the normal force
+    private Dictionary<Collider2D, Friction> _frictions; // collider of the object contacting the target square -- the friction force
+    public float recoverTime; // length of time for the target square to recover from the hurt state
     public bool isHurt, showNormalForce = true, showFriction = true;
     private float _hurtTimer;
-
-    // Start is called before the first frame update
+    
     void Start()
     {
-        _rb = GetComponent<Rigidbody2D>();
         _sr = GetComponent<SpriteRenderer>();
         _normalForces = new Dictionary<Collider2D, NormalForce>();
         _frictions = new Dictionary<Collider2D, Friction>();
@@ -26,13 +20,14 @@ public class TargetSquare : MonoBehaviour
 
     private void OnDestroy()
     {
+        // Clean out the vector lines
         foreach (var force in Services.Forces)
             force.DestroyLine();
     }
 
     public void Update()
     {
-        if (isHurt)
+        if (isHurt) // Recover from the hurt state
         {
             _hurtTimer += Time.deltaTime;
             _sr.color = Color.Lerp(Services.GameCfg.hurtColor, Services.GameCfg.liveColor, _hurtTimer / recoverTime);
@@ -46,8 +41,9 @@ public class TargetSquare : MonoBehaviour
     
     private void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.gameObject.CompareTag("BarrierObject"))
+        if (other.gameObject.CompareTag("BarrierObject")) // A BarrierObject visualizes normal force and friction force when contacted.
         {
+            // Register the normal force and the friction force when first contacting with the object
             if (showNormalForce)
             {
                 if (!_normalForces.ContainsKey(other.collider))
@@ -60,13 +56,6 @@ public class TargetSquare : MonoBehaviour
                     _frictions.Add(other.collider, new Friction(gameObject, other, _frictions.Count));
             }
         }
-
-        if (other.gameObject.CompareTag("HazardObject"))
-        {
-            if(isHurt) return;
-            Services.EventManager.Fire(new LoseLife());
-            Destroy(other.gameObject);
-        }
         
         if (other.gameObject.CompareTag("Goal"))
             Services.EventManager.Fire(new Success());
@@ -74,7 +63,7 @@ public class TargetSquare : MonoBehaviour
     
     private void OnCollisionStay2D(Collision2D other)
     {
-        if (other.gameObject.CompareTag("BarrierObject"))
+        if (other.gameObject.CompareTag("BarrierObject")) // Update all the registered normal forces and friction forces when staying contacting with the object
         {
             if (showNormalForce)
             {
@@ -94,7 +83,7 @@ public class TargetSquare : MonoBehaviour
 
     private void OnCollisionExit2D(Collision2D other)
     {
-        if (other.gameObject.CompareTag("BarrierObject"))
+        if (other.gameObject.CompareTag("BarrierObject")) // Reset all the registered normal forces and friction forces when leaving the object
         {
             if (showNormalForce)
             {
@@ -113,4 +102,4 @@ public class TargetSquare : MonoBehaviour
     }
 }
 
-public class Success : AGPEvent{}
+public class Success : AGPEvent{} // When player hits the goal

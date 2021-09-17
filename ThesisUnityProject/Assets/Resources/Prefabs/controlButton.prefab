@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 1768096542088210976}
   - component: {fileID: 134769820}
   m_Layer: 9
-  m_Name: controllerButton
-  m_TagString: ControllerSquare
+  m_Name: controlButton
+  m_TagString: ControlButton
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

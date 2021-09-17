@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 //belongs with the noise library
 public delegate float NoiseMethod(Vector3 point, float frequency);

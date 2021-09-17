@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ControlMonitor : MonoBehaviour
 {
@@ -15,8 +12,7 @@ public class ControlMonitor : MonoBehaviour
 
     private void OnMouseDrag()
     {
-        if (!Services.ControllerButton.respond) return;
-        if (Services.ControllerButton.PlayerForce.magnitude > _detectThreshold)
+        if (Services.ControlButton.PlayerForce.magnitude > _detectThreshold)
         {
             if (_clickTimes == 0 && !_firstForceFired)
             {
@@ -35,7 +31,6 @@ public class ControlMonitor : MonoBehaviour
 
     private void OnMouseUp()
     {
-        if (!Services.ControllerButton.respond) return;
         if(_firstForceFired) 
             _clickTimes++;
     }

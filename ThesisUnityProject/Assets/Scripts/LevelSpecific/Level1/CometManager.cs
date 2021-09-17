@@ -1,11 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class CometManager : MonoBehaviour
 {
     public GameObject comet;
-    public static ObjectPool objectPool;
+    private static ObjectPool _objectPool;
     public Vector2 spawnDistance;
     public Vector2 spawnMargin;
     public int initialPoolNumber;
@@ -13,12 +12,11 @@ public class CometManager : MonoBehaviour
     private int _columnNum, _rowNum;
     private Vector2[,] _spawnPositions;
     public float averageSpeed, speedDeviation;
-
-    // Start is called before the first frame update
+    
     void Start()
     {
-        objectPool = new ObjectPool(this, initialPoolNumber);
-        objectPool.Add(comet);
+        _objectPool = new ObjectPool(this, initialPoolNumber);
+        _objectPool.Add(comet);
         _width = spawnMargin.x * 2f;
         _height = spawnMargin.y * 2f;
         _columnNum = (int) (_width / spawnDistance.x);
@@ -27,8 +25,7 @@ public class CometManager : MonoBehaviour
         _spawnInterval = spawnDistance.x / averageSpeed;
         SetPosAndSpawn();
     }
-
-    // Update is called once per frame
+    
     void Update()
     {
         _spawnTimer += Time.deltaTime;
@@ -37,7 +34,7 @@ public class CometManager : MonoBehaviour
             _spawnTimer = 0f;
             for (int i = 0; i < _rowNum; i++)
             {
-                var obj = objectPool.Spawn(_spawnPositions[0, i]);
+                var obj = _objectPool.Spawn(_spawnPositions[0, i]);
                 obj.GetComponent<Rigidbody2D>().velocity =
                     new Vector2(Random.Range(averageSpeed - speedDeviation, averageSpeed + speedDeviation), 0f);
             }
@@ -55,7 +52,7 @@ public class CometManager : MonoBehaviour
                                             -spawnMargin.x + (i + 0.5f) * spawnDistance.x,
                                             -spawnMargin.y + (j + 0.5f) * spawnDistance.y) +
                                         0.5f * Random.insideUnitCircle;
-                var spawnedObj = objectPool.Spawn(_spawnPositions[i, j]);
+                var spawnedObj = _objectPool.Spawn(_spawnPositions[i, j]);
                 spawnedObj.GetComponent<Rigidbody2D>().velocity =
                     new Vector2(Random.Range(averageSpeed - speedDeviation, averageSpeed + speedDeviation), 0f);
             }

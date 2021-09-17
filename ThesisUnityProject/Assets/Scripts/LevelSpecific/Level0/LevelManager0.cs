@@ -9,7 +9,7 @@ public class LevelManager0 : LevelManager
     private Instructions0 _instructions0;
     private GameObject _chaseItemObj;
     private List<Task> _initialInstructions;
-    private Task _secondForceReminder, _whenFirstForce, _checkDistance;
+    private Task _secondForceReminder;
     private LevelManager _currentLevelManager;
 
     public override void Awake()
@@ -22,8 +22,6 @@ public class LevelManager0 : LevelManager
     {
         Services.CameraController.isFollowing = false;
         ctrlButton.SetActive(false);
-        cxlButton.SetActive(false);
-        Services.CancelButton.Respond = false;
         _chaseItemObj = GameObject.FindGameObjectWithTag("ChaseItem");
         _chaseItemObj.SetActive(false);
         _tmp = GetComponent<TextMeshPro>();
@@ -31,136 +29,116 @@ public class LevelManager0 : LevelManager
         flagObj.SetActive(false);
     }
     
-    // Start is called before the first frame update
     public override void Start()
     {
-        Services.GameController.ShowButtons(false);
-        Services.ControllerButton.Start();
-        Services.CancelButton.Start();
+        Services.GameController.ShowMenu(false);
+        Services.ControlButton.Init();
         Services.EventManager.Register<FirstForce>(OnFirstForce);
         Services.EventManager.Register<SecondForce>(OnSecondForce);
         Services.VelocityLine = new VelocityLine(targetSqr);
-        _initialInstructions = new List<Task>();
         targetSqr.GetComponent<Path>().SetUpNewPath();
-        for (int i = 0; i < _instructions0.InitialInstructions.Count; i++)
+        
+        targetRb.velocity = cfg0.v0;
+        
+        ShowInitialInstructions();
+        
+        ShowButton();
+    }
+
+    private void ShowInitialInstructions()
+    {
+        _initialInstructions = new List<Task>();
+        for (int i = 0; i < _instructions0.initialInstructions.Count; i++)
         {
-            _initialInstructions.Add(new WaitAndPrint(_tmp, _instructions0.InitialInstructions[i].startTime,
-                _instructions0.InitialInstructions[i].content));
+            _initialInstructions.Add(new WaitAndPrint(_tmp, _instructions0.initialInstructions[i].startTime,
+                _instructions0.initialInstructions[i].content));
         }
 
         for (int i = 0; i < _initialInstructions.Count - 1; i++)
         {
             _initialInstructions[i].Then(_initialInstructions[i + 1]);
         }
+
         taskManager.Do(_initialInstructions[0]);
-        
-        var tgtSqrTime = 0f;
-        var showTgtSqr = new DelegateTask(() => tgtSqrTime = 0f, () =>
+    }
+    
+    private void ShowButton()
+    {
+        var wait = new WaitTask(cfg0.showCtrlSqrTime);
+        var showButton = new ActionTask(() =>
         {
-            tgtSqrTime += Time.deltaTime;
-            if (tgtSqrTime > cfg0.showTargetSqrTime)
-            {
-                targetRb.velocity = cfg0.v0;
-                return true;
-            }
-
-            return false;
+            ctrlButton.SetActive(true);
+            taskManager.Do(Services.ControlButton.boundCircle.GrowUp);
         });
-        taskManager.Do(showTgtSqr);
-
-        var ctrlSqrTime = 0f;
-        var showCtrlSqr = new DelegateTask(() => ctrlSqrTime = 0f, () =>
-        {
-            ctrlSqrTime += Time.deltaTime;
-            if (ctrlSqrTime > cfg0.showCtrlSqrTime)
-            {
-                ctrlButton.SetActive(true);
-                taskManager.Do(Services.ControllerButton.boundCircle.GrowUp);
-                return true;
-            }
-
-            return false;
-        });
-        taskManager.Do(showCtrlSqr);
+        wait.Then(showButton);
+        taskManager.Do(wait);
     }
 
-    private void OnFirstForce(AGPEvent e)
+    private void OnFirstForce(AGPEvent e) // Instructions when player adds the first force
     {
         Services.EventManager.Unregister<FirstForce>(OnFirstForce);
         foreach (var task in _initialInstructions)
             task.SetStatus(Task.TaskStatus.Success);
-        
-        _whenFirstForce = new PrintAndWait(_tmp, 2f, cfg0.whenFirstForce);
-        taskManager.Do(_whenFirstForce);
 
-        _secondForceReminder = new WaitAndPrint(_tmp, cfg0.secondForceRemindTime, cfg0.secondForceReminder);
-        taskManager.Do(_secondForceReminder);
+        var print1 = new ActionTask(() => { _tmp.text = cfg0.whenFirstForce; });
+        var wait1 = new WaitTask(2f);
+        var clear = new ActionTask(() => { _tmp.text = "";});
+        var wait2 = new WaitTask(cfg0.secondForceRemindTime);
+        var print2 = new ActionTask(() => { _tmp.text = cfg0.secondForceReminder;});
+        _secondForceReminder = print2;
+        
+        print1.Then(wait1).Then(clear).Then(wait2).Then(print2);
+
+        taskManager.Do(print1);
     }
     
-    private void OnSecondForce(AGPEvent e)
+    private void OnSecondForce(AGPEvent e) // Instructions when player adds the second force
     {
-        Services.EventManager.Unregister<SecondForce>(OnSecondForce);
-        _whenFirstForce.SetStatus(Task.TaskStatus.Success);
-        _secondForceReminder.SetStatus(Task.TaskStatus.Success);
-        var timeElapsed = 0f;
-        var cameraTransform = Services.MainCamera.transform;
-        var shade = Instantiate(gameCfg.shade,
-            new Vector3(cameraTransform.position.x, cameraTransform.position.y, 0f),
-            Quaternion.identity, cameraTransform);
-        _tmp.text = cfg0.whenSecondForce;
-        Services.VelocityLine.Hide(true);
-        var whenSecondForce = new DelegateTask(() => {}, () =>
+        taskManager.ClearTasks();
+        var shade = Instantiate(gameCfg.shade);
+        var instruction = new ActionTask(() =>
         {
-            timeElapsed += Time.deltaTime;
-            if (timeElapsed > cfg0.secondForceInstructionDuration)
-            {
-                Destroy(shade);
-                Services.VelocityLine.Hide(false);
-                _tmp.text = cfg0.chaseExplanation;
-                ShowChaseItem();
-                return true;
-            }
-
-            return false;
+            Services.EventManager.Unregister<SecondForce>(OnSecondForce);
+            _tmp.text = cfg0.whenSecondForce;
+            Services.VelocityLine.Hide(true);
         });
-        taskManager.Do(whenSecondForce);
-    }
 
+        var wait = new WaitTask(cfg0.secondForceInstructionDuration);
+
+        var resume = new ActionTask(() =>
+        {
+            Destroy(shade);
+            Services.VelocityLine.Hide(false);
+            _tmp.text = cfg0.chaseExplanation;
+            ShowChaseItem();
+        });
+
+        instruction.Then(wait).Then(resume);
+        taskManager.Do(instruction);
+    }
+    
     private void ShowChaseItem()
     {
         _chaseItemObj.SetActive(true);
         Services.EventManager.Register<ShowGoal>(OnShowGoal);
     }
 
-    private void OnShowGoal(AGPEvent e)
+    private void OnShowGoal(AGPEvent e) // Show the flag when the chased item reach the last task position
     {
         flagObj.transform.position = _chaseItemObj.transform.position;
         flagObj.SetActive(true);
         _tmp.text = cfg0.goalExplanation;
         Services.EventManager.Register<Success>(OnSuccess);
         Services.EventManager.Unregister<ShowGoal>(OnShowGoal);
-        _checkDistance = new DelegateTask(() => {}, () =>
-        {
-            if (Vector2.Distance(targetSqr.transform.position, flagObj.transform.position) > cfg0.failThreshold)
-            {
-                _chaseItemObj.GetComponent<ChaseItem>().ResetPosition();
-                ShowChaseItem();
-                flagObj.SetActive(false);
-                _tmp.text = cfg0.lost;
-                return true;
-            }
-
-            return false;
-        });
-        taskManager.Do(_checkDistance);
     }
 
-    public override void OnSuccess(AGPEvent e)
+    protected override void OnSuccess(AGPEvent e)
     {
         base.OnSuccess(e);
-        var congrats = new PrintAndWait(_tmp, Services.GameCfg.afterSuccessWaitTime, Services.GameCfg.whenSuccess);
+        var congrats = new ActionTask(() => {_tmp.text = Services.GameCfg.whenSuccess;});
+        var wait = new WaitTask(Services.GameCfg.afterSuccessWaitTime);
+        congrats.Then(wait);
         taskManager.Do(congrats);
-        _checkDistance.SetStatus(Task.TaskStatus.Success);
     }
 }
 

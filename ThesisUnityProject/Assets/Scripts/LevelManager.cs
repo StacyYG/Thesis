@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
     public GameCfg gameCfg;
     protected Rigidbody2D targetRb;
-    protected GameObject targetSqr, ctrlButton, cxlButton, flagObj;
+    protected GameObject targetSqr, ctrlButton, cxlButton, gravityButton, flagObj;
     protected TaskManager taskManager;
+    public bool _useCxlButton, _useGravityButton;
 
     public virtual void Awake()
     {
@@ -18,12 +17,26 @@ public class LevelManager : MonoBehaviour
         Services.Input = new InputManager();
         taskManager = new TaskManager();
         
-        ctrlButton = GameObject.FindGameObjectWithTag("ControllerSquare");
-        Services.ControllerButton = new ControllerButton(ctrlButton);
+        ctrlButton = GameObject.FindGameObjectWithTag("ControlButton");
+        if (ctrlButton != null)
+        {
+            Services.ControlButton = new ControlButton(ctrlButton);
+        }
 
         cxlButton = GameObject.FindGameObjectWithTag("CancelButton");
-        Services.CancelButton = new CancelButton(cxlButton);
-        
+        if (cxlButton != null)
+        {
+            _useCxlButton = true;
+            Services.CancelButton = new CancelButton(cxlButton);
+        }
+
+        gravityButton = GameObject.FindGameObjectWithTag("GravityButton");
+        if (gravityButton != null)
+        {
+            _useGravityButton = true;
+            Services.GravityButton = new GravityButton(gravityButton);
+        }
+
         targetSqr = GameObject.FindGameObjectWithTag("TargetSquare");
         Services.TargetSquare = targetSqr.GetComponent<TargetSquare>();
         targetRb = targetSqr.GetComponent<Rigidbody2D>();
@@ -34,75 +47,127 @@ public class LevelManager : MonoBehaviour
         Services.EventManager = new EventManager();
         Services.EventManager.Register<Success>(OnSuccess);
 
-        var speedWarning = GameObject.FindGameObjectWithTag("SpeedWarning");
-        speedWarning.SetActive(false);
-        
         Services.Forces = new List<Force>();
     }
     
     public virtual void Start()
     {
-        Services.GameController.ShowButtons(false);
-        Services.ControllerButton.Start();
-        Services.CancelButton.Start();
+        Services.GameController.ShowMenu(false);
+        Services.ControlButton.Init();
+        if (_useCxlButton)
+        {
+            Services.CancelButton.CreateCircle();
+        }
+
+        if (_useGravityButton)
+        {
+            Services.GravityButton.Start();
+            taskManager.Do(Services.GravityButton.boundCircle.GrowUp);
+        }
+        
         Services.VelocityLine = new VelocityLine(targetSqr);
-        taskManager.Do(Services.ControllerButton.boundCircle.GrowUp);
+        taskManager.Do(Services.ControlButton.boundCircle.GrowUp);
         taskManager.Do(Services.CancelButton.boundCircle.GrowUp);
-        if (targetRb.gravityScale > Mathf.Epsilon)
-            new Gravity(targetSqr, Services.GameCfg.gravityColor);
     }
 
-    public virtual void FixedUpdate()
+    public virtual void FixedUpdate() // Physics calculations
     {
-        if(ctrlButton.activeSelf && Services.ControllerButton.respond) 
-            targetRb.AddForce(Services.ControllerButton.PlayerForce);
-        foreach (var force in Services.Forces)
-            force.Update();
+        // Apply the PlayerForce to the target square
+        if(ctrlButton.activeSelf) 
+            targetRb.AddForce(Services.ControlButton.PlayerForce);
+
+        // Update the gravity of the objects within the camera view
+        if (_useGravityButton)
+        {
+            Services.GravityButton.UpdateObjectsAndGravity();
+        }      
+        
+        // Move the camera in FixedUpdate to avoid the lagging
         Services.CameraController.Update();
     }
 
     public virtual void Update()
     {
+        // Handle inputs
         Services.Input.Update();
+        if (_useCxlButton)
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                Services.Input.PressCancelButton();
+            }
+        }
+        if (_useGravityButton)
+        {
+            if (Input.GetKeyDown(KeyCode.G))
+            {
+                Services.GravityButton.GravitySwitch();
+            }
+        }
+        
         taskManager.Update();
+        
+        // Update PlayerForce and Gravity vector line in the background
+        foreach (var force in Services.Forces)
+            force.Update();
     }
 
     public virtual void LateUpdate()
     {
-        if(ctrlButton.activeSelf && Services.ControllerButton.respond) 
-            Services.ControllerButton.LateUpdate();
+        // Draw the vector lines for all forces
+        if(ctrlButton.activeSelf) 
+            Services.ControlButton.DrawForceLines();
         foreach (var force in Services.Forces)
             force.Draw();
-        Services.VelocityLine.LateUpdate();
+        Services.VelocityLine.Draw();
     }
 
-    public virtual void OnSuccess(AGPEvent e)
+    protected virtual void OnSuccess(AGPEvent e)
     {
+        // Play particles
         Services.EventManager.Unregister<Success>(OnSuccess);
         var p = Instantiate(Services.GameCfg.successParticles, targetSqr.transform.position, Quaternion.identity);
-        var waitToShowButton = new WaitTask(Services.GameCfg.afterSuccessWaitTime);
+        
+        // Transit to menu
+        var wait = new WaitTask(Services.GameCfg.afterSuccessWaitTime);
         var showButton = new ActionTask(() =>
         {
+            // Show the menu buttons
             var cameraTransform = Services.MainCamera.transform;
-            var shade = Instantiate(gameCfg.shade,
-                new Vector3(cameraTransform.position.x, cameraTransform.position.y, 0f),
+            Instantiate(gameCfg.shade, new Vector3(cameraTransform.position.x, cameraTransform.position.y, 0f),
                 Quaternion.identity, cameraTransform);
-            cxlButton.SetActive(false);
+            Services.GameController.ShowMenu(true);
+            
+            // Clear Control Button UI
+            Services.ControlButton.ResetPlayerForce();
+            Services.ControlButton.boundCircle.Clear();
             ctrlButton.SetActive(false);
-            Services.ControllerButton.respond = false;
-            Services.ControllerButton.ResetPlayerForce();
-            Services.ControllerButton.boundCircle.Clear();
-            Services.CancelButton.boundCircle.Clear();
-            Services.GameController.ShowButtons(true);
+
+            // Clear the Cancel Button UI
+            if (_useCxlButton)
+            {
+                Services.CancelButton.boundCircle.Clear();
+                cxlButton.SetActive(false);
+            }
+
+            if (_useGravityButton)
+            {
+                Services.GravityButton.boundCircle.Clear();
+                gravityButton.SetActive(false);
+            }
+            
+            // Clear the forces
             foreach (var force in Services.Forces)
-                force.HideLine(true);
-            Services.VelocityLine.Hide(true);
+                force.DestroyLine();
+            Services.Forces.Clear();
+            Services.VelocityLine.Destroy();
         });
-        waitToShowButton.Then(showButton);
-        taskManager.Do(waitToShowButton);
+        
+        wait.Then(showButton);
+        taskManager.Do(wait);
     }
 
-    private void OnDestroy()
+    protected virtual void OnDestroy()
     {
         Services.Input = null;
     }
