@@ -49,22 +49,9 @@ public class Gate : MonoBehaviour
             
             else // When the tracked item enters from outside
                 trackV.rb.velocity = -trackV.enterVelocity;
-
-            // if (trackV.enterVelocity.magnitude > Mathf.Epsilon) // When the tracked object enters from outside the gate
-            // {
-            //     trackV.transform.position = trackV.enterPosition + new Vector3(trackV.enterPosition.x - transform.position.x, 0f, 0f);
-            // }
-            // else // When the tracked object is a still object in the gate from the beginning
-            // {
-            //     trackV.rb.velocity = 30f * (trackV.enterPosition - transform.position);
-            // }
-                
-            //trackV.rb.velocity = Vector2.zero;
-            if (trackV.gameObject.CompareTag("TargetSquare"))
-            {
-                Services.TargetSquare.isHurt = true;
-            }
             
+            if (trackV.gameObject.CompareTag("TargetSquare"))
+                Services.TargetSquare.isHurt = true;
         }
     }
 
