@@ -3,7 +3,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.Serialization;
 
-[CreateAssetMenu(fileName = "Data", menuName = "ScriptableObjects/GameCfg", order = 0)]
+//[CreateAssetMenu(fileName = "Data", menuName = "ScriptableObjects/GameCfg", order = 0)]
 public class GameCfg : ScriptableObject
 {
     [Header("Target Square")] 
@@ -15,8 +15,6 @@ public class GameCfg : ScriptableObject
     public Texture2D fullLineTexture;
     [Header("Force Settings")] 
     public Color currentForceColor;
-    public Color previousNetForceColor;
-    public Color currentNetForceColor;
     public float forceLineWidth;
     public float vectorMultiplier;
     [Header("Velocity Line settings")] 

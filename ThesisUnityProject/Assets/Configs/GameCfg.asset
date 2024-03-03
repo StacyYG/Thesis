@@ -14,14 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   liveColor: {r: 1, g: 0.7921569, b: 0.16470589, a: 1}
   hurtColor: {r: 1, g: 0.41960785, b: 0.16470589, a: 1}
-  deadColor: {r: 0.26415092, g: 0.26415092, b: 0.26415092, a: 1}
   frontTexture: {fileID: 2800000, guid: 56ca900415e4d8141a295a91444e9621, type: 3}
   dashedLineTexture: {fileID: 2800000, guid: 73797c0fc945bc34ea84e438b589206f, type: 3}
   fullLineTexture: {fileID: 2800000, guid: ff85bd36fc564be4c9ee460d1897ae87, type: 3}
-  currentForceColor: {r: 0.90588236, g: 0.5254902, b: 0.62807184, a: 1}
-  previousNetForceColor: {r: 0.6037736, g: 0.6037736, b: 0.6037736, a: 1}
-  currentNetForceColor: {r: 1, g: 0.2971698, b: 0.2971698, a: 1}
-  gravityColor: {r: 0.46226418, g: 0.42127421, b: 0.31617126, a: 1}
+  currentForceColor: {r: 1, g: 0.29803923, b: 0.29803923, a: 1}
   forceLineWidth: 35
   vectorMultiplier: 0.4
   velocityLineWidth: 35
@@ -29,12 +25,8 @@ MonoBehaviour:
   velocityLineHighlightColor: {r: 1, g: 0.23137254, b: 0.7323611, a: 1}
   boundCircleColor: {r: 0.740566, g: 0.81729996, b: 1, a: 1}
   segmentsPerRadius: 20
-  startLifeNum: 3
-  lifeBox: {fileID: 6986524613125411021, guid: b951e7ae33942db45a7717e05ffcb7c7, type: 3}
-  rawLife: {fileID: 6986524613125411021, guid: 78e3efcdd506b984a935bc081153c599, type: 3}
   successParticles: {fileID: 2709907116110291074, guid: 6c69dd43126cbb4479d38f1226e08b72,
     type: 3}
   shade: {fileID: 7926771894657292510, guid: dbd5436a94812ff4ba3da69f5bbff98d, type: 3}
   whenSuccess: Good job!
-  moreLevels: 
   afterSuccessWaitTime: 2

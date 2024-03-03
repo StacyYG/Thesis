@@ -68,7 +68,7 @@ public class PlayerForce : Force
     {
         line.name = "PlayerForce";
         line.endCap = "fullArrow";
-        line.color = Services.GameCfg.currentNetForceColor;
+        line.color = Services.GameCfg.currentForceColor;
     }
     public override void Update()
     {

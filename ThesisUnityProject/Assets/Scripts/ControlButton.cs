@@ -4,10 +4,10 @@ using Vectrosity;
 
 public class ControlButton
 {
-    private VectorLine _currentLine, _netForceLine, _previousNetForceLine;
-    private Vector2 _currentForce, _sum, _netForce, _myWorldPosition;
+    private VectorLine _currentLine;
+    private Vector2 _currentForce, _myWorldPosition;
     private const float MaxForceSize = 1.5f;
-    public Vector2 PlayerForce => 1f / _vectorMultiplier * _netForce;
+    public Vector2 PlayerForce => 1f / _vectorMultiplier * _currentForce;
     private readonly Transform _transform;
     public BoundCircle boundCircle;
     private GameObject _gameObject;
@@ -30,59 +30,40 @@ public class ControlButton
     private void SetUpVectorLines() // Initialize for vector line utility
     {
         var realLineWidth = Services.GameCfg.forceLineWidth * Screen.height / 1080f;
-        _netForceLine = new VectorLine("currentNetForce", new List<Vector3> {Vector2.zero, Vector2.zero}, realLineWidth);
-        _netForceLine.color = Services.GameCfg.currentNetForceColor;
-
-        _previousNetForceLine =
-            new VectorLine("previousNetForce", new List<Vector3> {Vector2.zero, Vector2.zero}, realLineWidth);
-        _previousNetForceLine.color = Services.GameCfg.previousNetForceColor;
 
         _currentLine = new VectorLine("forceBeingDrawn", new List<Vector3> {Vector2.zero, Vector2.zero}, realLineWidth);
         _currentLine.color = Services.GameCfg.currentForceColor;
-
-        _netForceLine.drawTransform =
-            _previousNetForceLine.drawTransform = _currentLine.drawTransform = _transform;
-        _netForceLine.endCap = "fullArrow";
-        _previousNetForceLine.endCap = _currentLine.endCap = "dashedArrow";
-        _previousNetForceLine.textureScale = _currentLine.textureScale = 1.0f;
+        _currentLine.drawTransform = _transform;
+        _currentLine.endCap = "fullArrow";
     }
 
     public void UpdatePlayerForce(Vector2 mouseWorldPos) // Ready the vector lines in background but not draw it yet
     {
         _currentForce = Vector2.ClampMagnitude(mouseWorldPos - (Vector2) _transform.position, MaxForceSize);
         _currentLine.points3[0] = _currentForce;
-        _netForce = _sum + _currentForce;
-        _netForceLine.points3[0] = _netForce;
     }
 
     public void DrawForceLines() // Draw the vector lines in late update
     {
-        _previousNetForceLine.Draw();
         _currentLine.Draw();
-        _netForceLine.Draw();
     }
     
     public void OnMouseOrTouchDown() // Show current line and previous net force line when player starts touching
     {
         _currentLine.active = true;
-        _previousNetForceLine.active = true;
     }
 
     public void OnMouseOrTouchUp() // Only show the net force line when player is not touching
     {
-        _sum = _netForce; // update the sum of forces
+        ResetPlayerForce();
         _currentLine.active = false;
-        _previousNetForceLine.active = false;
-        _previousNetForceLine.points3[0] = _sum;
     }
 
     public void ResetPlayerForce() // Set player force to zero and draw
     {
-        _sum = _netForce = _currentForce = Vector2.zero;
-        _currentLine.points3[0] = _netForceLine.points3[0] = _previousNetForceLine.points3[0] = Vector2.zero;
-        _previousNetForceLine.Draw();
+        _currentForce = Vector2.zero;
+        _currentLine.points3[0] = Vector2.zero;
         _currentLine.Draw();
-        _netForceLine.Draw();
     }
 }
 
